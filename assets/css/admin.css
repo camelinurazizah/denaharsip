@@ -1,0 +1,912 @@
+/* ==========================================================================
+   SISTEM INFORMASI DENAH INTERAKTIF & TUR PANORAMA FASILITAS
+   DINAS KEARSIPAN DAN PERPUSTAKAAN KABUPATEN CIREBON
+   Style Sheet Panel Admin & Visual Hotspot Mapper (admin.css)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --admin-navy: #0f172a;
+  --admin-navy-dark: #020617;
+  --admin-blue: #0284c7;
+  --admin-blue-hover: #0369a1;
+  --admin-gold: #d97706;
+  --admin-gold-light: #f59e0b;
+  --admin-bg: #f8fafc;
+  --admin-card: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-text: #0f172a;
+  --admin-muted: #64748b;
+  --admin-danger: #ef4444;
+  --admin-success: #10b981;
+}
+
+body.admin-body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--admin-bg);
+  color: var(--admin-text);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Admin Top Bar */
+.admin-navbar {
+  background: var(--admin-navy);
+  color: #ffffff;
+  padding: 0.75rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--admin-blue);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.admin-brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--admin-gold-light);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+.admin-brand-text h2 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-badge-role {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #ffffff;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.admin-brand-text p {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.admin-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.btn-admin-nav {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-admin-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-admin-logout {
+  background: #dc2626;
+  border-color: #b91c1c;
+}
+
+.btn-admin-logout:hover {
+  background: #b91c1c;
+}
+
+/* Admin Container & Sidebar / Tabs Layout */
+.admin-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - 65px);
+}
+
+.admin-sidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 0;
+  flex-shrink: 0;
+}
+
+.admin-menu-heading {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--admin-muted);
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  color: var(--admin-muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-nav-item:hover {
+  color: var(--admin-text);
+  background: #f1f5f9;
+}
+
+.admin-nav-item.active {
+  color: var(--admin-blue);
+  background: #f0f9ff;
+  border-left-color: var(--admin-blue);
+  font-weight: 700;
+}
+
+.admin-nav-item i {
+  font-size: 1rem;
+}
+
+/* Main Content Area */
+.admin-main {
+  flex: 1;
+  padding: 1.75rem 2rem;
+  overflow-y: auto;
+  background: #f8fafc;
+}
+
+.admin-page-header {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-page-header h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--admin-navy);
+}
+
+.admin-page-header p {
+  font-size: 0.82rem;
+  color: var(--admin-muted);
+  margin-top: 0.2rem;
+}
+
+/* Admin Tabs Content Panes */
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards & Grid Forms */
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.admin-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-card-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--admin-navy);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Form Controls */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.form-group-admin label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--admin-navy);
+}
+
+.form-group-admin input,
+.form-group-admin select,
+.form-group-admin textarea {
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--admin-text);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-group-admin input:focus,
+.form-group-admin select:focus,
+.form-group-admin textarea:focus {
+  border-color: var(--admin-blue);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.help-text {
+  font-size: 0.72rem;
+  color: var(--admin-muted);
+}
+
+/* Interactive 2D Map Coordinate Picker (SRS-FR-12) */
+.map-coordinate-picker-container,
+.map-coordinate-picker-wrapper {
+  position: relative;
+  background: #f8fafc;
+  border: 2px dashed var(--admin-border);
+  border-radius: 10px;
+  overflow: hidden;
+  min-height: 360px;
+  max-height: 440px;
+  cursor: crosshair;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.picker-stage {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  max-width: 100%;
+  max-height: 100%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  overflow: visible;
+  cursor: crosshair;
+}
+
+.picker-stage img,
+.map-coordinate-picker-wrapper img {
+  display: block;
+  max-width: 100%;
+  max-height: 390px;
+  width: auto;
+  height: auto;
+  border-radius: 6px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.map-picker-crosshair {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  display: none;
+  z-index: 25;
+}
+
+.map-picker-crosshair::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ef4444;
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.8);
+}
+
+.map-picker-crosshair::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #ef4444;
+  box-shadow: 0 0 4px rgba(239, 68, 68, 0.8);
+}
+
+.map-picker-crosshair .picker-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.9);
+}
+
+.picker-crosshair-label {
+  position: absolute;
+  left: 18px;
+  top: -11px;
+  white-space: nowrap;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.picker-hint-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* Visual Hotspot Mapper Canvas (SRS-FR-13) */
+.hotspot-mapper-canvas-box {
+  position: relative;
+  height: 440px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 2px solid var(--admin-blue);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+#admin-mapper-viewer {
+  width: 100%;
+  height: 100%;
+}
+
+.mapper-overlay-instruction {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 20;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  border-left: 4px solid var(--admin-gold);
+  pointer-events: none;
+}
+
+/* Dynamic Books Table in Admin (SRS-FR-14) */
+.admin-books-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+}
+
+.admin-books-table th {
+  background: #f8fafc;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--admin-muted);
+  text-align: left;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-books-table td {
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.admin-books-table input,
+.admin-books-table select {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.78rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+.btn-remove-row {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-remove-row:hover {
+  background: #fee2e2;
+}
+
+.btn-add-book-row {
+  background: #f0fdf4;
+  border: 1px dashed #86efac;
+  color: #166534;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-add-book-row:hover {
+  background: #dcfce7;
+}
+
+/* Submit & Reset Buttons */
+.btn-save-admin {
+  background: var(--admin-blue);
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.65rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-save-admin:hover {
+  background: var(--admin-blue-hover);
+}
+
+.btn-danger-admin {
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Tables for Data Records */
+.data-table-container {
+  overflow-x: auto;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.records-table th {
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  color: var(--admin-navy);
+  border-bottom: 2px solid var(--admin-border);
+}
+
+.records-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.records-table tr:hover {
+  background: #f8fafc;
+}
+
+.action-buttons-cell {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-table-edit {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-table-delete {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 900px) {
+  .admin-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .admin-sidebar {
+    width: 70px;
+  }
+  .admin-sidebar .admin-nav-item span,
+  .admin-menu-heading {
+    display: none;
+  }
+}
+
+
+
+/* Tombol Utama Aksi Tambah di Header Admin */
+.btn-admin-primary {
+  background: var(--admin-blue);
+  color: #ffffff !important;
+  border: 1px solid var(--admin-blue);
+  padding: 0.5rem 1.15rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-admin-primary:hover {
+  background: var(--admin-blue-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.45);
+}
+
+.btn-admin-primary:active {
+  transform: translateY(0);
+}
+
+/* Animasi Sorot Kartu Formulir Aktif */
+.admin-card-highlight {
+  animation: cardPulse 1.2s ease;
+}
+
+@keyframes cardPulse {
+  0% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.7); }
+  50% { box-shadow: 0 0 0 8px rgba(2, 132, 199, 0.3); border-color: var(--admin-blue); }
+  100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0); }
+}
+
+
+/* ==========================================================================
+   MODAL POPUP ADMIN (REGISTRASI RUANGAN & HOTSPOT)
+   ========================================================================== */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.admin-modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.admin-modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 1050px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border: 1px solid #cbd5e1;
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.admin-modal-overlay.active .admin-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.admin-modal-header {
+  padding: 1.1rem 1.5rem;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.admin-modal-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+}
+
+.admin-modal-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.admin-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  background: #f8fafc;
+}
+
+.admin-modal-footer {
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   KOMPONEN UPLOAD BERKAS GAMBAR (FILE PICKER JPG/PNG/WEBP)
+   ========================================================================== */
+.image-upload-wrapper {
+  margin-top: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-dropzone {
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 0.9rem 1.1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.dragover {
+  border-color: #0284c7;
+  background: #f0f9ff;
+  transform: translateY(-1px);
+}
+
+.upload-icon {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.upload-text {
+  font-size: 0.82rem;
+  color: #334155;
+}
+
+.upload-text strong {
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.upload-hint {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.upload-preview-card {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 0.55rem 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.upload-preview-card img {
+  width: 76px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+}
+
+.upload-preview-card.pano-preview img {
+  width: 110px;
+  height: 48px;
+}
+
+.upload-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  overflow: hidden;
+}
+
+.upload-file-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-change-file {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.15s ease;
+}
+
+.btn-change-file:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.upload-url-toggle {
+  margin-top: 0.4rem;
+}
+
+.btn-toggle-url {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.73rem;
+  color: #64748b;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-toggle-url:hover {
+  color: #0284c7;
+}

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Pengelola Petugas — Disarpus Kabupaten Cirebon</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo-disarpus.png">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Pannellum JS & CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Stylesheet Admin -->
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- ====================================================================
+       1. TOP NAVBAR PANEL ADMIN
+       ==================================================================== -->
+  <nav class="admin-navbar">
+    <a href="index.html" class="admin-brand" title="Kembali ke Portal Publik">
+      <img src="assets/images/logo-disarpus.png" alt="Logo Disarpus Cirebon" class="admin-brand-logo">
+      <div class="admin-brand-text">
+        <h2>
+          PANEL PETUGAS DISARPUS
+          <span class="admin-badge-role">Staff Admin</span>
+        </h2>
+        <p>Sistem Informasi Denah &amp; Tur Panorama Fasilitas Cirebon</p>
+      </div>
+    </a>
+
+    <div class="admin-nav-right">
+      <div class="admin-user-pill">
+        <span class="admin-status-dot"></span>
+        <span id="admin-logged-email">admin@disarpus.cirebonkab.go.id</span>
+      </div>
+
+      <a href="index.html" class="btn-admin-nav" title="Lihat Tampilan Pengunjung">
+        <span>👁️</span> Pratinjau Publik
+      </a>
+
+      <button type="button" class="btn-admin-nav btn-admin-logout" id="btn-admin-logout" title="Keluar">
+        <span>🚪</span> Keluar
+      </button>
+    </div>
+  </nav>
+
+  <!-- ====================================================================
+       2. CONTAINER UTAMA PANEL ADMIN (SIDEBAR & KONTEN TAB)
+       ==================================================================== -->
+  <div class="admin-container">
+
+    <!-- SIDEBAR NAVIGASI MENU -->
+    <aside class="admin-sidebar">
+      <div class="admin-menu-heading">Konfigurasi &amp; Fasilitas</div>
+      <div class="admin-nav-item active" data-tab="tab-pengaturan">
+        <i>⚙️</i> <span>Koneksi Supabase</span>
+      </div>
+      <div class="admin-nav-item" data-tab="tab-lantai">
+        <i>🗺️</i> <span>Denah &amp; Lantai</span>
+      </div>
+      <div class="admin-nav-item" data-tab="tab-ruangan">
+        <i>🏛️</i> <span>Registrasi Ruangan</span>
+      </div>
+      <div class="admin-nav-item" data-tab="tab-hotspot-mapper">
+        <i>🎯</i> <span>Visual Hotspot Mapper</span>
+      </div>
+
+      <div class="admin-menu-heading" style="margin-top: 1rem;">Basis Data &amp; Riwayat</div>
+      <div class="admin-nav-item" data-tab="tab-kelola-data">
+        <i>📋</i> <span>Kelola Data &amp; Hapus</span>
+      </div>
+    </aside>
+
+    <!-- KONTEN UTAMA TAB ADMIN -->
+    <main class="admin-main">
+
+      <!-- ================================================================
+           TAB 1: PENGATURAN KONEKSI SUPABASE
+           ================================================================ -->
+      <section class="tab-pane active" id="tab-pengaturan">
+        <div class="admin-page-header">
+          <div>
+            <h1>Konfigurasi Cloud Backend Supabase</h1>
+            <p>Hubungkan aplikasi ke proyek Supabase PostgreSQL Anda atau atur ulang data lokal contoh.</p>
+          </div>
+        </div>
+
+        <div class="admin-grid-2">
+          <form id="form-supabase-config" class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <span>☁️</span> Kredensial Supabase Project
+              </div>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="config-supabase-url">Project URL</label>
+              <input type="url" id="config-supabase-url" placeholder="https://xyzcompany.supabase.co">
+              <span class="help-text">Dapat ditemukan di Supabase Dashboard -> Settings -> API -> Project URL</span>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="config-supabase-key">Anon / Public API Key</label>
+              <input type="text" id="config-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+              <span class="help-text">Dapat ditemukan di Supabase Dashboard -> Settings -> API -> Project API Keys (anon public)</span>
+            </div>
+
+            <button type="submit" class="btn-save-admin">
+              💾 Simpan &amp; Terapkan Koneksi
+            </button>
+          </form>
+
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <span>🔄</span> Reset Seed Data Bawaan
+              </div>
+            </div>
+            <p class="help-text" style="margin-bottom: 1.25rem;">
+              Jika Anda ingin mengembalikan seluruh data ruangan, rak koleksi buku Babad Cirebon, Ruang PA, serta Restorasi Kearsipan ke kondisi awal bawaan (SRS-NFR-04), klik tombol di bawah ini:
+            </p>
+            <button type="button" class="btn-danger-admin" id="btn-reset-seed-data">
+              ⚠️ Kembalikan ke Data Awal Disarpus Cirebon
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TAB 2: MANAJEMEN DENAH & LANTAI (SRS-FR-11)
+           ================================================================ -->
+      <section class="tab-pane" id="tab-lantai">
+        <div class="admin-page-header">
+          <div>
+            <h1>Manajemen Denah &amp; Lantai</h1>
+            <p>Kelola berkas peta arsitektur 2D untuk masing-masing gedung dan lantai operasional.</p>
+          </div>
+        </div>
+
+        <div class="admin-grid-2">
+          <form id="form-floor" class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <span>🗺️</span> Informasi Denah Lantai
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group-admin">
+                <label for="floor-select-building">Gedung</label>
+                <select id="floor-select-building">
+                  <option value="Perpustakaan">Gedung Perpustakaan</option>
+                  <option value="Kearsipan">Gedung Kearsipan</option>
+                </select>
+              </div>
+              <div class="form-group-admin">
+                <label for="floor-select-number">Tingkat Lantai</label>
+                <select id="floor-select-number">
+                  <option value="1">Lantai 1</option>
+                  <option value="2">Lantai 2</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="floor-input-name">Nama / Label Denah</label>
+              <input type="text" id="floor-input-name" required>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="floor-input-desc">Ringkasan Zonasi Ruangan</label>
+              <textarea id="floor-input-desc" rows="3"></textarea>
+            </div>
+
+            <!-- Upload Citra Denah Digital 2D (SVG/PNG/JPG) -->
+            <div class="form-group-admin">
+              <label>Berkas Citra Denah Digital 2D (SVG / PNG / JPG)</label>
+              <div class="image-upload-wrapper" id="upload-wrapper-floor-map">
+                <input type="file" id="floor-file-map" accept=".svg, image/png, image/jpeg, image/webp" style="display: none;">
+                <div class="upload-dropzone" id="dropzone-floor-map">
+                  <div class="upload-icon">🗺️</div>
+                  <div class="upload-text">
+                    <strong>Klik untuk Upload Denah Digital (SVG / PNG / JPG)</strong>
+                  </div>
+                  <span class="upload-hint">Format vektor SVG atau gambar resolusi tinggi (Maks. 10 MB)</span>
+                </div>
+                <div class="upload-preview-card" id="preview-floor-map-card" style="display: none;">
+                  <img id="preview-floor-map-img" src="" alt="Pratinjau Denah Digital">
+                  <div class="upload-preview-info">
+                    <span class="upload-file-name" id="preview-floor-map-name">denah.svg</span>
+                    <button type="button" class="btn-change-file" id="btn-change-floor-map">Ganti Berkas</button>
+                  </div>
+                </div>
+                <input type="hidden" id="floor-input-map-url" required>
+                <div class="upload-url-toggle">
+                  <button type="button" class="btn-toggle-url" id="btn-toggle-url-floor-map">🔗 Atau gunakan URL / Path manual</button>
+                  <div id="url-group-floor-map" style="display: none; margin-top: 0.35rem;">
+                    <input type="text" id="floor-input-map-manual" placeholder="Contoh: assets/images/gedung-kearsipan-lantai-1.svg atau https://..." style="font-size: 0.78rem;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upload Cetak Biru Asli / Blueprint Arsitektur (JPG/PNG) -->
+            <div class="form-group-admin">
+              <label>Berkas Cetak Biru Asli / Blueprint Arsitektur (JPG / PNG)</label>
+              <div class="image-upload-wrapper" id="upload-wrapper-floor-blueprint">
+                <input type="file" id="floor-file-blueprint" accept="image/png, image/jpeg, image/webp" style="display: none;">
+                <div class="upload-dropzone" id="dropzone-floor-blueprint">
+                  <div class="upload-icon">📐</div>
+                  <div class="upload-text">
+                    <strong>Klik untuk Upload Cetak Biru Asli (JPG / PNG)</strong>
+                  </div>
+                  <span class="upload-hint">Foto / scan blueprint denah asli dari arsitek (Maks. 10 MB)</span>
+                </div>
+                <div class="upload-preview-card" id="preview-floor-blueprint-card" style="display: none;">
+                  <img id="preview-floor-blueprint-img" src="" alt="Pratinjau Cetak Biru">
+                  <div class="upload-preview-info">
+                    <span class="upload-file-name" id="preview-floor-blueprint-name">blueprint.jpg</span>
+                    <button type="button" class="btn-change-file" id="btn-change-floor-blueprint">Ganti Cetak Biru</button>
+                  </div>
+                </div>
+                <input type="hidden" id="floor-input-blueprint-url">
+                <div class="upload-url-toggle">
+                  <button type="button" class="btn-toggle-url" id="btn-toggle-url-floor-blueprint">🔗 Atau gunakan URL / Path manual</button>
+                  <div id="url-group-floor-blueprint" style="display: none; margin-top: 0.35rem;">
+                    <input type="text" id="floor-input-blueprint-manual" placeholder="Contoh: assets/images/blueprint-arsip-lt1.jpg atau https://..." style="font-size: 0.78rem;">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-save-admin">
+              💾 Simpan Pembaruan Denah
+            </button>
+          </form>
+
+          <div class="admin-card">
+            <div class="admin-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <div class="admin-card-title">
+                <span>👁️</span> Pratinjau Denah 2D
+              </div>
+              <div style="display: flex; gap: 0.4rem;">
+                <button type="button" id="btn-preview-mode-digital" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; background: #0284c7; color: #fff; border-radius: 4px; border: 1px solid #0284c7; cursor: pointer;">🗺️ Denah Digital</button>
+                <button type="button" id="btn-preview-mode-blueprint" class="btn-secondary" style="font-size: 0.75rem; padding: 0.3rem 0.6rem; background: #f8fafc; color: #475569; border-radius: 4px; border: 1px solid #cbd5e1; cursor: pointer;">📐 Cetak Biru</button>
+              </div>
+            </div>
+            <div style="height: 380px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+              <img src="" alt="Pratinjau Denah" id="floor-map-preview" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <div style="margin-top: 0.75rem; padding: 0.6rem 0.8rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; font-size: 0.8rem; color: #166534; line-height: 1.4;">
+              💡 <strong>Tips Renovasi Ruangan:</strong> Jika gedung sedang renovasi atau ada perubahan tata letak ruangan, unggah gambar denah baru di atas lalu klik Simpan. Kemudian masuk ke menu <strong>Registrasi Ruangan</strong> untuk memperbarui posisi pin titik layanan sesuai denah baru.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TAB 3: REGISTRASI RUANGAN & DAFTAR RUANGAN (SRS-FR-12)
+           ================================================================ -->
+      <section class="tab-pane" id="tab-ruangan">
+        <div class="admin-page-header">
+          <div>
+            <h1>Registrasi &amp; Pemetaan Ruangan</h1>
+            <p>Kelola data ruangan dinas, patokan orientasi fisik, dan pemetaan titik koordinat denah 2D.</p>
+          </div>
+          <button type="button" class="btn-admin-primary" id="btn-open-room-modal" title="Klik untuk mendaftarkan ruangan baru">
+            <span>➕</span> Tambah Ruangan Baru
+          </button>
+        </div>
+
+        <!-- Kartu Statistik Ruangan -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div class="admin-card" style="padding: 1rem 1.25rem; display:flex; align-items:center; gap: 1rem;">
+            <div style="width:44px; height:44px; border-radius:10px; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">🏛️</div>
+            <div>
+              <div style="font-size:0.75rem; color:var(--admin-muted); font-weight:600;">Total Ruangan Terdaftar</div>
+              <div id="stat-total-rooms" style="font-size:1.35rem; font-weight:800; color:var(--admin-navy);">8 Ruangan</div>
+            </div>
+          </div>
+          <div class="admin-card" style="padding: 1rem 1.25rem; display:flex; align-items:center; gap: 1rem;">
+            <div style="width:44px; height:44px; border-radius:10px; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">📖</div>
+            <div>
+              <div style="font-size:0.75rem; color:var(--admin-muted); font-weight:600;">Gedung Perpustakaan</div>
+              <div id="stat-perpus-rooms" style="font-size:1.35rem; font-weight:800; color:var(--admin-navy);">5 Ruangan</div>
+            </div>
+          </div>
+          <div class="admin-card" style="padding: 1rem 1.25rem; display:flex; align-items:center; gap: 1rem;">
+            <div style="width:44px; height:44px; border-radius:10px; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">📂</div>
+            <div>
+              <div style="font-size:0.75rem; color:var(--admin-muted); font-weight:600;">Gedung Kearsipan</div>
+              <div id="stat-arsip-rooms" style="font-size:1.35rem; font-weight:800; color:var(--admin-navy);">3 Ruangan</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabel Daftar Ruangan Terdaftar di Menu Registrasi -->
+        <div class="admin-card">
+          <div class="admin-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem;">
+            <div class="admin-card-title">
+              <span>📋</span> Daftar Ruangan Pelayanan &amp; Koordinat
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem;">
+              <input type="text" id="filter-room-search" placeholder="🔍 Cari nama ruangan atau layanan..." style="padding:0.45rem 0.85rem; border:1px solid #cbd5e1; border-radius:8px; font-size:0.8rem; width:280px;">
+            </div>
+          </div>
+          <div class="data-table-container">
+            <table class="records-table">
+              <thead>
+                <tr>
+                  <th style="width: 45px; text-align:center;">No</th>
+                  <th>Nama Ruangan</th>
+                  <th>Gedung &amp; Lantai</th>
+                  <th>Patokan Posisi Fisik</th>
+                  <th>Koordinat Denah</th>
+                  <th style="width: 140px; text-align:center;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="table-tab-rooms-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TAB 4: VISUAL HOTSPOT MAPPER & INPUT BUKU (SRS-FR-13 & SRS-FR-14)
+           ================================================================ -->
+      <section class="tab-pane" id="tab-hotspot-mapper">
+        <div class="admin-page-header">
+          <div>
+            <h1>Visual Hotspot Mapper &amp; Katalog Rak</h1>
+            <p>Klik langsung pada lemari rak di foto panorama 360° untuk menangkap sudut Pitch &amp; Yaw otomatis.</p>
+          </div>
+          <button type="button" class="btn-admin-primary" id="btn-rack-reset" style="color:var(--admin-navy);border-color:#cbd5e1;">
+            + Rak Baru
+          </button>
+        </div>
+
+        <!-- Pemilih Ruangan Kerja -->
+        <div class="admin-card" style="padding: 1rem 1.5rem; margin-bottom: 1rem;">
+          <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <label style="font-size:0.85rem;font-weight:700;">Pilih Ruangan Kerja:</label>
+            <select id="mapper-select-room" style="min-width:320px;padding:0.5rem;border-radius:8px;border:1px solid #cbd5e1;"></select>
+            <span class="help-text">Panorama ruangan terpilih akan dimuat pada kanvas editor interaktif di bawah.</span>
+          </div>
+        </div>
+
+        <div class="admin-grid-2">
+          <!-- Kanvas Editor Panorama Pannellum (SRS-FR-13) -->
+          <div class="admin-card" style="padding: 1rem;">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <span>🔄</span> Kanvas Pemetaan Visual (Klik Pada Rak)
+              </div>
+            </div>
+            
+            <div class="hotspot-mapper-canvas-box">
+              <div class="mapper-overlay-instruction">
+                🎯 <strong>Langkah Mudah:</strong> Geser pandangan ke rak buku tujuan, lalu <strong>klik tepat di rak tersebut</strong>. Nilai Pitch &amp; Yaw akan otomatis terisi!
+              </div>
+              <div id="admin-mapper-viewer"></div>
+            </div>
+          </div>
+
+          <!-- Formulir Rak & Baris Buku Dinamis (SRS-FR-14) -->
+          <form id="form-rack" class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <span>📚</span> Informasi Rak &amp; Koordinat Sudut
+              </div>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="rack-input-title">Nama Rak / Fasilitas</label>
+              <input type="text" id="rack-input-title" placeholder="Contoh: Rak 03 - Koleksi Babad & Sejarah Cirebon" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group-admin">
+                <label for="rack-input-ddc">Kode DDC / Klasifikasi</label>
+                <input type="text" id="rack-input-ddc" placeholder="Contoh: 959.82">
+              </div>
+              <div class="form-group-admin">
+                <label for="rack-input-photo">Foto Close-up Rak</label>
+                <input type="text" id="rack-input-photo" value="assets/images/rak-03-babad.jpg">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group-admin">
+                <label for="rack-input-pitch">Sudut Vertikal (Pitch °)</label>
+                <input type="number" id="rack-input-pitch" step="0.01" placeholder="0.50" required>
+              </div>
+              <div class="form-group-admin">
+                <label for="rack-input-yaw">Sudut Horizontal (Yaw °)</label>
+                <input type="number" id="rack-input-yaw" step="0.01" placeholder="5.00" required>
+              </div>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="rack-input-location">Patokan Letak Lorong di Dalam Ruangan</label>
+              <input type="text" id="rack-input-location" placeholder="Contoh: Lorong ke-2 dari pintu masuk sebelah kiri">
+            </div>
+
+            <div class="form-group-admin">
+              <label for="rack-input-tags">Kata Kunci Pencarian (Tags)</label>
+              <input type="text" id="rack-input-tags" placeholder="babad, sejarah, mertasinga, naskah kuno">
+            </div>
+
+            <!-- Bagian Tabel Buku Dinamis (+ Tambah Buku SRS-FR-14) -->
+            <div style="margin-top: 1rem; border-top: 1px solid #e2e8f0; padding-top: 1rem;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <label style="font-size:0.82rem;font-weight:800;color:var(--admin-navy);">Daftar Buku di Dalam Rak Ini</label>
+                <button type="button" class="btn-add-book-row" id="btn-add-book-row">
+                  + Tambah Baris Buku
+                </button>
+              </div>
+
+              <table class="admin-books-table">
+                <thead>
+                  <tr>
+                    <th>Judul Buku</th>
+                    <th>Pengarang</th>
+                    <th>Tahun</th>
+                    <th>Eks</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="rack-books-tbody">
+                  <!-- Baris diisi dinamis oleh admin.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+              <button type="submit" class="btn-save-admin" id="btn-rack-submit">
+                💾 Simpan Titik Rak &amp; Katalog Buku
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           TAB 5: KELOLA DATA & HAPUS
+           ================================================================ -->
+      <section class="tab-pane" id="tab-kelola-data">
+        <div class="admin-page-header">
+          <div>
+            <h1>Daftar Inventaris Fasilitas &amp; Rak</h1>
+            <p>Lihat, periksa, sunting, atau hapus entitas ruangan dan titik rak yang terdaftar di basis data.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <span>🏛️</span> Daftar Ruangan Pelayanan
+            </div>
+          </div>
+          <div class="data-table-container">
+            <table class="records-table">
+              <thead>
+                <tr>
+                  <th>Nama Ruangan</th>
+                  <th>Lokasi Gedung &amp; Lantai</th>
+                  <th>Patokan Posisi</th>
+                  <th>Koordinat Denah</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="table-rooms-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <span>📚</span> Daftar Titik Rak &amp; Fasilitas Hotspot
+            </div>
+          </div>
+          <div class="data-table-container">
+            <table class="records-table">
+              <thead>
+                <tr>
+                  <th>Nama Rak / Fasilitas</th>
+                  <th>Ruangan Induk</th>
+                  <th>Klasifikasi / DDC</th>
+                  <th>Koordinat Sudut</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="table-racks-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Skrip JavaScript Admin -->
+  <script src="assets/js/panorama-data.js"></script>
+  <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/admin.js"></script>
+
+  <!-- ====================================================================
+       MODAL POPUP: REGISTRASI & EDIT RUANGAN (SRS-FR-11 & SRS-FR-12)
+       ==================================================================== -->
+  <div class="admin-modal-overlay" id="modal-admin-room">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <div class="admin-modal-title">
+          <span id="modal-room-icon">➕</span>
+          <span id="modal-room-heading">Registrasi Ruangan Pelayanan Baru</span>
+        </div>
+        <button type="button" class="admin-modal-close" id="btn-close-room-modal" title="Tutup Modal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <form id="form-room">
+          <div class="admin-grid-2">
+            <!-- Kolom Kiri: Form Informasi Ruangan -->
+            <div class="admin-card" style="box-shadow:none; border:1px solid #e2e8f0; margin-bottom:0;">
+              <div class="admin-card-header">
+                <div class="admin-card-title">
+                  <span>📝</span> Data Informasi Ruangan
+                </div>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="room-select-floor">Gedung &amp; Tingkat Lantai</label>
+                <select id="room-select-floor" required></select>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="room-input-name">Nama Ruangan Pelayanan</label>
+                <input type="text" id="room-input-name" placeholder="Contoh: Ruang Pelayanan Administrasi (PA)" required>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="room-input-nearby">Patokan Posisi Fisik Ruangan (Nearby Notes)</label>
+                <textarea id="room-input-nearby" rows="2" placeholder="Contoh: Di samping lobi utama, berhadapan langsung dengan Ruang Baca Anak." required></textarea>
+                <span class="help-text">Petunjuk orientasi yang memudahkan pengunjung saat tiba di lokasi.</span>
+              </div>
+
+              <div class="form-group-admin">
+                <label for="room-input-services">Rincian Layanan Administrasi &amp; Syarat</label>
+                <textarea id="room-input-services" rows="3" placeholder="Jenis layanan: Pembuatan KTA, Legalisasi berkas, jam loket..."></textarea>
+              </div>
+
+              <!-- Upload Foto Depan Ruangan (JPG/PNG) -->
+              <div class="form-group-admin">
+                <label>Foto Tampak Depan Pintu / Ruangan (JPG/PNG)</label>
+                <div class="image-upload-wrapper" id="upload-wrapper-room-photo">
+                  <input type="file" id="room-file-photo" accept="image/png, image/jpeg, image/webp" style="display: none;">
+                  <div class="upload-dropzone" id="dropzone-room-photo">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">
+                      <strong>Klik untuk Upload Foto JPG / PNG</strong> atau seret ke sini
+                    </div>
+                    <span class="upload-hint">Foto tampak depan sebagai patokan pengunjung (Maks. 5 MB)</span>
+                  </div>
+                  <div class="upload-preview-card" id="preview-room-photo-card" style="display: none;">
+                    <img id="preview-room-photo-img" src="" alt="Pratinjau Foto Depan">
+                    <div class="upload-preview-info">
+                      <span class="upload-file-name" id="preview-room-photo-name">ruang-pa-front.jpg</span>
+                      <button type="button" class="btn-change-file" id="btn-change-room-photo">Ganti Berkas Foto</button>
+                    </div>
+                  </div>
+                  <input type="hidden" id="room-input-photo" value="assets/images/ruang-pa-front.jpg">
+                  <div class="upload-url-toggle">
+                    <button type="button" class="btn-toggle-url" id="btn-toggle-url-room-photo">🔗 Atau gunakan URL / Path manual</button>
+                    <div id="url-group-room-photo" style="display: none; margin-top: 0.35rem;">
+                      <input type="text" id="room-input-photo-manual" placeholder="Contoh: assets/images/ruang-pa-front.jpg atau https://..." style="font-size: 0.78rem;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upload Foto Panorama Silinder 360° (JPG/PNG) -->
+              <div class="form-group-admin">
+                <label>Foto Panorama Silinder Ruangan (Mode Pano Ponsel)</label>
+                <div class="image-upload-wrapper" id="upload-wrapper-room-pano">
+                  <input type="file" id="room-file-pano" accept="image/png, image/jpeg, image/webp" style="display: none;">
+                  <div class="upload-dropzone" id="dropzone-room-pano">
+                    <div class="upload-icon">🌐</div>
+                    <div class="upload-text">
+                      <strong>Klik untuk Upload Panorama JPG / PNG</strong>
+                    </div>
+                    <span class="upload-hint">Hasil pemotretan mode Panorama ponsel / 360 (Maks. 10 MB)</span>
+                  </div>
+                  <div class="upload-preview-card pano-preview" id="preview-room-pano-card" style="display: none;">
+                    <img id="preview-room-pano-img" src="" alt="Pratinjau Panorama">
+                    <div class="upload-preview-info">
+                      <span class="upload-file-name" id="preview-room-pano-name">ruang-pa-pano.jpg</span>
+                      <button type="button" class="btn-change-file" id="btn-change-room-pano">Ganti Panorama</button>
+                    </div>
+                  </div>
+                  <input type="hidden" id="room-input-pano" value="assets/images/ruang-pa-pano.jpg" required>
+                  <div class="upload-url-toggle">
+                    <button type="button" class="btn-toggle-url" id="btn-toggle-url-room-pano">🔗 Atau gunakan URL / Path manual</button>
+                    <div id="url-group-room-pano" style="display: none; margin-top: 0.35rem;">
+                      <input type="text" id="room-input-pano-manual" placeholder="Contoh: assets/images/ruang-pa-pano.jpg atau https://..." style="font-size: 0.78rem;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group-admin">
+                  <label for="room-input-map-x">Koordinat X Denah (%)</label>
+                  <input type="number" id="room-input-map-x" step="0.1" placeholder="24.5" required>
+                </div>
+                <div class="form-group-admin">
+                  <label for="room-input-map-y">Koordinat Y Denah (%)</label>
+                  <input type="number" id="room-input-map-y" step="0.1" placeholder="32.0" required>
+                </div>
+              </div>
+            </div>
+
+            <!-- Kolom Kanan: Penentu Koordinat Denah Otomatis (Klik Peta) -->
+            <div class="admin-card" style="box-shadow:none; border:1px solid #e2e8f0; margin-bottom:0; display:flex; flex-direction:column;">
+              <div class="admin-card-header">
+                <div class="admin-card-title">
+                  <span>📍</span> Kunci Koordinat Denah 2D
+                </div>
+              </div>
+              <p class="help-text" style="margin-bottom: 0.6rem;">
+                <strong>Klik pada gambar denah di bawah</strong> pada titik posisi ruangan yang diinginkan. Sistem otomatis menghitung <code>map_x</code> dan <code>map_y</code>.
+              </p>
+
+              <div class="map-coordinate-picker-container" id="room-picker-container" style="flex:1; min-height:360px; max-height:430px; background:#f8fafc; border:2px dashed #cbd5e1; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative; cursor:crosshair; padding:8px;">
+                <span class="picker-hint-badge" style="z-index:15;">🎯 Klik di sini untuk kunci posisi</span>
+                <div class="picker-stage" id="room-picker-stage" style="position:relative; display:inline-block; max-width:100%; max-height:100%; box-shadow:0 3px 12px rgba(0,0,0,0.08); border-radius:6px; overflow:visible; line-height:0;">
+                  <img src="assets/images/gedung-perpustakaan-lantai-1.svg" alt="Preview Denah" id="room-picker-image" style="display:block; max-width:100%; max-height:390px; width:auto; height:auto; border-radius:6px; pointer-events:none; user-select:none;">
+                  <div class="map-picker-crosshair" id="room-picker-crosshair" style="display:none; position:absolute; transform:translate(-50%, -50%); z-index:20; pointer-events:none;">
+                    <div class="picker-dot"></div>
+                    <span class="picker-crosshair-label" id="room-picker-label" style="position:absolute; left:16px; top:-10px; white-space:nowrap; background:#ef4444; color:#fff; font-size:0.72rem; font-weight:700; padding:2px 7px; border-radius:4px; box-shadow:0 2px 6px rgba(0,0,0,0.2);">Pin Ruangan</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="admin-modal-footer">
+        <button type="button" class="btn-admin-nav" id="btn-cancel-room-modal" style="color:var(--admin-navy);border-color:#cbd5e1;background:#fff;padding:0.6rem 1.25rem;">
+          Batal
+        </button>
+        <button type="submit" form="form-room" class="btn-save-admin" id="btn-room-submit">
+          <span>💾</span> Simpan Data Ruangan
+        </button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

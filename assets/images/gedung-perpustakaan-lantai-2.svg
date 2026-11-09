@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 680" width="1000" height="680">
+  <defs>
+    <pattern id="grid2" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.75" />
+    </pattern>
+    <linearGradient id="wallGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="roomBabadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="100%" stop-color="#f3e8ff"/>
+    </linearGradient>
+    <linearGradient id="roomELibGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0fdfa"/>
+      <stop offset="100%" stop-color="#ccfbf1"/>
+    </linearGradient>
+    <linearGradient id="roomAulaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fefce8"/>
+      <stop offset="100%" stop-color="#fef9c3"/>
+    </linearGradient>
+    <linearGradient id="lobbyGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f8fafc"/>
+    </linearGradient>
+    <filter id="cardShadow2" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background Base & Blueprint Grid -->
+  <rect width="1000" height="680" fill="#f8fafc"/>
+  <rect width="1000" height="680" fill="url(#grid2)"/>
+
+  <!-- Architectural Title Bar -->
+  <g transform="translate(60, 38)">
+    <rect x="-10" y="-18" width="560" height="40" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow2)"/>
+    <circle cx="10" cy="2" r="7" fill="#7c3aed"/>
+    <text x="28" y="7" font-family="'Plus Jakarta Sans', sans-serif" font-size="13" font-weight="800" fill="#0f172a">DENAH GEDUNG PERPUSTAKAAN — LANTAI 2 (SKALA 1:150)</text>
+    <text x="420" y="7" font-family="'Plus Jakarta Sans', sans-serif" font-size="10" font-weight="700" fill="#64748b">RENCANA KUSEN &amp; TATA RUANG</text>
+  </g>
+
+  <!-- Architectural Compass Rose -->
+  <g transform="translate(930, 48)">
+    <circle cx="0" cy="0" r="26" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" filter="url(#cardShadow2)"/>
+    <polygon points="0,-20 6,-3 0,0" fill="#dc2626"/>
+    <polygon points="0,-20 -6,-3 0,0" fill="#991b1b"/>
+    <polygon points="0,20 6,3 0,0" fill="#64748b"/>
+    <polygon points="0,20 -6,3 0,0" fill="#94a3b8"/>
+    <text x="0" y="-23" font-family="'Plus Jakarta Sans', sans-serif" font-size="10" font-weight="800" fill="#dc2626" text-anchor="middle">U</text>
+  </g>
+
+  <!-- Blueprint Dimension Axes: 1..9 on top -->
+  <g font-family="'Plus Jakarta Sans', sans-serif" font-size="10" font-weight="700" fill="#64748b" text-anchor="middle">
+    <circle cx="110" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="110" y="76">1</text>
+    <circle cx="180" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="180" y="76">2</text>
+    <circle cx="260" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="260" y="76">3</text>
+    <circle cx="390" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="390" y="76">4</text>
+    <circle cx="500" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="500" y="76">5</text>
+    <circle cx="610" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="610" y="76">6</text>
+    <circle cx="720" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="720" y="76">7</text>
+    <circle cx="820" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="820" y="76">8</text>
+    <circle cx="910" cy="72" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="910" y="76">9</text>
+  </g>
+
+  <!-- Side Axis Letters: B..F -->
+  <g font-family="'Plus Jakarta Sans', sans-serif" font-size="10" font-weight="700" fill="#64748b" text-anchor="middle">
+    <circle cx="35" cy="110" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="35" y="114">B</text>
+    <circle cx="35" cy="200" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="35" y="204">C</text>
+    <circle cx="35" cy="330" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="35" y="334">D</text>
+    <circle cx="35" cy="460" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="35" y="464">E</text>
+    <circle cx="35" cy="580" r="10" fill="#ffffff" stroke="#cbd5e1"/>
+    <text x="35" y="584">F</text>
+  </g>
+
+  <!-- ZONE 1: RUANG SERVIS LT 2 -->
+  <g id="zone-toilet2">
+    <rect x="80" y="100" width="310" height="85" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+    <line x1="180" y1="100" x2="180" y2="185" stroke="#cbd5e1" stroke-width="1.5"/>
+  </g>
+
+  <!-- ZONE 2: SAYAP BARAT LT 2 (Ruang Bersih Siap Pemetaan Pin) -->
+  <g id="zone-babad" filter="url(#cardShadow2)">
+    <!-- Main room body -->
+    <path d="M 80,190 L 390,190 L 390,580 L 80,580 Z" fill="url(#roomBabadGrad)" stroke="#7c3aed" stroke-width="2"/>
+    
+    <!-- Distinctive Cantilevered Balcony Wing to the far left -->
+    <rect x="40" y="450" width="40" height="90" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+    
+    <!-- Door to Corridor -->
+    <path d="M 390,430 A 35,35 0 0,0 355,465" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,3"/>
+  </g>
+
+  <!-- ZONE 3: SELASAR VOID & TANGGA KEDATANGAN (Center) -->
+  <g id="zone-lobi2">
+    <rect x="395" y="100" width="210" height="480" fill="url(#lobbyGrad2)" stroke="#cbd5e1" stroke-width="1.5"/>
+
+    <!-- Stairs Arrival from Lantai 1 (as on blueprint) -->
+    <g transform="translate(425, 270)">
+      <rect x="0" y="0" width="150" height="110" rx="4" fill="#ffffff" stroke="#475569" stroke-width="2"/>
+      <line x1="0" y1="18" x2="150" y2="18" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="0" y1="36" x2="150" y2="36" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="0" y1="54" x2="150" y2="54" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="0" y1="72" x2="150" y2="72" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="0" y1="90" x2="150" y2="90" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="75" y1="0" x2="75" y2="110" stroke="#475569" stroke-width="2"/>
+      <!-- Direction arrow arriving from Floor 1 -->
+      <path d="M 35,25 L 35,95 L 28,85 M 35,95 L 42,85" stroke="#16a34a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <rect x="15" y="115" width="120" height="22" rx="4" fill="#475569"/>
+      <text x="75" y="130" font-family="'Plus Jakarta Sans', sans-serif" font-size="9" font-weight="800" fill="#ffffff" text-anchor="middle">TANGGA TIBA DARI LT. 1</text>
+    </g>
+
+    <!-- Void looking down to Ground Floor Lobby -->
+    <rect x="420" y="420" width="160" height="140" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <text x="500" y="485" font-family="'Plus Jakarta Sans', sans-serif" font-size="10" font-weight="800" fill="#64748b" text-anchor="middle">VOID LOBI UTAMA</text>
+    <text x="500" y="500" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="600" fill="#94a3b8" text-anchor="middle">(Terbuka ke Lantai 1)</text>
+  </g>
+
+  <!-- ZONE 4: SAYAP TIMUR UTARA LT 2 (Ruang Bersih Siap Pemetaan Pin) -->
+  <g id="zone-elib" filter="url(#cardShadow2)">
+    <rect x="610" y="100" width="315" height="230" rx="4" fill="url(#roomELibGrad)" stroke="#0d9488" stroke-width="2"/>
+    
+    <!-- Door -->
+    <path d="M 610,240 A 35,35 0 0,1 645,275" fill="none" stroke="#0d9488" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+    <!-- Emergency stairs corner -->
+    <g transform="translate(835, 105)">
+      <rect x="0" y="0" width="85" height="50" fill="#ffffff" stroke="#ef4444" stroke-width="1.2"/>
+      <text x="42" y="30" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="800" fill="#dc2626" text-anchor="middle">Tangga Darurat</text>
+    </g>
+  </g>
+
+  <!-- ZONE 5: SAYAP TIMUR SELATAN LT 2 (Ruang Bersih Siap Pemetaan Pin) -->
+  <g id="zone-aula" filter="url(#cardShadow2)">
+    <rect x="610" y="340" width="315" height="240" rx="4" fill="url(#roomAulaGrad)" stroke="#ca8a04" stroke-width="2"/>
+    
+    <!-- Door -->
+    <path d="M 610,410 A 35,35 0 0,0 645,375" fill="none" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="3,3"/>
+  </g>
+
+  <!-- Heavy Structural Walls -->
+  <path d="M 80,100 L 925,100 L 925,580 L 80,580 Z" fill="none" stroke="url(#wallGrad2)" stroke-width="5" stroke-linejoin="round"/>
+
+  <!-- Structural Columns -->
+  <g fill="#0f172a">
+    <rect x="75" y="95" width="10" height="10"/>
+    <rect x="385" y="95" width="10" height="10"/>
+    <rect x="605" y="95" width="10" height="10"/>
+    <rect x="920" y="95" width="10" height="10"/>
+    
+    <rect x="75" y="185" width="10" height="10"/>
+    <rect x="385" y="185" width="10" height="10"/>
+    <rect x="605" y="185" width="10" height="10"/>
+    <rect x="920" y="185" width="10" height="10"/>
+
+    <rect x="75" y="335" width="10" height="10"/>
+    <rect x="385" y="335" width="10" height="10"/>
+    <rect x="605" y="335" width="10" height="10"/>
+    <rect x="920" y="335" width="10" height="10"/>
+
+    <rect x="75" y="575" width="10" height="10"/>
+    <rect x="385" y="575" width="10" height="10"/>
+    <rect x="605" y="575" width="10" height="10"/>
+    <rect x="920" y="575" width="10" height="10"/>
+  </g>
+
+  <!-- Scale Bar 1:150 -->
+  <g transform="translate(60, 650)">
+    <line x1="0" y1="0" x2="150" y2="0" stroke="#475569" stroke-width="2"/>
+    <line x1="0" y1="-4" x2="0" y2="4" stroke="#475569" stroke-width="2"/>
+    <line x1="75" y1="-3" x2="75" y2="3" stroke="#475569" stroke-width="1.5"/>
+    <line x1="150" y1="-4" x2="150" y2="4" stroke="#475569" stroke-width="2"/>
+    <text x="0" y="-8" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="700" fill="#64748b">0m</text>
+    <text x="75" y="-8" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle">5m</text>
+    <text x="150" y="-8" font-family="'Plus Jakarta Sans', sans-serif" font-size="8" font-weight="700" fill="#64748b" text-anchor="middle">10m (Skala 1:150)</text>
+  </g>
+</svg>

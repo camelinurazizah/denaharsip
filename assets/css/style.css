@@ -1,0 +1,1494 @@
+/* ==========================================================================
+   SISTEM INFORMASI DENAH INTERAKTIF & TUR PANORAMA FASILITAS
+   DINAS KEARSIPAN DAN PERPUSTAKAAN KABUPATEN CIREBON
+   Style Sheet Antarmuka Publik - Ultra Rapi, Modern & Estetik
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary-navy: #0f172a;
+  --navy-900: #020617;
+  --navy-800: #1e293b;
+  --navy-700: #334155;
+  --cirebon-blue: #0284c7;
+  --cirebon-blue-dark: #0369a1;
+  --cirebon-blue-light: #38bdf8;
+  --cirebon-blue-subtle: #f0f9ff;
+  --cirebon-gold: #d97706;
+  --cirebon-gold-light: #f59e0b;
+  --gold-accent: #fef08a;
+  --bg-slate: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-light: #e2e8f0;
+  --border-accent: #cbd5e1;
+  --danger-red: #ef4444;
+  --success-green: #10b981;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --transition-smooth: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-slate);
+  color: var(--text-main);
+  line-height: 1.5;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   1. MAIN HEADER (BARIS ATAS: BRANDING, SEARCH, ACTIONS)
+   ========================================================================== */
+.main-header {
+  background: var(--primary-navy);
+  color: #ffffff;
+  height: 64px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  z-index: 100;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+/* Identitas Brand */
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--cirebon-gold-light);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+  background: #ffffff;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.2;
+}
+
+.brand-title span.badge-instansi {
+  font-size: 0.65rem;
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #fff;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* Bilah Pencarian Cepat Multi-Entitas (SRS-FR-04) */
+.search-container {
+  position: relative;
+  flex: 1;
+  max-width: 420px;
+  min-width: 260px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 0.85rem;
+}
+
+.search-input {
+  width: 100%;
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  padding: 0.5rem 2.2rem 0.5rem 2.4rem;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.search-input:focus {
+  border-color: var(--cirebon-blue-light);
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+}
+
+.search-input::placeholder {
+  color: #64748b;
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: none;
+  font-size: 0.85rem;
+  padding: 2px;
+}
+
+.search-clear-btn:hover {
+  color: #ffffff;
+}
+
+/* Dropdown Hasil Pencarian */
+.search-results-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+  max-height: 420px;
+  overflow-y: auto;
+  z-index: 500;
+  display: none;
+}
+
+.search-result-group-title {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.search-result-item {
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border-bottom: 1px solid #f8fafc;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.search-result-item:hover {
+  background: #f0f9ff;
+  border-left: 3px solid var(--cirebon-blue);
+}
+
+.search-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.search-result-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary-navy);
+}
+
+.search-result-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: #e0f2fe;
+  color: var(--cirebon-blue-dark);
+}
+
+.search-result-badge.badge-rack {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.search-result-badge.badge-book {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.search-result-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.search-no-results {
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+/* Tombol Aksi Header */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: var(--transition-smooth);
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.action-btn.btn-admin {
+  background: linear-gradient(135deg, #1e3a8a, #0369a1);
+  border: 1px solid var(--cirebon-gold-light);
+  color: #fef08a;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.action-btn.btn-admin:hover {
+  background: linear-gradient(135deg, #1e40af, #0284c7);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);
+}
+
+/* ==========================================================================
+   2. SUB-HEADER BAR (BARIS KEDUA: SELECTOR GEDUNG, LANTAI, MODE TAMPILAN)
+   ========================================================================== */
+.sub-header-bar {
+  background: var(--navy-800);
+  height: 48px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 90;
+  flex-shrink: 0;
+}
+
+.sub-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+/* Segmented Group untuk Gedung & Lantai */
+.segmented-control {
+  display: flex;
+  background: rgba(15, 23, 42, 0.8);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.control-btn {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: var(--transition-smooth);
+}
+
+.control-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.control-btn.active {
+  background: var(--cirebon-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);
+}
+
+.control-btn.active.floor-active {
+  background: #334155;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.sub-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* View Mode Switcher di Tengah Sub-Bar */
+.sub-header-center {
+  display: flex;
+  align-items: center;
+}
+
+.view-mode-pill {
+  display: flex;
+  background: rgba(15, 23, 42, 0.8);
+  padding: 3px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.view-mode-item {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: var(--transition-smooth);
+}
+
+.view-mode-item:hover {
+  color: #ffffff;
+}
+
+.view-mode-item.active {
+  background: var(--cirebon-blue);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+}
+
+/* Lokasi Aktif di Kanan Sub-Bar */
+.sub-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.sub-header-right span.loc-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  color: #fef08a;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* ==========================================================================
+   3. WORKSPACE SPLIT-SCREEN (DENAH 2D & TUR PANORAMA 360)
+   ========================================================================== */
+.main-workspace {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 112px);
+  position: relative;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+/* Panel Kiri: PETA DENAH 2D */
+.panel-map {
+  flex: 1.25;
+  height: 100%;
+  background: #ffffff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border-light);
+  overflow: hidden;
+  transition: flex 0.3s ease;
+}
+
+.panel-map-header {
+  padding: 0.35rem 0.85rem;
+  min-height: 42px;
+  max-height: 44px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 0.5rem;
+}
+
+.map-location-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.map-location-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--cirebon-blue-subtle);
+  color: var(--cirebon-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.map-location-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.map-location-text h3 {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--primary-navy);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.map-location-text p {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  line-height: 1.2;
+  max-width: 320px;
+}
+
+.map-header-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.map-view-switcher {
+  display: inline-flex;
+  background: var(--bg-slate);
+  padding: 2px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  gap: 2px;
+}
+
+.map-view-btn {
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0.25rem 0.52rem;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.map-view-btn:hover {
+  color: var(--navy-900);
+}
+
+.map-view-btn.active {
+  background: #ffffff;
+  color: var(--navy-900);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.map-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.map-tool-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 5px;
+  border: 1px solid var(--border-accent);
+  background: #ffffff;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.map-tool-btn:hover {
+  background: var(--bg-slate);
+  border-color: var(--navy-700);
+}
+
+/* Wadah Kanvas Denah 2D */
+.map-canvas-container {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  cursor: grab;
+}
+
+.map-canvas-container:active {
+  cursor: grabbing;
+}
+
+/* Stage Denah Presisi Aspect-Ratio Dinamis Mengikuti Denah Aktif 1:1 */
+.map-stage {
+  position: relative;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: calc(100% - 4px);
+  aspect-ratio: 1024 / 764;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.15s ease-out;
+  transform-origin: center center;
+  overflow: visible;
+  display: block;
+}
+
+.map-stage-img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  border-radius: 10px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.map-pins-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ==========================================================================
+   TITIK PIN MERAH & EMAS INTERAKTIF (SRS-FR-03)
+   ========================================================================== */
+.map-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 25;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.map-pin:hover {
+  transform: translate(-50%, -50%) scale(1.12);
+  z-index: 40;
+}
+
+.map-pin-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.4);
+  animation: pulse-ring 2s infinite ease-out;
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+}
+
+.map-pin-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  box-shadow: 0 3px 8px rgba(185, 28, 28, 0.4);
+  border: 1.5px solid #ffffff;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.map-pin.pin-rack .map-pin-badge {
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  box-shadow: 0 3px 8px rgba(180, 83, 9, 0.4);
+}
+
+.map-pin.pin-rack .map-pin-pulse {
+  background: rgba(217, 119, 6, 0.45);
+}
+
+.map-pin.active-highlight .map-pin-badge {
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%) !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.8) !important;
+  transform: scale(1.15);
+}
+
+/* Footer Denah */
+.map-footer-hint {
+  padding: 0.25rem 0.85rem;
+  min-height: 28px;
+  background: #ffffff;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot.red { background: #ef4444; }
+.legend-dot.gold { background: var(--cirebon-gold); }
+
+/* ==========================================================================
+   4. PANEL KANAN: TUR PANORAMA 360 SILINDER (SRS-FR-08)
+   ========================================================================== */
+.panel-panorama {
+  flex: 0.95;
+  height: 100%;
+  background: #020617;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: flex 0.3s ease;
+}
+
+.panorama-top-bar {
+  position: absolute;
+  top: 1rem;
+  left: 1.25rem;
+  right: 1.25rem;
+  z-index: 25;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+}
+
+.pano-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pano-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: var(--cirebon-blue);
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.pano-title-text h4 {
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.pano-title-text p {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+/* Wadah Pannellum */
+#panorama-viewer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Hotspot Khusus di dalam Panorama */
+.pnlm-custom-hotspot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.9);
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  animation: pulse-hotspot 2.2s infinite;
+}
+
+@keyframes pulse-hotspot {
+  0% { transform: scale(1); box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+  50% { transform: scale(1.18); box-shadow: 0 0 24px rgba(245, 158, 11, 1); }
+  100% { transform: scale(1); box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+}
+
+.pnlm-custom-hotspot:hover {
+  background: #f59e0b;
+  transform: scale(1.3) !important;
+}
+
+/* Penyesuaian Tombol Kontrol Bawaan Pannellum */
+.pnlm-controls-container {
+  top: 72px !important;
+  left: 1.25rem !important;
+  z-index: 20 !important;
+}
+
+.pnlm-load-button {
+  display: none !important;
+}
+
+/* Fallback Panorama Viewer Styling */
+.fallback-pano-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  background: #020617;
+}
+
+.fallback-pano-canvas {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-repeat: repeat-x;
+  background-position: center center;
+  transform: scale(1.1);
+  transition: transform 0.1s ease-out;
+}
+
+.fallback-hotspots-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.fallback-hotspot-btn {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid var(--cirebon-gold);
+  border-radius: 20px;
+  padding: 0.35rem 0.75rem;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.fallback-hotspot-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: var(--cirebon-gold);
+  color: #0f172a;
+}
+
+.fallback-pano-badge {
+  position: absolute;
+  bottom: 4.5rem;
+  right: 1.25rem;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 9999px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Kontrol Terapung Bawah Panorama */
+.panorama-bottom-controls {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.pano-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: var(--transition-smooth);
+}
+
+.pano-btn:hover {
+  background: var(--cirebon-blue);
+}
+
+/* Mode Tampilan Eksklusif */
+.main-workspace.mode-map-only .panel-map {
+  flex: 1.25;
+}
+.main-workspace.mode-map-only .panel-panorama {
+  display: none;
+}
+
+.main-workspace.mode-pano-only .panel-panorama {
+  flex: 0.95;
+}
+.main-workspace.mode-pano-only .panel-map {
+  display: none;
+}
+
+/* ==========================================================================
+   5. MODAL DOKUMENTASI (RUANG PA & RAK 03 BABAD)
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid var(--border-light);
+}
+
+.modal-overlay.active .modal-card {
+  transform: translateY(0) scale(1);
+}
+
+/* Header Banner Modal */
+.modal-header-hero {
+  position: relative;
+  height: 200px;
+  background: var(--primary-navy);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.modal-header-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.2) 0%, rgba(15, 23, 42, 0.9) 100%);
+}
+
+.modal-hero-content {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  color: #ffffff;
+}
+
+.modal-hero-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.modal-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  background: var(--cirebon-blue);
+  color: #ffffff;
+}
+
+.modal-badge.gold {
+  background: var(--cirebon-gold);
+}
+
+.modal-hero-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: var(--transition-smooth);
+  z-index: 10;
+}
+
+.modal-close-btn:hover {
+  background: #dc2626;
+  transform: rotate(90deg);
+}
+
+/* Badan Modal */
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.info-block-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.patokan-box {
+  background: #f8fafc;
+  border-left: 4px solid var(--cirebon-blue);
+  padding: 0.85rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.84rem;
+  color: #334155;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.service-details-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 0.85rem 1.1rem;
+  border-radius: 8px;
+  color: #166534;
+  font-size: 0.84rem;
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+/* Tabel Buku (Rak 03) */
+.books-table-wrapper {
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.books-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+.books-table th {
+  background: #f8fafc;
+  padding: 0.6rem 0.85rem;
+  font-weight: 700;
+  color: var(--navy-700);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.books-table td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.books-table tr:hover {
+  background: #f8fafc;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.status-badge.status-read-here {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-badge.status-borrowable {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* Footer Modal */
+.modal-footer {
+  padding: 1rem 1.5rem;
+  background: #f8fafc;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.btn-secondary {
+  background: #ffffff;
+  border: 1px solid var(--border-accent);
+  color: var(--navy-700);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-secondary:hover {
+  background: #f1f5f9;
+}
+
+.btn-primary {
+  background: var(--cirebon-blue);
+  border: 1px solid var(--cirebon-blue-dark);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+  transition: var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  background: var(--cirebon-blue-dark);
+}
+
+/* ==========================================================================
+   6. MODAL LOGIN DENGAN LOGO RESMI DISARPUS (FOTO KIRIMAN PENGGUNA)
+   ========================================================================== */
+.login-modal-card {
+  max-width: 440px;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
+  border: 2px solid rgba(2, 132, 199, 0.2);
+}
+
+.login-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e3a8a 100%);
+  padding: 2.25rem 1.5rem 1.5rem;
+  text-align: center;
+  position: relative;
+  color: #ffffff;
+}
+
+.login-logo-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 0.75rem;
+}
+
+/* Foto Logo Resmi Disarpus Cirebon */
+.login-logo-img {
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  border: 3px solid var(--cirebon-gold);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+  background: #ffffff;
+  object-fit: cover;
+}
+
+.login-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+}
+
+.login-subtitle {
+  font-size: 0.76rem;
+  color: #cbd5e1;
+  margin-top: 0.25rem;
+}
+
+.login-body {
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.form-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: #94a3b8;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem 0.65rem 2.4rem;
+  border: 1px solid var(--border-accent);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-main);
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.form-input:focus {
+  border-color: var(--cirebon-blue);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.login-error-alert {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  display: none;
+}
+
+.btn-login-submit {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-login-submit:hover {
+  background: linear-gradient(135deg, #0369a1, #075985);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.5);
+}
+
+.demo-account-box {
+  background: #f8fafc;
+  border: 1px dashed var(--border-accent);
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  color: var(--navy-700);
+  text-align: center;
+}
+
+.btn-quick-demo {
+  background: #fef3c7;
+  border: 1px solid var(--cirebon-gold-light);
+  color: #92400e;
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+  margin-top: 0.4rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-quick-demo:hover {
+  background: #fde68a;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toast {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: var(--shadow-xl);
+  border-left: 4px solid var(--cirebon-blue);
+  animation: slide-in 0.3s ease;
+}
+
+.toast.toast-success { border-color: var(--success-green); }
+.toast.toast-error { border-color: var(--danger-red); }
+
+@keyframes slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ==========================================================================
+   RESPONSIVITAS MOBILE (<768px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .sub-header-bar {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto;
+    height: auto;
+  }
+  .main-header {
+    height: auto;
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+  }
+  .search-container {
+    order: 3;
+    max-width: 100%;
+    width: 100%;
+  }
+  .sub-header-bar {
+    height: auto;
+    padding: 0.6rem 1rem;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .main-workspace {
+    flex-direction: column;
+    height: auto;
+  }
+  .panel-map, .panel-panorama {
+    height: 60vh;
+    min-height: 420px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+  }
+}

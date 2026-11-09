@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Denah Interaktif &amp; Tur Panorama Fasilitas — Disarpus Kabupaten Cirebon</title>
+  
+  <!-- Favicon Logo Resmi Disarpus -->
+  <link rel="icon" type="image/png" href="assets/images/logo-disarpus.png">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Pannellum JS & CSS (WebGL Cylindrical Panorama Viewer) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+
+  <!-- Base64 Embedded Panorama Data (Jaminan 100% Anti-Error CORS pada file:/// & localhost) -->
+  <script src="assets/js/panorama-data.js"></script>
+
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Stylesheet Utama Antarmuka Publik -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+  <!-- ====================================================================
+       1. HEADER UTAMA (BRANDING, SEARCH BOX, & ACTION BUTTONS)
+       ==================================================================== -->
+  <header class="main-header">
+    <!-- Brand / Identitas Instansi Disarpus Kab Cirebon -->
+    <a href="index.html" class="brand-wrapper" title="Portal Resmi Disarpus Kabupaten Cirebon">
+      <img src="assets/images/logo-disarpus.png" alt="Logo Disarpus Kabupaten Cirebon" class="brand-logo">
+      <div class="brand-info">
+        <h1 class="brand-title">
+          DISARPUS KAB. CIREBON
+          <span class="badge-instansi">Official Portal</span>
+        </h1>
+        <p class="brand-subtitle">Dinas Kearsipan dan Perpustakaan Kabupaten Cirebon</p>
+      </div>
+    </a>
+
+    <!-- Bilah Pencarian Cepat Multi-Entitas (SRS-FR-04: Live Search) -->
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="Cari ruangan, jenis layanan, atau judul buku..." autocomplete="off">
+        <button type="button" id="search-clear-btn" class="search-clear-btn" title="Hapus pencarian">✕</button>
+      </div>
+
+      <!-- Dropdown Hasil Pencarian Cepat Real-Time -->
+      <div id="search-results-dropdown" class="search-results-dropdown"></div>
+    </div>
+
+    <!-- Header Right Actions: QR Code Kiosk & Akses Petugas Dinas -->
+    <div class="header-actions">
+      <button type="button" class="action-btn" id="btn-show-qr" title="Akses dari Ponsel / Layar Kiosk">
+        <span>📱</span> Scan QR Kiosk
+      </button>
+
+      <!-- Tombol Akses Petugas / Login Admin (SRS-FR-10) -->
+      <button type="button" class="action-btn btn-admin" id="btn-akses-petugas" title="Portal Pengelolaan Petugas">
+        🔐 Akses Petugas
+      </button>
+    </div>
+  </header>
+
+  <!-- ====================================================================
+       2. SUB-HEADER BAR (BARIS KONTROL TERPADU: GEDUNG, LANTAI, MODE VIEW)
+       ==================================================================== -->
+  <div class="sub-header-bar">
+    <!-- Kiri: Pemilih Gedung & Lantai (SRS-FR-01 & FR-02) -->
+    <div class="sub-header-left">
+      <!-- Selector Unit Gedung -->
+      <div class="segmented-control">
+        <button type="button" class="control-btn active" id="btn-building-perpus" title="Gedung Perpustakaan">
+          <span>🏛️</span> Gedung Perpustakaan
+        </button>
+        <button type="button" class="control-btn" id="btn-building-arsip" title="Gedung Kearsipan">
+          <span>📂</span> Gedung Kearsipan
+        </button>
+      </div>
+
+      <div class="sub-divider"></div>
+
+      <!-- Selector Tingkat Lantai -->
+      <div class="segmented-control">
+        <button type="button" class="control-btn active floor-active" id="btn-floor-1" title="Lantai 1">
+          Lantai 1
+        </button>
+        <button type="button" class="control-btn" id="btn-floor-2" title="Lantai 2">
+          Lantai 2
+        </button>
+      </div>
+    </div>
+
+    <!-- Tengah: View Mode Switcher (Split Screen / Denah 2D / Tur 360°) -->
+    <div class="sub-header-center">
+      <div class="view-mode-pill">
+        <button type="button" class="view-mode-item active" id="view-mode-split" title="Mode Split Layar">
+          <span>◫</span> Split Screen
+        </button>
+        <button type="button" class="view-mode-item" id="view-mode-map" title="Hanya Denah 2D">
+          <span>🗺️</span> Denah 2D
+        </button>
+        <button type="button" class="view-mode-item" id="view-mode-pano" title="Hanya Panorama 360">
+          <span>🔄</span> Tur 360°
+        </button>
+      </div>
+    </div>
+
+    <!-- Kanan: Lokasi Aktif -->
+    <div class="sub-header-right">
+      <span>Lokasi Aktif:</span>
+      <span class="loc-badge" id="subbar-location">Gedung Perpustakaan — Lantai 1</span>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       3. WORKSPACE SPLIT-VIEW (DENAH 2D & TUR PANORAMA 360)
+       ==================================================================== -->
+  <main class="main-workspace" id="main-workspace">
+
+    <!-- PANEL KIRI: PETA DENAH 2D INTERAKTIF (SRS-FR-03) -->
+    <section class="panel-map" id="panel-map" aria-label="Peta Denah 2D">
+      <!-- Header Denah -->
+      <div class="panel-map-header">
+        <div class="map-location-badge">
+          <div class="map-location-icon">🧭</div>
+          <div class="map-location-text">
+            <h3 id="map-location-title">GEDUNG PERPUSTAKAAN — LANTAI 1</h3>
+            <p id="map-location-sub">Memuat zonasi denah aktif...</p>
+          </div>
+        </div>
+
+        <!-- Pilihan Tampilan Denah & Kontrol Zoom -->
+        <div class="map-header-tools">
+          <div class="map-view-switcher">
+            <button type="button" class="map-view-btn active" id="btn-layer-vector" title="Tampilkan Denah Tata Ruang Berwarna">
+              🎨 Denah Digital
+            </button>
+            <button type="button" class="map-view-btn" id="btn-layer-blueprint" title="Tampilkan Cetak Biru Arsitektur Asli (Rencana Kusen 1:150)">
+              📐 Cetak Biru Asli
+            </button>
+          </div>
+
+          <div class="map-controls">
+            <button type="button" class="map-tool-btn" id="btn-map-zoom-in" title="Perbesar Denah">+</button>
+            <button type="button" class="map-tool-btn" id="btn-map-zoom-out" title="Perkecil Denah">−</button>
+            <button type="button" class="map-tool-btn" id="btn-map-reset" title="Reset Posisi Denah">↺</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Area Kanvas Peta Denah Interaktif -->
+      <div class="map-canvas-container" id="map-container">
+        <!-- Stage Denah Presisi Aspect-Ratio 1000/650 -->
+        <div class="map-stage" id="map-stage">
+          <!-- Gambar Denah Arsitektur SVG Aktif -->
+          <img src="assets/images/gedung-perpustakaan-lantai-1.svg" alt="Peta Denah Lantai" class="map-stage-img" id="map-image">
+          
+          <!-- Lapisan Titik Pin Merah / Emas Interaktif (SRS-FR-03) -->
+          <div class="map-pins-layer" id="map-pins-layer"></div>
+        </div>
+      </div>
+
+      <!-- Footer Petunjuk Interaksi & Legenda -->
+      <div class="map-footer-hint">
+        <div class="map-legend">
+          <div class="legend-item">
+            <span class="legend-dot red"></span>
+            <span>Ruang Pelayanan</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot gold"></span>
+            <span>Titik Rak Koleksi</span>
+          </div>
+        </div>
+        <div>💡 Klik pada pin ruangan atau rak untuk membaca dokumentasi detail</div>
+      </div>
+    </section>
+
+    <!-- PANEL KANAN: PENAMPIL CITRA TUR PANORAMA SILINDER (SRS-FR-08 & FR-09) -->
+    <section class="panel-panorama" id="panel-panorama" aria-label="Viewer Panorama Silinder 360">
+      <!-- Bar Info Ruangan Panorama -->
+      <div class="panorama-top-bar">
+        <div class="pano-title-wrapper">
+          <span class="pano-badge">360° Pano</span>
+          <div class="pano-title-text">
+            <h4 id="pano-title">Ruang Pelayanan Administrasi (PA)</h4>
+            <p id="pano-subtitle">Gedung Perpustakaan — Lantai 1</p>
+          </div>
+        </div>
+        <div style="font-size:0.75rem;color:#94a3b8;font-weight:600;">
+          <span>🖱️ Geser mouse / layar untuk memutar 360°</span>
+        </div>
+      </div>
+
+      <!-- Wadah WebGL Canvas Pannellum JS -->
+      <div id="panorama-viewer"></div>
+
+      <!-- Kontrol Terapung Bawah Panorama -->
+      <div class="panorama-bottom-controls">
+        <button type="button" class="pano-btn" id="btn-pano-front" title="Arahkan ke depan">
+          <span>🎯</span> Hadap Depan
+        </button>
+        <button type="button" class="pano-btn" id="btn-pano-fullscreen" title="Layar Penuh">
+          <span>⛶</span> Fullscreen
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====================================================================
+       4. MODAL DOKUMENTASI RUANGAN (SRS-FR-06: Ruang PA)
+       ==================================================================== -->
+  <div class="modal-overlay" id="modal-room">
+    <div class="modal-card">
+      <div class="modal-header-hero">
+        <img src="assets/images/ruang-pa-front.jpg" alt="Foto Depan Ruangan" id="modal-room-image">
+        <div class="modal-hero-overlay"></div>
+        <button type="button" class="modal-close-btn" title="Tutup Modal">✕</button>
+        <div class="modal-hero-content">
+          <div class="modal-hero-badges">
+            <span class="modal-badge">Ruang Pelayanan</span>
+            <span class="modal-badge gold" id="modal-room-location">Gedung Perpustakaan — Lantai 1</span>
+          </div>
+          <h2 class="modal-hero-title" id="modal-room-title">Ruang Pelayanan Administrasi (PA)</h2>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- Patokan Posisi Sekitar (nearby_notes) -->
+        <div class="info-block">
+          <div class="info-block-label">
+            <span>📍</span> Patokan Posisi Ruangan di Lapangan
+          </div>
+          <div class="patokan-box">
+            <span>ℹ️</span>
+            <div id="modal-room-nearby">Terletak di Lantai 1, tepat di sebelah kiri lobi utama, berhadapan langsung dengan Ruang Baca Anak.</div>
+          </div>
+        </div>
+
+        <!-- Rincian Layanan Administrasi (services_info) -->
+        <div class="info-block">
+          <div class="info-block-label">
+            <span>📋</span> Standar Rincian Pelayanan &amp; Jam Operasional
+          </div>
+          <div class="service-details-card" id="modal-room-services">
+            Memuat informasi rincian layanan administrasi...
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="document.getElementById('modal-room').classList.remove('active')">Tutup</button>
+        <button type="button" class="btn-primary" id="btn-modal-open-pano">
+          <span>🔄</span> Buka Tur Panorama Ruangan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       5. MODAL DOKUMENTASI & KATALOG RAK BUKU (SRS-FR-07: Rak 03 Babad)
+       ==================================================================== -->
+  <div class="modal-overlay" id="modal-rack">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header-hero" style="height: 180px;">
+        <img src="assets/images/rak-03-babad.jpg" alt="Foto Fisik Rak Buku" id="modal-rack-image">
+        <div class="modal-hero-overlay"></div>
+        <button type="button" class="modal-close-btn" title="Tutup Modal">✕</button>
+        <div class="modal-hero-content">
+          <div class="modal-hero-badges">
+            <span class="modal-badge gold" id="modal-rack-ddc">DDC 959.82</span>
+            <span class="modal-badge">Katalog Fisik Rak</span>
+          </div>
+          <h2 class="modal-hero-title" id="modal-rack-title">Rak 03 - Koleksi Babad &amp; Sejarah Cirebon</h2>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- Patokan Letak Lorong (location_notes) -->
+        <div class="info-block">
+          <div class="info-block-label">
+            <span>📍</span> Patokan Posisi Lorong Rak
+          </div>
+          <div class="patokan-box">
+            <span>📚</span>
+            <div id="modal-rack-location">Gedung Perpustakaan Lantai 2, Ruang Koleksi Khusus, lorong ke-2 dari pintu masuk sebelah kiri.</div>
+          </div>
+        </div>
+
+        <!-- Tabel Daftar Buku (rack_books) -->
+        <div class="info-block">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <div class="info-block-label">
+              <span>📖</span> Daftar Buku &amp; Naskah Fisik di Rak Ini
+            </div>
+            <input type="text" id="modal-rack-search-books" placeholder="Filter judul/penulis..." style="font-size:0.75rem;padding:0.3rem 0.6rem;border:1px solid #cbd5e1;border-radius:6px;width:180px;">
+          </div>
+
+          <div class="books-table-wrapper">
+            <table class="books-table">
+              <thead>
+                <tr>
+                  <th>Judul Buku / Naskah</th>
+                  <th>Pengarang / Instansi</th>
+                  <th style="text-align: center;">Tahun</th>
+                  <th style="text-align: center;">Jumlah</th>
+                  <th>Status Akses</th>
+                </tr>
+              </thead>
+              <tbody id="modal-rack-books-tbody">
+                <!-- Diisi dinamis oleh JavaScript -->
+              </tbody>
+            </table>
+            <div id="modal-rack-books-empty" style="display:none;padding:1.5rem;text-align:center;color:#64748b;font-size:0.8rem;">
+              Belum ada data buku yang didaftarkan pada rak ini.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="document.getElementById('modal-rack').classList.remove('active')">Tutup</button>
+        <button type="button" class="btn-primary" id="btn-modal-rack-in-pano">
+          <span>🎯</span> Sorot Rak dalam Panorama 360°
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       6. MODAL LOGIN ADMIN / AKSES PETUGAS
+       DENGAN FOTO LOGO RESMI DISARPUS KAB. CIREBON
+       ==================================================================== -->
+  <div class="modal-overlay" id="modal-login">
+    <div class="login-modal-card">
+      <div class="login-header">
+        <button type="button" class="modal-close-btn" style="top: 0.75rem; right: 0.75rem;" title="Tutup Modal">✕</button>
+        
+        <!-- Logo Dinas Kearsipan dan Perpustakaan Kab. Cirebon (Foto Resmi yang Dikirimkan) -->
+        <div class="login-logo-wrapper">
+          <img src="assets/images/logo-disarpus.png" alt="Logo Dinas Kearsipan dan Perpustakaan Kabupaten Cirebon" class="login-logo-img">
+        </div>
+        
+        <h2 class="login-title">Akses Masuk Petugas</h2>
+        <p class="login-subtitle">Dinas Kearsipan dan Perpustakaan Kabupaten Cirebon</p>
+      </div>
+
+      <form id="login-form" class="login-body">
+        <div class="login-error-alert" id="login-error"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-email">Alamat Surel Dinas (Email)</label>
+          <div class="form-input-wrapper">
+            <span class="form-input-icon">📧</span>
+            <input type="email" id="login-email" class="form-input" placeholder="petugas@disarpus.cirebonkab.go.id" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Kata Sandi (Password)</label>
+          <div class="form-input-wrapper">
+            <span class="form-input-icon">🔒</span>
+            <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login-submit">
+          <span>🚀</span> Masuk ke Panel Petugas
+        </button>
+
+        <div class="demo-account-box">
+          <div style="font-weight:700;margin-bottom:2px;">Akun Evaluasi / Pengujian Sistem:</div>
+          <div>Surel: <code>admin@disarpus.cirebonkab.go.id</code></div>
+          <div>Sandi: <code>cirebon123</code></div>
+          <button type="button" id="btn-quick-demo" class="btn-quick-demo">
+            ⚡ 1-Klik Isi &amp; Masuk Demo Petugas
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       7. MODAL DIGITAL KIOSK & QR CODE PRA-KUNJUNGAN
+       ==================================================================== -->
+  <div class="modal-overlay" id="modal-qr">
+    <div class="modal-card" style="max-width: 440px; text-align: center;">
+      <div style="padding: 1.5rem 1.5rem 0.5rem;">
+        <button type="button" class="modal-close-btn" style="position:static; float:right;" title="Tutup">✕</button>
+        <h3 style="font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:0.25rem;">Pemandu Mandiri di Ponsel Anda</h3>
+        <p style="font-size:0.78rem;color:#64748b;">Pindai kode QR berikut untuk membuka sistem denah interaktif langsung di smartphone Anda saat berkeliling kantor dinas.</p>
+      </div>
+
+      <div style="padding: 1.5rem; display: flex; flex-direction: column; align-items: center;">
+        <div style="background:#ffffff;padding:1rem;border-radius:12px;border:2px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,0.06);margin-bottom:1rem;">
+          <svg width="180" height="180" viewBox="0 0 100 100" fill="#0f172a">
+            <path d="M0,0 h30 v30 h-30 z M5,5 v20 h20 v-20 z M10,10 h10 v10 h-10 z" />
+            <path d="M70,0 h30 v30 h-30 z M75,5 v20 h20 v-20 z M80,10 h10 v10 h-10 z" />
+            <path d="M0,70 h30 v30 h-30 z M5,75 v20 h20 v-20 z M10,80 h10 v10 h-10 z" />
+            <rect x="35" y="10" width="10" height="10" />
+            <rect x="55" y="10" width="10" height="10" />
+            <rect x="35" y="25" width="20" height="8" />
+            <rect x="40" y="40" width="20" height="20" />
+            <rect x="10" y="45" width="15" height="15" />
+            <rect x="75" y="45" width="15" height="15" />
+            <rect x="40" y="75" width="15" height="15" />
+            <rect x="65" y="70" width="10" height="20" />
+            <rect x="80" y="80" width="15" height="15" />
+          </svg>
+        </div>
+        <div style="font-size:0.75rem;font-weight:700;color:#0284c7;">
+          disarpus.cirebonkab.go.id/virtualtour
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: center;">
+        <button type="button" class="btn-secondary" onclick="document.getElementById('modal-qr').classList.remove('active')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Skrip JavaScript Aplikasi -->
+  <script src="assets/js/supabase-client.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

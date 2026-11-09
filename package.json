@@ -1,0 +1,19 @@
+{
+  "name": "projek-pkl-amel",
+  "version": "1.0.0",
+  "description": "Sistem Informasi Denah Interaktif dan Tur Panorama Fasilitas - Disarpus Kab. Cirebon",
+  "main": "index.html",
+  "scripts": {
+    "start": "python server.py",
+    "serve": "python server.py",
+    "dev": "python server.py"
+  },
+  "keywords": [
+    "disarpus",
+    "denah-interaktif",
+    "tur-panorama",
+    "cirebon"
+  ],
+  "author": "Amel",
+  "license": "ISC"
+}
