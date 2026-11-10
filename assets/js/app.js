@@ -513,11 +513,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // MODAL DOKUMENTASI RUANGAN (SRS-FR-06: Ruang PA)
     // =========================================================================
     function openRoomModal(room) {
+        const roomPhotoSrc = room.room_photo_url || (typeof resolvePanoramaUrl === 'function' ? resolvePanoramaUrl(room.panorama_image_url) : room.panorama_image_url);
         document.getElementById('modal-room-title').textContent = room.name;
         document.getElementById('modal-room-location').textContent = `${appState.currentBuilding} — Lantai ${appState.currentFloorNumber}`;
-        document.getElementById('modal-room-image').src = room.room_photo_url || room.panorama_image_url;
+        document.getElementById('modal-room-image').src = roomPhotoSrc;
         document.getElementById('modal-room-nearby').textContent = room.nearby_notes || 'Informasi patokan posisi belum diisi.';
         document.getElementById('modal-room-services').textContent = room.services_info || 'Layanan administrasi tersedia sesuai jam operasional dinas.';
+
+        const roomHeroEl = document.getElementById('room-modal-hero');
+        if (roomHeroEl) {
+            roomHeroEl.onclick = (e) => {
+                if (e.target.closest('.modal-close-btn')) return;
+                openPhotoLightbox(roomPhotoSrc, room.name);
+            };
+        }
 
         // Tombol Buka Tur Panorama Ruangan
         const btnOpenPano = document.getElementById('btn-modal-open-pano');
@@ -539,10 +548,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // MODAL DOKUMENTASI & KATALOG RAK BUKU (SRS-FR-07: Rak 03 Babad)
     // =========================================================================
     async function openRackModal(rack) {
+        const rackPhotoSrc = rack.rack_photo_url || 'assets/images/rak-03-babad.jpg';
         document.getElementById('modal-rack-title').textContent = rack.title;
         document.getElementById('modal-rack-ddc').textContent = rack.category_code || 'DDC-Umum';
-        document.getElementById('modal-rack-image').src = rack.rack_photo_url || 'assets/images/rak-03-babad.jpg';
+        document.getElementById('modal-rack-image').src = rackPhotoSrc;
         document.getElementById('modal-rack-location').textContent = rack.location_notes || 'Lokasi lorong pada ruang koleksi.';
+
+        const rackHeroEl = document.getElementById('rack-modal-hero');
+        if (rackHeroEl) {
+            rackHeroEl.onclick = (e) => {
+                if (e.target.closest('.modal-close-btn')) return;
+                openPhotoLightbox(rackPhotoSrc, rack.title);
+            };
+        }
 
         // Muat daftar buku di rak ini
         const books = await DataService.getBooksByRack(rack.id);
@@ -871,6 +889,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     function closeModal(modalEl) {
         if (modalEl) modalEl.classList.remove('active');
     }
+
+    function openPhotoLightbox(imgSrc, titleText = 'Foto Ruangan') {
+        const lightboxEl = document.getElementById('modal-photo-lightbox');
+        const lightboxImg = document.getElementById('lightbox-photo-img');
+        const lightboxTitle = document.getElementById('lightbox-photo-title');
+        if (!lightboxEl || !lightboxImg) return;
+        lightboxImg.src = imgSrc || '';
+        if (lightboxTitle) lightboxTitle.textContent = titleText || 'Foto Ruangan';
+        openModal(lightboxEl);
+    }
+
+    document.getElementById('lightbox-image-frame')?.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) {
+            closeModal(document.getElementById('modal-photo-lightbox'));
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const lightboxEl = document.getElementById('modal-photo-lightbox');
+        if (lightboxEl?.classList.contains('active')) {
+            closeModal(lightboxEl);
+            return;
+        }
+        document.querySelectorAll('.modal-overlay.active').forEach(m => closeModal(m));
+    });
 
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {

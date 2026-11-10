@@ -1043,6 +1043,43 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.modal-header-hero.clickable-hero {
+  cursor: zoom-in;
+}
+
+.modal-header-hero.clickable-hero:hover img {
+  transform: scale(1.03);
+}
+
+.modal-zoom-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1.25rem;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.modal-zoom-btn:hover {
+  background: var(--cirebon-blue);
+  border-color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .modal-hero-overlay {
@@ -1107,6 +1144,70 @@ body {
 .modal-close-btn:hover {
   background: #dc2626;
   transform: rotate(90deg);
+}
+
+/* Lightbox Penampil Foto Penuh (Opsi 1 - Full-View tanpa terpotong) */
+.lightbox-overlay {
+  z-index: 1200;
+  background: rgba(2, 6, 23, 0.9);
+  padding: 1.25rem;
+}
+
+.lightbox-container {
+  position: relative;
+  width: 100%;
+  max-width: 1060px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lightbox-topbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #ffffff;
+}
+
+.lightbox-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.75);
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lightbox-close {
+  position: static;
+  flex-shrink: 0;
+}
+
+.lightbox-image-frame {
+  width: 100%;
+  max-height: calc(92vh - 58px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.lightbox-image-frame img {
+  max-width: 100%;
+  max-height: calc(92vh - 64px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+  background: #0f172a;
 }
 
 /* Badan Modal */

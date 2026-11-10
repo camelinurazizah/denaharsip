@@ -220,9 +220,12 @@
        ==================================================================== -->
   <div class="modal-overlay" id="modal-room">
     <div class="modal-card">
-      <div class="modal-header-hero">
+      <div class="modal-header-hero clickable-hero" id="room-modal-hero" title="Klik untuk melihat foto penuh">
         <img src="assets/images/ruang-pa-front.jpg" alt="Foto Depan Ruangan" id="modal-room-image">
         <div class="modal-hero-overlay"></div>
+        <button type="button" class="modal-zoom-btn" id="btn-zoom-room-photo" title="Lihat Foto Penuh">
+          <span>🔍</span> Lihat Foto Penuh
+        </button>
         <button type="button" class="modal-close-btn" title="Tutup Modal">✕</button>
         <div class="modal-hero-content">
           <div class="modal-hero-badges">
@@ -270,9 +273,12 @@
        ==================================================================== -->
   <div class="modal-overlay" id="modal-rack">
     <div class="modal-card" style="max-width: 780px;">
-      <div class="modal-header-hero" style="height: 180px;">
+      <div class="modal-header-hero clickable-hero" id="rack-modal-hero" title="Klik untuk melihat foto penuh" style="height: 180px;">
         <img src="assets/images/rak-03-babad.jpg" alt="Foto Fisik Rak Buku" id="modal-rack-image">
         <div class="modal-hero-overlay"></div>
+        <button type="button" class="modal-zoom-btn" id="btn-zoom-rack-photo" title="Lihat Foto Penuh">
+          <span>🔍</span> Lihat Foto Penuh
+        </button>
         <button type="button" class="modal-close-btn" title="Tutup Modal">✕</button>
         <div class="modal-hero-content">
           <div class="modal-hero-badges">
@@ -423,6 +429,19 @@
 
       <div class="modal-footer" style="justify-content: center;">
         <button type="button" class="btn-secondary" onclick="document.getElementById('modal-qr').classList.remove('active')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox Penampil Foto Penuh (Full-View tanpa crop) -->
+  <div class="modal-overlay lightbox-overlay" id="modal-photo-lightbox">
+    <div class="lightbox-container">
+      <div class="lightbox-topbar">
+        <div class="lightbox-title" id="lightbox-photo-title">Foto Ruangan</div>
+        <button type="button" class="modal-close-btn lightbox-close" id="btn-close-lightbox" title="Tutup Foto Penuh">✕</button>
+      </div>
+      <div class="lightbox-image-frame" id="lightbox-image-frame">
+        <img src="" alt="Foto Penuh Ruangan" id="lightbox-photo-img">
       </div>
     </div>
   </div>
