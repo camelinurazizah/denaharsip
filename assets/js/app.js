@@ -289,14 +289,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             elSubbarLocation.textContent = `${appState.currentBuilding} — Lantai ${appState.currentFloorNumber} (${room.name})`;
         }
 
-        // Tentukan URL Panorama (Gunakan Base64 Data URI untuk jaminan tanpa CORS issue)
-        let panoUrl = room.panorama_image_url;
-        if (typeof window !== 'undefined' && window.PANORAMA_DATA) {
-            if (room.id === 1 || room.id === 2 || room.id === 3) panoUrl = window.PANORAMA_DATA.ruang_pa || panoUrl;
-            else if (room.id === 4 || room.id === 5) panoUrl = window.PANORAMA_DATA.ruang_babad || panoUrl;
-            else if (room.id === 6 || room.id === 7) panoUrl = window.PANORAMA_DATA.ruang_restorasi || panoUrl;
-            else if (room.id === 8) panoUrl = window.PANORAMA_DATA.depo_arsip || panoUrl;
-        }
+        // Tentukan URL Panorama (Prioritaskan foto kustom hasil upload admin, fallback ke PANORAMA_DATA bebas CORS)
+        let panoUrl = typeof resolvePanoramaUrl === 'function'
+            ? resolvePanoramaUrl(room.panorama_image_url)
+            : room.panorama_image_url;
 
         // Siapkan daftar hotspots rak untuk ruangan ini
         DataService.getRacksByRoom(room.id).then(racks => {

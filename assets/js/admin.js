@@ -73,6 +73,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================================================================
     // HELPER GLOBAL: WIDGET UPLOAD BERKAS & PREVIEW (SVG / JPG / PNG / WEBP)
     // =========================================================================
+    function formatMediaLabel(src, fallback = 'Berkas Terpilih') {
+        if (!src) return fallback;
+        if (src.startsWith('data:')) return '📷 Foto Terunggah (Tersimpan di Sistem)';
+        return src.split('?')[0].split('/').pop() || fallback;
+    }
+
     function setupImageUploader({
         fileInputId,
         dropzoneId,
@@ -119,12 +125,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            showAdminToast(`⏳ Memuat berkas ${file.name}...`, 'info');
+            showAdminToast(`⏳ Mengoptimalkan & memuat berkas ${file.name}...`, 'info');
             try {
                 const mediaUrl = await DataService.uploadMedia(file, bucket);
                 if (mediaUrl) {
                     if (hiddenInput) hiddenInput.value = mediaUrl;
-                    if (manualInput) manualInput.value = mediaUrl;
+                    if (manualInput) manualInput.value = mediaUrl.startsWith('data:') ? '' : mediaUrl;
                     showPreview(mediaUrl, file.name);
                     showAdminToast(`✅ Berkas "${file.name}" berhasil dimuat!`, 'success');
                     if (typeof onChange === 'function') onChange(mediaUrl);
@@ -132,6 +138,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (err) {
                 console.error('Upload media error:', err);
                 showAdminToast('⚠️ Gagal memuat berkas gambar.', 'error');
+            } finally {
+                fileInput.value = '';
             }
         });
 
@@ -427,12 +435,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             roomInputPhoto.value = room.room_photo_url || 'assets/images/ruang-pa-front.jpg';
             roomInputPano.value = room.panorama_image_url || 'assets/images/ruang-pa-pano.jpg';
             if (room.room_photo_url) {
-                uploaderRoomPhoto.showPreview(room.room_photo_url, room.room_photo_url.split('/').pop());
+                uploaderRoomPhoto.showPreview(room.room_photo_url, formatMediaLabel(room.room_photo_url, 'ruang-pa-front.jpg'));
             } else {
                 uploaderRoomPhoto.hidePreview();
             }
             if (room.panorama_image_url) {
-                uploaderRoomPano.showPreview(room.panorama_image_url, room.panorama_image_url.split('/').pop());
+                uploaderRoomPano.showPreview(room.panorama_image_url, formatMediaLabel(room.panorama_image_url, 'ruang-pa-pano.jpg'));
             } else {
                 uploaderRoomPano.hidePreview();
             }
@@ -563,12 +571,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             map_y: parseFloat(roomInputMapY.value) || 30.0
         };
 
-        await DataService.saveRoom(roomData);
-        closeRoomModal();
-        showAdminToast(`✅ Data Ruangan "${nameVal}" berhasil disimpan!`, 'success');
-        resetRoomForm();
-        await loadInitialAdminData();
-        refreshRecordsTable();
+        try {
+            await DataService.saveRoom(roomData);
+            closeRoomModal();
+            showAdminToast(`✅ Data Ruangan "${nameVal}" berhasil disimpan!`, 'success');
+            resetRoomForm();
+            await loadInitialAdminData();
+            refreshRecordsTable();
+        } catch (err) {
+            console.error('Simpan ruangan gagal:', err);
+            showAdminToast(`❌ Gagal menyimpan ruangan: ${err.message || 'Penyimpanan penuh'}`, 'error');
+        }
     });
 
     function resetRoomForm() {
@@ -602,7 +615,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // TAB 3: VISUAL HOTSPOT MAPPER & INPUT KATALOG BUKU (SRS-FR-13 & SRS-FR-14)
     // =========================================================================
     let adminPanoViewer = null;
+    let isMapperFallbackMode = false;
     const mapperSelectRoom = document.getElementById('mapper-select-room');
+    const mapperFilePano = document.getElementById('mapper-file-pano');
+    const btnMapperUploadPano = document.getElementById('btn-mapper-upload-pano');
+    const mapperPanoStatus = document.getElementById('mapper-pano-status');
     const rackInputTitle = document.getElementById('rack-input-title');
     const rackInputDDC = document.getElementById('rack-input-ddc');
     const rackInputLocation = document.getElementById('rack-input-location');
@@ -613,6 +630,88 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rackBooksTbody = document.getElementById('rack-books-tbody');
     const btnAddBookRow = document.getElementById('btn-add-book-row');
     const formRack = document.getElementById('form-rack');
+    const viewerEl = document.getElementById('admin-mapper-viewer');
+
+    // Klik langsung pada viewer Pannellum (didaftarkan sekali)
+    let mapperMouseDownPos = null;
+    viewerEl?.addEventListener('mousedown', (ev) => {
+        mapperMouseDownPos = { x: ev.clientX, y: ev.clientY };
+    });
+    viewerEl?.addEventListener('mouseup', (event) => {
+        if (isMapperFallbackMode || !adminPanoViewer) return;
+        // Abaikan jika admin sedang menggeser (drag) kamera, hanya tangkap klik titik
+        if (mapperMouseDownPos) {
+            const dist = Math.hypot(event.clientX - mapperMouseDownPos.x, event.clientY - mapperMouseDownPos.y);
+            if (dist > 6) return;
+        }
+        try {
+            const coords = adminPanoViewer.mouseEventToCoords(event);
+            if (coords && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+                const pitch = coords[0].toFixed(2);
+                const yaw = coords[1].toFixed(2);
+                if (rackInputPitch) rackInputPitch.value = pitch;
+                if (rackInputYaw) rackInputYaw.value = yaw;
+                showAdminToast(`🎯 Hotspot Terkunci! Pitch: ${pitch}°, Yaw: ${yaw}°`, 'info');
+            }
+        } catch (err) {
+            console.log('Coords calculation:', err);
+        }
+    });
+
+    // Fallback Viewer 360 untuk Admin jika WebGL / file:/// memblokir Pannellum
+    function renderAdminFallbackPanorama(container, panoUrl) {
+        if (!container) return;
+        isMapperFallbackMode = true;
+        container.innerHTML = `
+            <div id="admin-fallback-pano" style="position:relative;width:100%;height:100%;min-height:360px;overflow:hidden;cursor:crosshair;background:#0f172a;">
+                <div id="admin-fallback-canvas" style="width:100%;height:100%;background-image:url('${panoUrl}');background-size:auto 120%;background-repeat:repeat-x;background-position:0px 50%;transition:background-position 0.03s linear;"></div>
+                <div style="position:absolute;bottom:10px;left:12px;background:rgba(15,23,42,0.8);color:#fff;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;pointer-events:none;">
+                    🌐 Mode Kompatibel: Geser layar untuk memutar, klik titik rak untuk ambil koordinat
+                </div>
+            </div>
+        `;
+        const wrap = document.getElementById('admin-fallback-pano');
+        const canvas = document.getElementById('admin-fallback-canvas');
+        let dragging = false;
+        let downX = 0, downY = 0, lastX = 0, lastY = 0;
+        let yaw = 0, pitch = 0;
+
+        function updatePos() {
+            const w = wrap.clientWidth || 600;
+            const bgX = yaw * (w / 90);
+            const bgY = Math.max(10, Math.min(90, 50 + pitch * 0.8));
+            canvas.style.backgroundPosition = `${bgX}px ${bgY}%`;
+        }
+
+        wrap.addEventListener('mousedown', (e) => {
+            dragging = true;
+            downX = lastX = e.clientX;
+            downY = lastY = e.clientY;
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (!dragging) return;
+            yaw -= (e.clientX - lastX) * 0.25;
+            pitch = Math.max(-35, Math.min(35, pitch + (e.clientY - lastY) * 0.2));
+            lastX = e.clientX;
+            lastY = e.clientY;
+            updatePos();
+        });
+        window.addEventListener('mouseup', (e) => {
+            if (!dragging) return;
+            dragging = false;
+            const moved = Math.hypot(e.clientX - downX, e.clientY - downY);
+            if (moved <= 6 && wrap.contains(e.target)) {
+                const rect = wrap.getBoundingClientRect();
+                const relX = (e.clientX - rect.left) / rect.width - 0.5;
+                const relY = 0.5 - (e.clientY - rect.top) / rect.height;
+                const calcYaw = (((yaw + relX * 90) % 360) + 540) % 360 - 180;
+                const calcPitch = Math.max(-45, Math.min(45, pitch + relY * 60));
+                if (rackInputPitch) rackInputPitch.value = calcPitch.toFixed(2);
+                if (rackInputYaw) rackInputYaw.value = calcYaw.toFixed(2);
+                showAdminToast(`🎯 Hotspot Terkunci! Pitch: ${calcPitch.toFixed(2)}°, Yaw: ${calcYaw.toFixed(2)}°`, 'info');
+            }
+        });
+    }
 
     async function initHotspotMapperRoom() {
         if (!mapperSelectRoom) return;
@@ -620,18 +719,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         const room = await DataService.getRoomById(roomId);
         if (!room) return;
 
-        // Muat panorama ruangan pada kanvas editor admin
-        if (adminPanoViewer) {
-            try { adminPanoViewer.destroy(); } catch (e) {}
+        // Perbarui badge status foto panorama ruangan ini
+        if (mapperPanoStatus) {
+            const rawUrl = (room.panorama_image_url || '').trim();
+            if (rawUrl.startsWith('data:') || rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+                mapperPanoStatus.textContent = '✅ Foto panorama ruangan ini sudah kustom';
+                mapperPanoStatus.style.color = '#16a34a';
+            } else {
+                mapperPanoStatus.textContent = 'ℹ️ Masih memakai foto panorama bawaan — klik tombol di kanan untuk upload foto asli ruangan';
+                mapperPanoStatus.style.color = '#d97706';
+            }
         }
 
-        let panoUrl = room.panorama_image_url;
-        if (typeof window !== 'undefined' && window.PANORAMA_DATA) {
-            if (room.id === 1 || room.id === 2 || room.id === 3) panoUrl = window.PANORAMA_DATA.ruang_pa || panoUrl;
-            else if (room.id === 4 || room.id === 5) panoUrl = window.PANORAMA_DATA.ruang_babad || panoUrl;
-            else if (room.id === 6 || room.id === 7) panoUrl = window.PANORAMA_DATA.ruang_restorasi || panoUrl;
-            else if (room.id === 8) panoUrl = window.PANORAMA_DATA.depo_arsip || panoUrl;
+        // Hancurkan viewer lama jika ada
+        if (adminPanoViewer) {
+            try { adminPanoViewer.destroy(); } catch (e) {}
+            adminPanoViewer = null;
         }
+        isMapperFallbackMode = false;
+
+        const panoUrl = typeof resolvePanoramaUrl === 'function'
+            ? resolvePanoramaUrl(room.panorama_image_url)
+            : room.panorama_image_url;
 
         try {
             if (typeof pannellum !== 'undefined' && pannellum.viewer) {
@@ -646,31 +755,50 @@ document.addEventListener('DOMContentLoaded', async () => {
                     mouseZoom: true,
                     hfov: 100
                 });
-
-                // SRS-FR-13: Menangkap Koordinat Pitch & Yaw saat Petugas Mengklik Titik Rak di Panorama!
-                const viewerEl = document.getElementById('admin-mapper-viewer');
-                viewerEl?.addEventListener('mouseup', (event) => {
-                    if (!adminPanoViewer) return;
-                    try {
-                        const coords = adminPanoViewer.mouseEventToCoords(event);
-                        if (coords && coords.length === 2) {
-                            const pitch = coords[0].toFixed(2);
-                            const yaw = coords[1].toFixed(2);
-
-                            rackInputPitch.value = pitch;
-                            rackInputYaw.value = yaw;
-
-                            showAdminToast(`🎯 Hotspot Terkunci! Pitch: ${pitch}°, Yaw: ${yaw}°`, 'info');
-                        }
-                    } catch (err) {
-                        console.log('Coords calculation:', err);
-                    }
+                adminPanoViewer.on('error', () => {
+                    renderAdminFallbackPanorama(viewerEl, panoUrl);
                 });
+            } else {
+                renderAdminFallbackPanorama(viewerEl, panoUrl);
             }
         } catch (e) {
             console.error('Mapper panorama error:', e);
+            renderAdminFallbackPanorama(viewerEl, panoUrl);
         }
     }
+
+    // Upload / ganti panorama langsung dari tab Visual Hotspot Mapper
+    btnMapperUploadPano?.addEventListener('click', () => {
+        if (!mapperSelectRoom?.value) {
+            showAdminToast('⚠️ Pilih ruangan terlebih dahulu.', 'warning');
+            return;
+        }
+        mapperFilePano?.click();
+    });
+
+    mapperFilePano?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file || !mapperSelectRoom?.value) return;
+
+        const roomId = mapperSelectRoom.value;
+        showAdminToast(`⏳ Mengunggah & mengoptimalkan panorama "${file.name}"...`, 'info');
+        try {
+            const room = await DataService.getRoomById(roomId);
+            if (!room) throw new Error('Ruangan tidak ditemukan.');
+
+            const mediaUrl = await DataService.uploadMedia(file, 'panoramas');
+            await DataService.saveRoom({ ...room, panorama_image_url: mediaUrl });
+
+            showAdminToast(`✅ Foto panorama untuk "${room.name}" berhasil diperbarui!`, 'success');
+            await initHotspotMapperRoom();
+            refreshRecordsTable();
+        } catch (err) {
+            console.error('Upload panorama langsung gagal:', err);
+            showAdminToast(`❌ Gagal menyimpan panorama: ${err.message || 'Cek ukuran foto'}`, 'error');
+        } finally {
+            mapperFilePano.value = '';
+        }
+    });
 
     mapperSelectRoom?.addEventListener('change', initHotspotMapperRoom);
 
@@ -1010,6 +1138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 2. Isi dropdown Ruangan pada form Hotspot Mapper
         if (mapperSelectRoom) {
+            const prevRoomId = mapperSelectRoom.value;
             mapperSelectRoom.innerHTML = '';
             rooms.forEach(r => {
                 const opt = document.createElement('option');
@@ -1018,9 +1147,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 mapperSelectRoom.appendChild(opt);
             });
 
-            // Set default room ke Ruang Koleksi Babad Cirebon jika ada
-            const babadRoom = rooms.find(r => r.name.toLowerCase().includes('babad'));
-            if (babadRoom) mapperSelectRoom.value = babadRoom.id;
+            if (prevRoomId && rooms.some(r => String(r.id) === String(prevRoomId))) {
+                mapperSelectRoom.value = prevRoomId;
+            } else {
+                const babadRoom = rooms.find(r => r.name.toLowerCase().includes('babad'));
+                if (babadRoom) mapperSelectRoom.value = babadRoom.id;
+            }
 
             initHotspotMapperRoom();
         }

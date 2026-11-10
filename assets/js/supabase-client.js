@@ -23,10 +23,13 @@ const safeStorage = {
         try {
             if (typeof window !== 'undefined' && window.localStorage) {
                 window.localStorage.setItem(key, String(val));
-                return;
+                return true;
             }
-        } catch (e) { }
+        } catch (e) {
+            console.warn('⚠️ Penyimpanan browser penuh atau tidak tersedia untuk key:', key, e);
+        }
         this._mem[key] = String(val);
+        return false;
     },
     removeItem(key) {
         try {
@@ -55,7 +58,7 @@ function initSupabase() {
 
     if (typeof window !== 'undefined' && window.supabase && url && key && url.startsWith('http')) {
         try {
-            supabaseClient = window.supabaseClient.createClient(url, key);
+            supabaseClient = window.supabase.createClient(url, key);
             isSupabaseActive = true;
             console.log('✅ Supabase Client terhubung ke:', url);
         } catch (err) {
@@ -77,6 +80,22 @@ function getPanoAsset(key, fallbackPath) {
         return window.PANORAMA_DATA[key];
     }
     return fallbackPath;
+}
+
+// Helper global: Memastikan URL panorama kustom (upload Base64 / HTTPS) selalu diprioritaskan,
+// sedangkan jalur relatif bawaan otomatis dialihkan ke PANORAMA_DATA agar bebas error CORS file:///
+function resolvePanoramaUrl(panoUrl) {
+    const url = (panoUrl || '').trim();
+    if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+        return url;
+    }
+    if (typeof window !== 'undefined' && window.PANORAMA_DATA) {
+        if (url.includes('ruang-babad-pano')) return window.PANORAMA_DATA.ruang_babad || url;
+        if (url.includes('ruang-restorasi-pano')) return window.PANORAMA_DATA.ruang_restorasi || url;
+        if (url.includes('depo-arsip-pano')) return window.PANORAMA_DATA.depo_arsip || url;
+        if (url.includes('ruang-pa-pano') || !url) return window.PANORAMA_DATA.ruang_pa || url;
+    }
+    return url || 'assets/images/ruang-pa-pano.jpg';
 }
 
 const DEFAULT_FLOORS = [
@@ -338,25 +357,70 @@ function getLocalData(key, defaultData) {
         }
     }
 
-    // Pembaruan otomatis: Pastikan gambar panorama ruangan menggunakan Base64 Data URI jika tersedia
-    if (key === 'rooms' && typeof window !== 'undefined' && window.PANORAMA_DATA && Array.isArray(data)) {
-        data = data.map(r => {
-            let pano = r.panorama_image_url;
-            if (!pano || !pano.startsWith('data:')) {
-                if (r.id === 1 || r.id === 2 || r.id === 3) pano = window.PANORAMA_DATA.ruang_pa || pano;
-                else if (r.id === 4 || r.id === 5) pano = window.PANORAMA_DATA.ruang_babad || pano;
-                else if (r.id === 6 || r.id === 7) pano = window.PANORAMA_DATA.ruang_restorasi || pano;
-                else if (r.id === 8) pano = window.PANORAMA_DATA.depo_arsip || pano;
-            }
-            return { ...r, panorama_image_url: pano };
-        });
+    // Pastikan setiap ruangan memiliki path/URL panorama (tanpa menimpa upload kustom)
+    if (key === 'rooms' && Array.isArray(data)) {
+        data = data.map(r => ({
+            ...r,
+            panorama_image_url: r.panorama_image_url || 'assets/images/ruang-pa-pano.jpg'
+        }));
     }
 
     return data;
 }
 
 function setLocalData(key, data) {
-    safeStorage.setItem('disarpus_' + key, JSON.stringify(data));
+    const ok = safeStorage.setItem('disarpus_' + key, JSON.stringify(data));
+    if (!ok) {
+        throw new Error('Kapasitas penyimpanan lokal browser penuh. Gunakan gambar berukuran lebih kecil atau hubungkan ke Supabase.');
+    }
+    return true;
+}
+
+// Helper kompresi gambar otomatis di sisi klien agar aman disimpan di LocalStorage
+function compressImageToDataUrl(file, bucket = 'details') {
+    return new Promise((resolve, reject) => {
+        if (file.type === 'image/svg+xml') {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (err) => reject(err);
+            reader.readAsDataURL(file);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onerror = (err) => reject(err);
+        reader.onload = (e) => {
+            const rawDataUrl = e.target.result;
+            const img = new Image();
+            img.onerror = () => resolve(rawDataUrl);
+            img.onload = () => {
+                try {
+                    const maxWidth = bucket === 'panoramas' ? 2048 : 1280;
+                    const quality = bucket === 'panoramas' ? 0.78 : 0.80;
+                    let width = img.naturalWidth || img.width;
+                    let height = img.naturalHeight || img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round(height * (maxWidth / width));
+                        width = maxWidth;
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressedUrl = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressedUrl.length < rawDataUrl.length ? compressedUrl : rawDataUrl);
+                } catch (convErr) {
+                    resolve(rawDataUrl);
+                }
+            };
+            img.src = rawDataUrl;
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 // Inisialisasi awal
@@ -387,17 +451,12 @@ const DataService = {
                     if (publicData?.publicUrl) return publicData.publicUrl;
                 }
             } catch (err) {
-                console.warn('Gagal upload ke Supabase Storage, menggunakan fallback Base64 lokal:', err);
+                console.warn('Gagal upload ke Supabase Storage, menggunakan fallback terkompresi lokal:', err);
             }
         }
 
-        // B. Fallback Lokal / Demo Mode: Konversi berkas langsung menjadi Base64 Data URL
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
-            reader.onerror = (err) => reject(err);
-            reader.readAsDataURL(file);
-        });
+        // B. Fallback Lokal / Demo Mode: Kompres gambar & konversi ke Base64 Data URL agar hemat memori
+        return compressImageToDataUrl(file, bucket);
     },
 
     // 1. DATA LANTAI (FLOORS)
