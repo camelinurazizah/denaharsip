@@ -52,8 +52,10 @@ File ini akan otomatis:
 ### CARA 2: Melalui Terminal / Command Prompt (Manual)
 Jika Anda ingin menjalankannya lewat terminal:
 ```bash
-# Jalankan server lokal:
-python -m http.server 8000
+# Menggunakan Node.js:
+node server.js
+# atau:
+npm start
 ```
 Lalu buka peramban di:
 👉 **`http://localhost:8000`** (Portal Pengunjung Publik)
