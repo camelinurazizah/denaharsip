@@ -297,11 +297,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Siapkan daftar hotspots rak untuk ruangan ini
         DataService.getRacksByRoom(room.id).then(racks => {
             const hotspots = racks.map(rack => ({
-                pitch: rack.pitch,
-                yaw: rack.yaw,
-                type: 'info',
-                text: `${rack.title} (${rack.category_code || 'Katalog'})`,
+                pitch: Number(rack.pitch) || 0,
+                yaw: Number(rack.yaw) || 0,
                 cssClass: 'pnlm-custom-hotspot',
+                createTooltipFunc: (hotSpotDiv, args) => {
+                    const pill = document.createElement('div');
+                    pill.className = 'hotspot-marker-pill';
+                    pill.title = args.fullText;
+                    const icon = document.createElement('span');
+                    icon.textContent = '📚';
+                    const label = document.createElement('span');
+                    label.textContent = args.label;
+                    pill.appendChild(icon);
+                    pill.appendChild(label);
+                    hotSpotDiv.appendChild(pill);
+                },
+                createTooltipArgs: {
+                    label: rack.short_title || rack.title,
+                    fullText: `${rack.title}${rack.category_code ? ` (${rack.category_code})` : ''}`
+                },
                 clickHandlerFunc: () => {
                     openRackModal(rack);
                 }
@@ -539,6 +553,59 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById('panorama-viewer').scrollIntoView({ behavior: 'smooth' });
             }
         };
+
+        // Muat daftar titik rak / lemari arsip di dalam ruangan ini
+        const racksBlock = document.getElementById('modal-room-racks-block');
+        const racksListEl = document.getElementById('modal-room-racks-list');
+        if (racksBlock && racksListEl) {
+            racksBlock.style.display = 'none';
+            racksListEl.innerHTML = '';
+            DataService.getRacksByRoom(room.id).then(racks => {
+                if (!racks || racks.length === 0) return;
+                racksBlock.style.display = 'flex';
+                racks.forEach(rack => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'room-rack-item-btn';
+
+                    const leftDiv = document.createElement('div');
+                    leftDiv.style.display = 'flex';
+                    leftDiv.style.flexDirection = 'column';
+                    leftDiv.style.gap = '2px';
+
+                    const titleSpan = document.createElement('span');
+                    titleSpan.style.fontWeight = '700';
+                    titleSpan.style.fontSize = '0.84rem';
+                    titleSpan.style.color = '#92400e';
+                    titleSpan.textContent = `📚 ${rack.title}`;
+
+                    const noteSpan = document.createElement('span');
+                    noteSpan.style.fontSize = '0.74rem';
+                    noteSpan.style.color = '#64748b';
+                    noteSpan.textContent = rack.location_notes || (rack.category_code ? `Kode: ${rack.category_code}` : 'Klik untuk lihat detail & arahkan kamera 360°');
+
+                    leftDiv.appendChild(titleSpan);
+                    leftDiv.appendChild(noteSpan);
+
+                    const rightSpan = document.createElement('span');
+                    rightSpan.style.fontSize = '0.75rem';
+                    rightSpan.style.fontWeight = '700';
+                    rightSpan.style.color = '#d97706';
+                    rightSpan.textContent = 'Lihat Isi →';
+
+                    btn.appendChild(leftDiv);
+                    btn.appendChild(rightSpan);
+
+                    btn.addEventListener('click', () => {
+                        closeModal(modalRoom);
+                        loadRoomPanorama(room, rack.pitch, rack.yaw);
+                        openRackModal(rack);
+                    });
+
+                    racksListEl.appendChild(btn);
+                });
+            });
+        }
 
         openModal(modalRoom);
         highlightPin('room', room.id);

@@ -394,8 +394,12 @@
                 <input type="text" id="rack-input-ddc" placeholder="Contoh: 959.82">
               </div>
               <div class="form-group-admin">
-                <label for="rack-input-photo">Foto Close-up Rak</label>
-                <input type="text" id="rack-input-photo" value="assets/images/rak-03-babad.jpg">
+                <label for="rack-input-photo">Foto Close-up Rak (Opsional)</label>
+                <div style="display:flex; gap:0.4rem; align-items:center;">
+                  <input type="text" id="rack-input-photo" value="assets/images/rak-03-babad.jpg" style="flex:1;">
+                  <input type="file" id="rack-file-photo" accept="image/png, image/jpeg, image/webp" style="display:none;">
+                  <button type="button" id="btn-rack-upload-photo" class="btn-add-book-row" style="white-space:nowrap; padding:0.55rem 0.75rem;" title="Upload Foto Rak dari Perangkat">📷 Upload</button>
+                </div>
               </div>
             </div>
 
@@ -452,6 +456,29 @@
               </button>
             </div>
           </form>
+        </div>
+
+        <!-- Daftar Titik Rak yang Sudah Tersimpan di Ruangan Kerja Aktif -->
+        <div class="admin-card" style="margin-top: 1.25rem;">
+          <div class="admin-card-header">
+            <div class="admin-card-title">
+              <span>📚</span> Titik Rak &amp; Lemari Tersimpan di Ruangan Ini
+            </div>
+          </div>
+          <div class="data-table-container">
+            <table class="records-table">
+              <thead>
+                <tr>
+                  <th>Nama Rak / Fasilitas</th>
+                  <th>Kode / DDC</th>
+                  <th>Patokan Lorong</th>
+                  <th>Sudut (Pitch / Yaw)</th>
+                  <th style="width:140px; text-align:center;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="mapper-room-racks-tbody"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 

@@ -466,6 +466,37 @@ body.admin-body {
   pointer-events: none;
 }
 
+.pnlm-custom-hotspot {
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+  cursor: pointer;
+  z-index: 6;
+}
+
+.hotspot-marker-pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(217, 119, 6, 0.94);
+  color: #ffffff;
+  padding: 0.3rem 0.68rem;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.45);
+  pointer-events: auto;
+}
+
 /* Dynamic Books Table in Admin (SRS-FR-14) */
 .admin-books-table {
   width: 100%;

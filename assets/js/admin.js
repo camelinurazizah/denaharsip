@@ -729,6 +729,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
+        // Muat semua titik rak yang sudah tersimpan di ruangan ini agar tampil langsung di kanvas 360 & tabel
+        const roomRacks = await DataService.getRacksByRoom(roomId);
+        renderMapperRoomRacksList(roomRacks);
+
+        const hotspots = (roomRacks || []).map(rack => ({
+            pitch: Number(rack.pitch) || 0,
+            yaw: Number(rack.yaw) || 0,
+            cssClass: 'pnlm-custom-hotspot',
+            createTooltipFunc: (hotSpotDiv, args) => {
+                const pill = document.createElement('div');
+                pill.className = 'hotspot-marker-pill';
+                pill.title = args.title;
+                const icon = document.createElement('span');
+                icon.textContent = '📚';
+                const label = document.createElement('span');
+                label.textContent = args.title;
+                pill.appendChild(icon);
+                pill.appendChild(label);
+                hotSpotDiv.appendChild(pill);
+            },
+            createTooltipArgs: { title: rack.short_title || rack.title },
+            clickHandlerFunc: () => loadRackIntoMapperForm(rack.id)
+        }));
+
         // Hancurkan viewer lama jika ada
         if (adminPanoViewer) {
             try { adminPanoViewer.destroy(); } catch (e) {}
@@ -751,7 +775,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     showZoomCtrl: true,
                     showFullscreenCtrl: true,
                     mouseZoom: true,
-                    hfov: 100
+                    hfov: 100,
+                    hotSpots: hotspots
                 });
                 adminPanoViewer.on('error', () => {
                     renderAdminFallbackPanorama(viewerEl, panoUrl);
@@ -765,6 +790,124 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    async function loadRackIntoMapperForm(rackId) {
+        const rack = await DataService.getRackById(rackId);
+        if (!rack) return;
+        formRack.setAttribute('data-id', rack.id);
+        mapperSelectRoom.value = rack.room_id;
+        rackInputTitle.value = rack.title || '';
+        rackInputDDC.value = rack.category_code || '';
+        rackInputLocation.value = rack.location_notes || '';
+        rackInputPitch.value = rack.pitch;
+        rackInputYaw.value = rack.yaw;
+        rackInputTags.value = rack.search_tags || '';
+        rackInputPhoto.value = rack.rack_photo_url || 'assets/images/rak-03-babad.jpg';
+        const submitBtn = document.getElementById('btn-rack-submit');
+        if (submitBtn) submitBtn.innerHTML = '<span>💾</span> Perbarui Titik Rak &amp; Buku';
+
+        const books = await DataService.getBooksByRack(rack.id);
+        rackBooksTbody.innerHTML = '';
+        if (books.length > 0) {
+            books.forEach(b => addBookTableRow(b.title, b.author, b.publish_year, b.copies, b.status));
+        } else {
+            addBookTableRow('', '', '', 1, 'Baca di Tempat');
+        }
+        if (adminPanoViewer && !isMapperFallbackMode) {
+            try { adminPanoViewer.lookAt(Number(rack.pitch) || 0, Number(rack.yaw) || 0, 100, 600); } catch (e) {}
+        }
+        showAdminToast(`✏️ Memuat "${rack.title}" untuk disunting.`, 'info');
+    }
+
+    function renderMapperRoomRacksList(racks) {
+        const tbody = document.getElementById('mapper-room-racks-tbody');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        if (!racks || racks.length === 0) {
+            const emptyTr = document.createElement('tr');
+            emptyTr.innerHTML = '<td colspan="5" style="text-align:center;color:#64748b;padding:1.25rem;">Belum ada titik rak / lemari arsip yang ditandai di ruangan ini. Klik objek pada panorama di atas lalu isi formulir di sebelah kanan untuk menambahkannya.</td>';
+            tbody.appendChild(emptyTr);
+            return;
+        }
+        racks.forEach(rk => {
+            const tr = document.createElement('tr');
+
+            const tdTitle = document.createElement('td');
+            tdTitle.style.fontWeight = '700';
+            tdTitle.textContent = rk.title;
+
+            const tdDdc = document.createElement('td');
+            const badge = document.createElement('span');
+            badge.className = 'badge-instansi';
+            badge.style.cssText = 'background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:4px;';
+            badge.textContent = rk.category_code || '-';
+            tdDdc.appendChild(badge);
+
+            const tdLoc = document.createElement('td');
+            tdLoc.style.cssText = 'color:#64748b;font-size:0.78rem;';
+            tdLoc.textContent = rk.location_notes || '-';
+
+            const tdCoord = document.createElement('td');
+            tdCoord.textContent = `Pitch: ${rk.pitch}° | Yaw: ${rk.yaw}°`;
+
+            const tdAction = document.createElement('td');
+            tdAction.style.textAlign = 'center';
+            const actBox = document.createElement('div');
+            actBox.className = 'action-buttons-cell';
+            actBox.style.justifyContent = 'center';
+
+            const btnEdit = document.createElement('button');
+            btnEdit.type = 'button';
+            btnEdit.className = 'btn-table-edit';
+            btnEdit.textContent = '✏️ Edit';
+            btnEdit.addEventListener('click', () => loadRackIntoMapperForm(rk.id));
+
+            const btnDel = document.createElement('button');
+            btnDel.type = 'button';
+            btnDel.className = 'btn-table-delete';
+            btnDel.textContent = '🗑️ Hapus';
+            btnDel.addEventListener('click', async () => {
+                if (confirm(`Apakah Anda yakin ingin menghapus "${rk.title}" beserta daftar isinya?`)) {
+                    await DataService.deleteRack(rk.id);
+                    showAdminToast('Titik rak berhasil dihapus.', 'info');
+                    await initHotspotMapperRoom();
+                    refreshRecordsTable();
+                }
+            });
+
+            actBox.appendChild(btnEdit);
+            actBox.appendChild(btnDel);
+            tdAction.appendChild(actBox);
+
+            tr.appendChild(tdTitle);
+            tr.appendChild(tdDdc);
+            tr.appendChild(tdLoc);
+            tr.appendChild(tdCoord);
+            tr.appendChild(tdAction);
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Upload Foto Close-up Rak
+    const rackFilePhoto = document.getElementById('rack-file-photo');
+    const btnRackUploadPhoto = document.getElementById('btn-rack-upload-photo');
+    btnRackUploadPhoto?.addEventListener('click', () => rackFilePhoto?.click());
+    rackFilePhoto?.addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        showAdminToast(`⏳ Mengunggah foto rak "${file.name}"...`, 'info');
+        try {
+            const mediaUrl = await DataService.uploadMedia(file, 'details');
+            if (mediaUrl && rackInputPhoto) {
+                rackInputPhoto.value = mediaUrl;
+                showAdminToast(`✅ Foto rak "${file.name}" berhasil dimuat!`, 'success');
+            }
+        } catch (err) {
+            showAdminToast('⚠️ Gagal mengunggah foto rak.', 'error');
+        } finally {
+            rackFilePhoto.value = '';
+        }
+    });
+
     mapperSelectRoom?.addEventListener('change', initHotspotMapperRoom);
 
     // SRS-FR-14: Manajemen Baris Buku Dinamis (+ Tambah Buku)
@@ -775,8 +918,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function addBookTableRow(title = '', author = '', year = '', copies = 1, status = 'Baca di Tempat') {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" class="book-row-title" placeholder="Judul Buku / Naskah" value="${title}" required></td>
-            <td><input type="text" class="book-row-author" placeholder="Nama Pengarang" value="${author}"></td>
+            <td><input type="text" class="book-row-title" placeholder="Judul Buku / Berkas (Opsional)" value="${title}"></td>
+            <td><input type="text" class="book-row-author" placeholder="Nama Pengarang / Instansi" value="${author}"></td>
             <td style="width:100px;"><input type="text" class="book-row-year" placeholder="Tahun" value="${year}"></td>
             <td style="width:70px;"><input type="number" class="book-row-copies" min="1" value="${copies}"></td>
             <td style="width:140px;">
@@ -802,6 +945,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const roomId = Number(mapperSelectRoom.value);
         const rackId = formRack.getAttribute('data-id');
 
+        if (!rackInputPitch.value || !rackInputYaw.value) {
+            showAdminToast('⚠️ Klik tepat di posisi rak pada foto panorama sebelah kiri untuk mengunci koordinat Pitch & Yaw!', 'warning');
+            return;
+        }
+
         const rackData = {
             id: rackId ? Number(rackId) : undefined,
             room_id: roomId,
@@ -814,30 +962,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             rack_photo_url: rackInputPhoto.value.trim() || 'assets/images/rak-03-babad.jpg'
         };
 
-        const savedRack = await DataService.saveRack(rackData);
+        try {
+            const savedRack = await DataService.saveRack(rackData);
 
-        // Ambil daftar buku dari baris tabel
-        const bookRows = rackBooksTbody.querySelectorAll('tr');
-        const booksList = [];
-        bookRows.forEach(row => {
-            const title = row.querySelector('.book-row-title').value.trim();
-            if (title) {
-                booksList.push({
-                    title: title,
-                    author: row.querySelector('.book-row-author').value.trim(),
-                    publish_year: row.querySelector('.book-row-year').value.trim(),
-                    copies: Number(row.querySelector('.book-row-copies').value) || 1,
-                    status: row.querySelector('.book-row-status').value
-                });
-            }
-        });
+            // Ambil daftar buku / berkas dari baris tabel (baris kosong otomatis dilewati)
+            const bookRows = rackBooksTbody.querySelectorAll('tr');
+            const booksList = [];
+            bookRows.forEach(row => {
+                const title = row.querySelector('.book-row-title').value.trim();
+                if (title) {
+                    booksList.push({
+                        title: title,
+                        author: row.querySelector('.book-row-author').value.trim(),
+                        publish_year: row.querySelector('.book-row-year').value.trim(),
+                        copies: Number(row.querySelector('.book-row-copies').value) || 1,
+                        status: row.querySelector('.book-row-status').value
+                    });
+                }
+            });
 
-        // Simpan katalog buku ke database
-        await DataService.saveRackBooks(savedRack.id, booksList);
+            // Simpan katalog buku ke database
+            await DataService.saveRackBooks(savedRack.id, booksList);
 
-        showAdminToast('Data Titik Rak & Katalog Buku berhasil disimpan!', 'success');
-        resetRackForm();
-        refreshRecordsTable();
+            showAdminToast(`✅ Titik "${rackData.title}" berhasil disimpan ke ruangan ini!`, 'success');
+            resetRackForm();
+            await initHotspotMapperRoom();
+            refreshRecordsTable();
+        } catch (err) {
+            console.error('Gagal menyimpan titik rak:', err);
+            showAdminToast(`❌ Gagal menyimpan rak: ${err.message || 'Periksa ukuran foto atau koneksi.'}`, 'error');
+        }
     });
 
     const btnRackReset = document.getElementById('btn-rack-reset');
@@ -850,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         rackInputPitch.value = '';
         rackInputYaw.value = '';
         rackInputTags.value = '';
+        if (rackInputPhoto) rackInputPhoto.value = 'assets/images/rak-03-babad.jpg';
         rackBooksTbody.innerHTML = '';
         addBookTableRow('', '', '', 1, 'Baca di Tempat');
         
@@ -869,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     btnRackReset?.addEventListener('click', () => {
         if (rackInputTitle.value.trim() !== '') {
             if (!rackInputPitch.value || !rackInputYaw.value) {
-                showAdminToast('⚠️ Silakan klik pada gambar panorama di sebelah kanan untuk mengunci koordinat Pitch & Yaw rak!', 'warning');
+                showAdminToast('⚠️ Silakan klik pada gambar panorama di sebelah kiri untuk mengunci koordinat Pitch & Yaw rak!', 'warning');
                 document.getElementById('admin-mapper-viewer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
@@ -1011,29 +1166,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const id = btn.getAttribute('data-id');
                 const rack = await DataService.getRackById(id);
                 if (rack) {
-                    // Pindah ke tab Hotspot Mapper
                     document.querySelector('.admin-nav-item[data-tab="tab-hotspot-mapper"]').click();
-                    formRack.setAttribute('data-id', rack.id);
                     mapperSelectRoom.value = rack.room_id;
-                    rackInputTitle.value = rack.title;
-                    rackInputDDC.value = rack.category_code || '';
-                    rackInputLocation.value = rack.location_notes || '';
-                    rackInputPitch.value = rack.pitch;
-                    rackInputYaw.value = rack.yaw;
-                    rackInputTags.value = rack.search_tags || '';
-                    rackInputPhoto.value = rack.rack_photo_url || '';
-                    document.getElementById('btn-rack-submit').innerHTML = '<span>💾</span> Perbarui Titik Rak &amp; Buku';
-
-                    // Muat buku
-                    const books = await DataService.getBooksByRack(rack.id);
-                    rackBooksTbody.innerHTML = '';
-                    if (books.length > 0) {
-                        books.forEach(b => addBookTableRow(b.title, b.author, b.publish_year, b.copies, b.status));
-                    } else {
-                        addBookTableRow('', '', '', 1, 'Baca di Tempat');
-                    }
-
                     await initHotspotMapperRoom();
+                    await loadRackIntoMapperForm(rack.id);
                 }
             });
         });
@@ -1045,6 +1181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (confirm('Apakah Anda yakin ingin menghapus lemari rak ini beserta daftar bukunya?')) {
                     await DataService.deleteRack(id);
                     showAdminToast('Rak buku berhasil dihapus.', 'info');
+                    await initHotspotMapperRoom();
                     refreshRecordsTable();
                 }
             });
