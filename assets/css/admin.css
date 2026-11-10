@@ -342,6 +342,7 @@ body.admin-body {
   line-height: 0;
   max-width: 100%;
   max-height: 100%;
+  background: #edf0f5;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   border-radius: 6px;
   overflow: visible;

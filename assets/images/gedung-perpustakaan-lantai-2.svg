@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 680" width="1000" height="680">
   <defs>
     <pattern id="grid2" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.75" />
+      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#dce3ee" stroke-width="0.75" />
     </pattern>
     <linearGradient id="wallGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#1e293b"/>
@@ -20,8 +20,8 @@
       <stop offset="100%" stop-color="#fef9c3"/>
     </linearGradient>
     <linearGradient id="lobbyGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#f8fafc"/>
+      <stop offset="0%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#e7ecf3"/>
     </linearGradient>
     <filter id="cardShadow2" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.08"/>
@@ -29,7 +29,7 @@
   </defs>
 
   <!-- Background Base & Blueprint Grid -->
-  <rect width="1000" height="680" fill="#f8fafc"/>
+  <rect width="1000" height="680" fill="#edf0f5"/>
   <rect width="1000" height="680" fill="url(#grid2)"/>
 
   <!-- Architectural Title Bar -->
@@ -88,7 +88,7 @@
 
   <!-- ZONE 1: RUANG SERVIS LT 2 -->
   <g id="zone-toilet2">
-    <rect x="80" y="100" width="310" height="85" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+    <rect x="80" y="100" width="310" height="85" fill="#edf0f5" stroke="#94a3b8" stroke-width="1.5"/>
     <line x1="180" y1="100" x2="180" y2="185" stroke="#cbd5e1" stroke-width="1.5"/>
   </g>
 

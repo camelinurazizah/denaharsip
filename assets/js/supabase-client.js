@@ -85,8 +85,8 @@ const DEFAULT_FLOORS = [
         building: 'Perpustakaan',
         name: 'Lantai 1 - Layanan Administrasi & Ruang Baca Umum',
         floor_number: 1,
-        map_image_url: 'assets/images/gedung-perpustakaan-lantai-1.svg?v=20261106_perpus_architectural_v8',
-        blueprint_image_url: 'assets/images/blueprint-clean-lt1.jpg?v=20261106_perpus_architectural_v8',
+        map_image_url: 'assets/images/gedung-perpustakaan-lantai-1.svg?v=20261110_blueprint_bg_v14',
+        blueprint_image_url: 'assets/images/blueprint-clean-lt1.jpg?v=20261110_blueprint_bg_v14',
         description: 'Zonasi pelayanan kartu anggota, ruang baca anak & remaja, serta koleksi umum dan meja sirkulasi.'
     },
     {
@@ -94,8 +94,8 @@ const DEFAULT_FLOORS = [
         building: 'Perpustakaan',
         name: 'Lantai 2 - Koleksi Khusus Babad & E-Library',
         floor_number: 2,
-        map_image_url: 'assets/images/gedung-perpustakaan-lantai-2.svg',
-        blueprint_image_url: 'assets/images/blueprint-clean-lt2.jpg',
+        map_image_url: 'assets/images/gedung-perpustakaan-lantai-2.svg?v=20261110_blueprint_bg_v14',
+        blueprint_image_url: 'assets/images/blueprint-clean-lt2.jpg?v=20261110_blueprint_bg_v14',
         description: 'Zonasi penyimpanan naskah kuno, literatur babad sejarah Cirebon, perpustakaan digital (e-library), dan aula literasi.'
     },
     {
@@ -112,8 +112,8 @@ const DEFAULT_FLOORS = [
         building: 'Kearsipan',
         name: 'Lantai 2 - Depo Arsip Utama & Preservasi Digital',
         floor_number: 2,
-        map_image_url: 'assets/images/gedung-kearsipan-lantai-2.svg?v=20261108_blueprint_lt2_v13',
-        blueprint_image_url: 'assets/images/blueprint-arsip-lt2.jpg?v=20261108_blueprint_lt2_v13',
+        map_image_url: 'assets/images/gedung-kearsipan-lantai-2.svg?v=20261110_blueprint_bg_v14',
+        blueprint_image_url: 'assets/images/blueprint-arsip-lt2.jpg?v=20261110_blueprint_bg_v14',
         description: 'Zonasi depo lemari Roll O Pack suhu terkontrol, ruang digitalisasi scanner ukuran besar, dan pusat server data kearsipan.'
     }
 ];
@@ -298,7 +298,7 @@ const DEFAULT_BOOKS = [
 ];
 
 // Versi cache seed data untuk memastikan koordinat denah arsitektur asli diperbarui
-const DISARPUS_DATA_VERSION = 'v2026_blueprint_clean_rooms_v13';
+const DISARPUS_DATA_VERSION = 'v2026_blueprint_bg_v14';
 
 function checkDataVersion() {
     const curVer = safeStorage.getItem('disarpus_data_ver');
