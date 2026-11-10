@@ -617,8 +617,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let adminPanoViewer = null;
     let isMapperFallbackMode = false;
     const mapperSelectRoom = document.getElementById('mapper-select-room');
-    const mapperFilePano = document.getElementById('mapper-file-pano');
-    const btnMapperUploadPano = document.getElementById('btn-mapper-upload-pano');
     const mapperPanoStatus = document.getElementById('mapper-pano-status');
     const rackInputTitle = document.getElementById('rack-input-title');
     const rackInputDDC = document.getElementById('rack-input-ddc');
@@ -723,11 +721,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (mapperPanoStatus) {
             const rawUrl = (room.panorama_image_url || '').trim();
             if (rawUrl.startsWith('data:') || rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
-                mapperPanoStatus.textContent = '✅ Foto panorama ruangan ini sudah kustom';
+                mapperPanoStatus.textContent = '✅ Foto panorama kustom ruangan ini telah aktif';
                 mapperPanoStatus.style.color = '#16a34a';
             } else {
-                mapperPanoStatus.textContent = 'ℹ️ Masih memakai foto panorama bawaan — klik tombol di kanan untuk upload foto asli ruangan';
-                mapperPanoStatus.style.color = '#d97706';
+                mapperPanoStatus.textContent = 'ℹ️ Memakai panorama bawaan — foto dapat diganti di menu Registrasi Ruangan';
+                mapperPanoStatus.style.color = '#64748b';
             }
         }
 
@@ -766,39 +764,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderAdminFallbackPanorama(viewerEl, panoUrl);
         }
     }
-
-    // Upload / ganti panorama langsung dari tab Visual Hotspot Mapper
-    btnMapperUploadPano?.addEventListener('click', () => {
-        if (!mapperSelectRoom?.value) {
-            showAdminToast('⚠️ Pilih ruangan terlebih dahulu.', 'warning');
-            return;
-        }
-        mapperFilePano?.click();
-    });
-
-    mapperFilePano?.addEventListener('change', async (e) => {
-        const file = e.target.files?.[0];
-        if (!file || !mapperSelectRoom?.value) return;
-
-        const roomId = mapperSelectRoom.value;
-        showAdminToast(`⏳ Mengunggah & mengoptimalkan panorama "${file.name}"...`, 'info');
-        try {
-            const room = await DataService.getRoomById(roomId);
-            if (!room) throw new Error('Ruangan tidak ditemukan.');
-
-            const mediaUrl = await DataService.uploadMedia(file, 'panoramas');
-            await DataService.saveRoom({ ...room, panorama_image_url: mediaUrl });
-
-            showAdminToast(`✅ Foto panorama untuk "${room.name}" berhasil diperbarui!`, 'success');
-            await initHotspotMapperRoom();
-            refreshRecordsTable();
-        } catch (err) {
-            console.error('Upload panorama langsung gagal:', err);
-            showAdminToast(`❌ Gagal menyimpan panorama: ${err.message || 'Cek ukuran foto'}`, 'error');
-        } finally {
-            mapperFilePano.value = '';
-        }
-    });
 
     mapperSelectRoom?.addEventListener('change', initHotspotMapperRoom);
 
