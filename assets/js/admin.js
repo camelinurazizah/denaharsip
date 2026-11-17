@@ -1666,6 +1666,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        // 4. Render Tabel Akun Petugas & Admin Dinas (#table-users-tbody)
+        const usersTbody = document.getElementById('table-users-tbody');
+        if (usersTbody) {
+            usersTbody.innerHTML = '';
+            try {
+                let usersList = [];
+                if (DataService.getActiveBackend() === 'turso' && window.TursoClient && window.TursoClient.isConfigured()) {
+                    const res = await window.TursoClient.execute('SELECT id, email, nama_petugas, role, created_at FROM admin_users ORDER BY id ASC;');
+                    usersList = res.rows || [];
+                }
+
+                if (!usersList || usersList.length === 0) {
+                    usersList = [
+                        {
+                            nama_petugas: DataService.getAdminName ? DataService.getAdminName() : 'Camelia Nur Azizah',
+                            email: DataService.getAdminEmail(),
+                            role: 'Admin',
+                            created_at: '2026-11-18 06:45:00'
+                        }
+                    ];
+                }
+
+                usersList.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:700;color:#0f172a;">👤 ${u.nama_petugas || 'Petugas Dinas'}</td>
+                        <td><code>${u.email}</code></td>
+                        <td><span class="badge-instansi" style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:6px;font-weight:700;font-size:0.75rem;">${u.role || 'Admin'}</span></td>
+                        <td style="color:#64748b;font-size:0.8rem;">${u.created_at ? String(u.created_at).slice(0, 19).replace('T', ' ') : '-'}</td>
+                        <td style="text-align:center;"><span style="color:#16a34a;font-weight:700;font-size:0.8rem;">● Aktif</span></td>
+                    `;
+                    usersTbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.warn('Gagal memuat tabel user:', err);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:700;color:#0f172a;">👤 Camelia Nur Azizah</td>
+                    <td><code>${DataService.getAdminEmail()}</code></td>
+                    <td><span class="badge-instansi" style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:6px;font-weight:700;font-size:0.75rem;">Admin</span></td>
+                    <td style="color:#64748b;font-size:0.8rem;">Aktif</td>
+                    <td style="text-align:center;"><span style="color:#16a34a;font-weight:700;font-size:0.8rem;">● Aktif</span></td>
+                `;
+                usersTbody.appendChild(tr);
+            }
+        }
+
         // Terapkan filter pencarian di Tab Kelola jika sedang ada kata kunci
         applyKelolaSearchFilter();
 
