@@ -1770,6 +1770,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         let pathname = window.location.pathname || '';
         if (pathname.endsWith('admin.html')) {
             pathname = pathname.replace(/admin\.html$/, 'index.html');
+        } else if (pathname.endsWith('/admin') || pathname === 'admin') {
+            pathname = pathname.replace(/\/?admin$/, '/index.html');
         } else if (!pathname.endsWith('index.html')) {
             pathname = pathname.replace(/\/$/, '') + '/index.html';
         }

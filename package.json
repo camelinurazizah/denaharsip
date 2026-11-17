@@ -4,6 +4,7 @@
   "description": "Sistem Informasi Denah Interaktif dan Tur Panorama Fasilitas - Disarpus Kab. Cirebon",
   "main": "index.html",
   "scripts": {
+    "build": "echo 'Static build ready'",
     "start": "node server.js",
     "serve": "node server.js",
     "dev": "node server.js"

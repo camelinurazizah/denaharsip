@@ -1,0 +1,6 @@
+# Berkas lokal & database utilitas (tidak dibutuhkan pada hosting static Vercel)
+server.js
+Jalankan_Aplikasi.bat
+supabase-schema.sql
+.git
+.gitignore
