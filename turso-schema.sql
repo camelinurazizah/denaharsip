@@ -20,7 +20,7 @@ CREATE TABLE admin_users (
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     nama_petugas TEXT NOT NULL,
-    role TEXT DEFAULT 'Staff Admin',
+    role TEXT DEFAULT 'Admin',
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -89,7 +89,7 @@ CREATE INDEX IF NOT EXISTS idx_rack_books_rack ON rack_books(rack_id);
 
 -- 2.0 Data Akun Petugas Dinas (Admin Users)
 INSERT INTO admin_users (email, password, nama_petugas, role) VALUES
-('admin@disarpus.cirebonkab.go.id', 'admin123', 'Camelia Nur Azizah', 'Staff Admin');
+('admin@disarpus.cirebonkab.go.id', 'admin123', 'Camelia Nur Azizah', 'Admin');
 
 -- 2.1 Data Lantai (Floors)
 INSERT INTO floors (id, building, name, floor_number, map_image_url, blueprint_image_url, description, created_at) VALUES

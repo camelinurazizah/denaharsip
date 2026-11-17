@@ -1106,7 +1106,7 @@ const DataService = {
         if (this.getActiveBackend() === 'turso' && typeof TursoClient !== 'undefined' && TursoClient.isConfigured()) {
             try {
                 const res = await TursoClient.execute(
-                    'SELECT id, email, password, nama_petugas, role FROM admin_users WHERE LOWER(email) = ? LIMIT 1;',
+                    'SELECT * FROM admin_users WHERE LOWER(email) = ? LIMIT 1;',
                     [cleanEmail]
                 );
 
@@ -1116,7 +1116,7 @@ const DataService = {
                         localStorage.setItem('disarpus_admin_logged_in', 'true');
                         localStorage.setItem('disarpus_admin_email', user.email);
                         localStorage.setItem('disarpus_admin_name', user.nama_petugas || 'Camelia Nur Azizah');
-                        localStorage.setItem('disarpus_admin_role', user.role || 'Staff Admin');
+                        localStorage.setItem('disarpus_admin_role', user.role || 'Admin');
                         return { success: true, user: user };
                     } else {
                         return { success: false, error: 'Kata sandi salah. Silakan periksa kembali kata sandi akun Anda.' };
@@ -1131,7 +1131,8 @@ const DataService = {
                     localStorage.setItem('disarpus_admin_logged_in', 'true');
                     localStorage.setItem('disarpus_admin_email', cleanEmail);
                     localStorage.setItem('disarpus_admin_name', 'Camelia Nur Azizah');
-                    return { success: true, user: { email: cleanEmail, nama_petugas: 'Camelia Nur Azizah', role: 'Staff Admin' } };
+                    localStorage.setItem('disarpus_admin_role', 'Admin');
+                    return { success: true, user: { email: cleanEmail, nama_petugas: 'Camelia Nur Azizah', role: 'Admin' } };
                 }
                 return { success: false, error: `Koneksi Turso bermasalah: ${tursoErr.message}` };
             }
