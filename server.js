@@ -6,11 +6,38 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 const { exec } = require('child_process');
 
 const ROOT_DIR = __dirname;
 const DEFAULT_PORT = 8000;
 const MAX_ATTEMPTS = 10;
+
+function getLanIpAddresses() {
+  const interfaces = os.networkInterfaces();
+  const candidates = [];
+  for (const [name, addrs] of Object.entries(interfaces)) {
+    if (!Array.isArray(addrs)) continue;
+    for (const info of addrs) {
+      if (info.family !== 'IPv4' || info.internal) continue;
+      if (info.address.startsWith('169.254.')) continue;
+
+      const isVirtualName = /vethernet|wsl|virtualbox|vbox|vmware|docker|hyper-v|loopback|tailscale|zerotier/i.test(name);
+      const isVirtualSubnet = /^192\.168\.56\./.test(info.address);
+      const isVirtual = isVirtualName || isVirtualSubnet;
+
+      let priority = 0;
+      if (isVirtual) priority -= 100;
+      else if (/^wi-?fi|wlan|wireless/i.test(name)) priority += 50;
+      else if (/^ethernet/i.test(name)) priority += 20;
+
+      candidates.push({ address: info.address, name, isVirtual, priority });
+    }
+  }
+  candidates.sort((a, b) => b.priority - a.priority);
+  const realAdapters = candidates.filter(c => !c.isVirtual);
+  return (realAdapters.length > 0 ? realAdapters : candidates).map(c => c.address);
+}
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -35,6 +62,22 @@ function startServer(port, attempt = 0) {
   const server = http.createServer((req, res) => {
     // Bersihkan query string dan decode URL
     let safeUrl = decodeURI(req.url.split('?')[0]);
+    if (safeUrl === '/api/network-info') {
+      const lanIps = getLanIpAddresses();
+      const lanUrls = lanIps.map(ip => `http://${ip}:${port}/index.html`);
+      res.writeHead(200, {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Cache-Control': 'no-cache'
+      });
+      res.end(JSON.stringify({
+        port,
+        primaryLanIp: lanIps[0] || null,
+        primaryLanUrl: lanUrls[0] || null,
+        lanUrls
+      }));
+      return;
+    }
+
     if (safeUrl === '/' || safeUrl === '') {
       safeUrl = '/index.html';
     }
@@ -78,14 +121,22 @@ function startServer(port, attempt = 0) {
 
   server.listen(port, () => {
     const url = `http://localhost:${port}/index.html`;
+    const lanIps = getLanIpAddresses();
+    const lanUrl = lanIps[0] ? `http://${lanIps[0]}:${port}/index.html` : null;
     console.log('='.repeat(70));
     console.log('   SISTEM INFORMASI DENAH INTERAKTIF & TUR PANORAMA FASILITAS');
     console.log('   Dinas Kearsipan dan Perpustakaan Kabupaten Cirebon');
     console.log('='.repeat(70));
     console.log(`\n[OK] Server aktif di   : http://localhost:${port}`);
     console.log(`[OK] Membuka peramban : ${url}`);
+    if (lanUrl) {
+      console.log(`[OK] Akses HP (1 Wi-Fi): ${lanUrl}`);
+    }
     console.log('\nPetunjuk:');
     console.log(' - Halaman Publik : ' + url);
+    if (lanUrl) {
+      console.log(' - QR / HP (LAN)  : ' + lanUrl);
+    }
     console.log(` - Panel Admin    : http://localhost:${port}/admin.html`);
     console.log(' - Tekan Ctrl + C di terminal ini untuk mematikan server.\n');
 

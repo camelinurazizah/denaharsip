@@ -15,9 +15,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // State Aplikasi
+    // State Aplikasi (Fokus Khusus Gedung Kearsipan: Lantai 1 & Lantai 2)
     const appState = {
-        currentBuilding: 'Perpustakaan', // 'Perpustakaan' atau 'Kearsipan'
+        currentBuilding: 'Kearsipan',
         currentFloorNumber: 1,           // 1 atau 2
         currentFloor: null,
         currentRoom: null,
@@ -39,8 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let pannellumViewer = null;
 
     // Elemen DOM
-    const elBuildingPerpusBtn = document.getElementById('btn-building-perpus');
-    const elBuildingArsipBtn = document.getElementById('btn-building-arsip');
     const elFloor1Btn = document.getElementById('btn-floor-1');
     const elFloor2Btn = document.getElementById('btn-floor-2');
     const elMapLocationTitle = document.getElementById('map-location-title');
@@ -74,12 +72,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function initApplication() {
         try {
-            // Ambil seluruh data lantai
-            appState.floors = await DataService.getFloors();
+            // Ambil seluruh data lantai Gedung Kearsipan (Lantai 1 & Lantai 2)
+            appState.floors = await DataService.getFloors('Kearsipan');
 
             // Cek URL params untuk deeplinking / kiosk
             const urlParams = new URLSearchParams(window.location.search);
-            const initialBuilding = urlParams.get('building') || 'Perpustakaan';
+            const initialBuilding = 'Kearsipan';
             const initialFloor = parseInt(urlParams.get('floor') || '1', 10);
             const initialLayer = urlParams.get('layer') || 'vector';
 
@@ -89,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 elBtnLayerVector?.classList.remove('active');
             }
             
-            // Set default view sesuai URL atau Perpustakaan - Lantai 1
+            // Set default view sesuai URL atau Gedung Kearsipan - Lantai 1
             await switchBuildingAndFloor(initialBuilding, initialFloor, false);
 
             // Pasang event listeners navigasi
@@ -108,66 +106,55 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            showToast('Selamat Datang di Sistem Informasi Denah & Panorama Disarpus Kab. Cirebon', 'success');
+            // Atur mode tampilan bawaan khusus layar HP (Denah 2D Penuh, ramah sentuhan)
+            if (window.innerWidth <= 768) {
+                setViewMode('map-only');
+            }
+
+            showToast('Selamat Datang di Visual Archive Locator — Gedung Kearsipan Disarpus Kab. Cirebon', 'success');
         } catch (err) {
             console.error('Error saat inisialisasi aplikasi:', err);
         }
     }
 
     // =========================================================================
-    // NAVIGASI GEDUNG & LANTAI (SRS-FR-01 & SRS-FR-02)
+    // NAVIGASI LANTAI GEDUNG KEARSIPAN (SRS-FR-02)
     // =========================================================================
-    async function switchBuildingAndFloor(building, floorNumber, autoOpenFirstRoom = true) {
-        appState.currentBuilding = building;
-        appState.currentFloorNumber = Number(floorNumber);
-
-        // Update tombol UI Gedung
-        if (building === 'Perpustakaan') {
-            elBuildingPerpusBtn.classList.add('active');
-            elBuildingArsipBtn.classList.remove('active');
-        } else {
-            elBuildingArsipBtn.classList.add('active');
-            elBuildingPerpusBtn.classList.remove('active');
-        }
+    async function switchBuildingAndFloor(building, floorNumber, autoOpenFirstRoom = true, autoLoadPano = true) {
+        appState.currentBuilding = 'Kearsipan';
+        appState.currentFloorNumber = Number(floorNumber) === 2 ? 2 : 1;
 
         // Update tombol UI Lantai
-        if (floorNumber === 1) {
-            elFloor1Btn.classList.add('active');
-            elFloor2Btn.classList.remove('active');
+        if (appState.currentFloorNumber === 1) {
+            elFloor1Btn?.classList.add('active');
+            elFloor2Btn?.classList.remove('active');
         } else {
-            elFloor2Btn.classList.add('active');
-            elFloor1Btn.classList.remove('active');
+            elFloor2Btn?.classList.add('active');
+            elFloor1Btn?.classList.remove('active');
         }
 
-        // Cari data lantai yang cocok
+        // Cari data lantai yang cocok di Gedung Kearsipan
         const floor = appState.floors.find(f => 
-            f.building.toLowerCase() === building.toLowerCase() && 
-            Number(f.floor_number) === Number(floorNumber)
+            Number(f.floor_number) === appState.currentFloorNumber
         ) || appState.floors[0];
 
+        if (!floor) return;
         appState.currentFloor = floor;
 
         // Perbarui teks keterangan denah & subbar (ringkas & informatif agar header ramping)
-        elMapLocationTitle.textContent = `${building.toUpperCase()} — LANTAI ${floorNumber}`;
-        const shortDesc = floor.name ? floor.name.replace(/^Lantai \d+\s*[-–—]\s*/, '') : (floor.description || `Peta tata ruang lantai ${floorNumber}`);
+        elMapLocationTitle.textContent = `GEDUNG KEARSIPAN — LANTAI ${appState.currentFloorNumber}`;
+        const shortDesc = floor.name ? floor.name.replace(/^Lantai \d+\s*[-–—]\s*/, '') : (floor.description || `Peta tata ruang lantai ${appState.currentFloorNumber}`);
         elMapLocationSub.textContent = shortDesc;
         elMapLocationSub.title = floor.description || shortDesc;
         if (elSubbarLocation) {
-            elSubbarLocation.textContent = `Gedung ${building} — Lantai ${floorNumber}`;
+            elSubbarLocation.textContent = `Gedung Kearsipan — Lantai ${appState.currentFloorNumber}`;
         }
 
         // Muat gambar denah 2D
         const targetMapSrc = (appState.mapLayer === 'blueprint' && floor.blueprint_image_url) ? floor.blueprint_image_url : floor.map_image_url;
+        elMapImage.onload = fitMapStageToContainer;
         elMapImage.src = targetMapSrc;
-
-        // Sesuaikan aspect-ratio panggung peta secara dinamis mengikuti denah aktif (portrait / landscape)
-        const updateAspectRatio = () => {
-            if (elMapImage.naturalWidth && elMapImage.naturalHeight) {
-                elMapStage.style.aspectRatio = `${elMapImage.naturalWidth} / ${elMapImage.naturalHeight}`;
-            }
-        };
-        elMapImage.onload = updateAspectRatio;
-        if (elMapImage.complete) updateAspectRatio();
+        if (elMapImage.complete) fitMapStageToContainer();
 
         // Reset zoom & pan denah
         resetMapTransform();
@@ -184,10 +171,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderMapPins();
 
         // Muat panorama ruangan pertama pada lantai ini (atau ruangan yang aktif)
-        if (appState.rooms.length > 0) {
+        if (autoLoadPano && appState.rooms.length > 0) {
             const targetRoom = autoOpenFirstRoom ? appState.rooms[0] : (appState.currentRoom || appState.rooms[0]);
             loadRoomPanorama(targetRoom);
         }
+    }
+
+    function createMapPinElement({ id, type, x, y, title, label, onClick }) {
+        const pin = document.createElement('div');
+        pin.className = `map-pin pin-${type}`;
+        pin.id = `pin-${type}-${id}`;
+        pin.style.left = `${x}%`;
+        pin.style.top = `${y}%`;
+        pin.setAttribute('data-id', id);
+        pin.setAttribute('data-type', type);
+        pin.title = title;
+
+        const badge = document.createElement('div');
+        badge.className = 'map-pin-badge';
+
+        const beacon = document.createElement('span');
+        beacon.className = 'map-pin-beacon';
+        const pulse = document.createElement('span');
+        pulse.className = 'map-pin-pulse';
+        beacon.appendChild(pulse);
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'map-pin-label';
+        textSpan.textContent = label;
+
+        badge.appendChild(beacon);
+        badge.appendChild(textSpan);
+        pin.appendChild(badge);
+
+        pin.addEventListener('click', (e) => {
+            e.stopPropagation();
+            onClick();
+        });
+
+        return pin;
     }
 
     // =========================================================================
@@ -196,67 +218,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderMapPins() {
         elMapPinsLayer.innerHTML = '';
 
-        // 1. Render Pin Ruangan (Merah Pill Badge)
+        // 1. Render Pin Ruangan (Merah Pill Badge Estetik)
         appState.rooms.forEach(room => {
-            const pin = document.createElement('div');
-            pin.className = 'map-pin pin-room';
-            pin.id = `pin-room-${room.id}`;
-            pin.style.left = `${room.map_x}%`;
-            pin.style.top = `${room.map_y}%`;
-            pin.setAttribute('data-id', room.id);
-            pin.setAttribute('data-type', 'room');
-            pin.title = room.name;
-
-            const label = room.short_name || room.name;
-            pin.innerHTML = `
-                <div class="map-pin-pulse"></div>
-                <div class="map-pin-badge">
-                    <span>🏛️</span>
-                    <span>${label}</span>
-                </div>
-            `;
-
-            pin.addEventListener('click', (e) => {
-                e.stopPropagation();
-                loadRoomPanorama(room);
-                openRoomModal(room);
+            const pin = createMapPinElement({
+                id: room.id,
+                type: 'room',
+                x: room.map_x,
+                y: room.map_y,
+                title: room.name,
+                label: room.short_name || room.name,
+                onClick: () => {
+                    loadRoomPanorama(room);
+                    openRoomModal(room);
+                }
             });
-
             elMapPinsLayer.appendChild(pin);
         });
 
         // 2. Render Pin Rak Spesifik (Emas Pill Badge) jika memiliki koordinat map_x & map_y
         appState.racks.forEach(rack => {
             if (rack.map_x && rack.map_y) {
-                const pin = document.createElement('div');
-                pin.className = 'map-pin pin-rack';
-                pin.id = `pin-rack-${rack.id}`;
-                pin.style.left = `${rack.map_x}%`;
-                pin.style.top = `${rack.map_y}%`;
-                pin.setAttribute('data-id', rack.id);
-                pin.setAttribute('data-type', 'rack');
-                pin.title = rack.title;
-
-                const label = rack.short_title || rack.title;
-                pin.innerHTML = `
-                    <div class="map-pin-pulse"></div>
-                    <div class="map-pin-badge">
-                        <span>📚</span>
-                        <span>${label}</span>
-                    </div>
-                `;
-
-                pin.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const parentRoom = appState.rooms.find(r => r.id === rack.room_id);
-                    if (parentRoom && (!appState.currentRoom || appState.currentRoom.id !== parentRoom.id)) {
-                        loadRoomPanorama(parentRoom, rack.pitch, rack.yaw);
-                    } else if (pannellumViewer) {
-                        try { pannellumViewer.lookAt(rack.pitch, rack.yaw, 90, 800); } catch (err) {}
+                const pin = createMapPinElement({
+                    id: rack.id,
+                    type: 'rack',
+                    x: rack.map_x,
+                    y: rack.map_y,
+                    title: rack.title,
+                    label: rack.short_title || rack.title,
+                    onClick: () => {
+                        const parentRoom = appState.rooms.find(r => Number(r.id) === Number(rack.room_id));
+                        if (parentRoom && (!appState.currentRoom || Number(appState.currentRoom.id) !== Number(parentRoom.id))) {
+                            loadRoomPanorama(parentRoom, rack.pitch, rack.yaw);
+                        } else if (pannellumViewer) {
+                            try { pannellumViewer.lookAt(rack.pitch, rack.yaw, 90, 800); } catch (err) {}
+                        }
+                        openRackModal(rack);
                     }
-                    openRackModal(rack);
                 });
-
                 elMapPinsLayer.appendChild(pin);
             }
         });
@@ -284,9 +282,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Update teks info bar panorama & sub-header
         elPanoTitle.textContent = room.name;
-        elPanoSubtitle.textContent = `${appState.currentBuilding} — Lantai ${appState.currentFloorNumber}`;
+        elPanoSubtitle.textContent = `Gedung Kearsipan — Lantai ${appState.currentFloorNumber}`;
         if (elSubbarLocation) {
-            elSubbarLocation.textContent = `${appState.currentBuilding} — Lantai ${appState.currentFloorNumber} (${room.name})`;
+            elSubbarLocation.textContent = `Gedung Kearsipan — Lantai ${appState.currentFloorNumber} (${room.name})`;
         }
 
         // Tentukan URL Panorama (Prioritaskan foto kustom hasil upload admin, fallback ke PANORAMA_DATA bebas CORS)
@@ -294,7 +292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ? resolvePanoramaUrl(room.panorama_image_url)
             : room.panorama_image_url;
 
-        // Siapkan daftar hotspots rak untuk ruangan ini
+        // Siapkan daftar hotspots lemari/rak depo arsip untuk ruangan ini
         DataService.getRacksByRoom(room.id).then(racks => {
             const hotspots = racks.map(rack => ({
                 pitch: Number(rack.pitch) || 0,
@@ -305,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     pill.className = 'hotspot-marker-pill';
                     pill.title = args.fullText;
                     const icon = document.createElement('span');
-                    icon.textContent = '📚';
+                    icon.textContent = '🗄️';
                     const label = document.createElement('span');
                     label.textContent = args.label;
                     pill.appendChild(icon);
@@ -334,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         type: 'equirectangular',
                         panorama: panoUrl,
                         autoLoad: true,
-                        autoRotate: -1,
+                        autoRotate: (targetPitch !== 0 || targetYaw !== 0) ? 0 : -1,
                         compass: false,
                         showZoomCtrl: true,
                         showFullscreenCtrl: true,
@@ -435,7 +433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             btn.style.left = `${posX}%`;
                             btn.style.top = `${posY}%`;
                             btn.title = rack.title;
-                            btn.innerHTML = `<span class="hotspot-pulse"></span><span class="hotspot-label">📚 ${rack.title}</span>`;
+                            btn.innerHTML = `<span class="hotspot-pulse"></span><span class="hotspot-label">🗄️ ${rack.title}</span>`;
                             btn.addEventListener('click', (e) => {
                                 e.stopPropagation();
                                 openRackModal(rack);
@@ -529,7 +527,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function openRoomModal(room) {
         const roomPhotoSrc = room.room_photo_url || (typeof resolvePanoramaUrl === 'function' ? resolvePanoramaUrl(room.panorama_image_url) : room.panorama_image_url);
         document.getElementById('modal-room-title').textContent = room.name;
-        document.getElementById('modal-room-location').textContent = `${appState.currentBuilding} — Lantai ${appState.currentFloorNumber}`;
+        document.getElementById('modal-room-location').textContent = `Gedung Kearsipan — Lantai ${appState.currentFloorNumber}`;
         document.getElementById('modal-room-image').src = roomPhotoSrc;
         document.getElementById('modal-room-nearby').textContent = room.nearby_notes || 'Informasi patokan posisi belum diisi.';
         document.getElementById('modal-room-services').textContent = room.services_info || 'Layanan administrasi tersedia sesuai jam operasional dinas.';
@@ -546,12 +544,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btnOpenPano = document.getElementById('btn-modal-open-pano');
         btnOpenPano.onclick = () => {
             closeModal(modalRoom);
+            if (window.innerWidth <= 768) {
+                setViewMode('pano-only');
+            } else if (appState.viewMode === 'map-only') {
+                setViewMode('split');
+            }
             loadRoomPanorama(room);
             highlightPin('room', room.id);
-            // Jika di mobile, alihkan ke tab panorama
-            if (window.innerWidth <= 768) {
-                document.getElementById('panorama-viewer').scrollIntoView({ behavior: 'smooth' });
-            }
         };
 
         // Muat daftar titik rak / lemari arsip di dalam ruangan ini
@@ -577,12 +576,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     titleSpan.style.fontWeight = '700';
                     titleSpan.style.fontSize = '0.84rem';
                     titleSpan.style.color = '#92400e';
-                    titleSpan.textContent = `📚 ${rack.title}`;
+                    titleSpan.textContent = `🗄️ ${rack.title}`;
 
                     const noteSpan = document.createElement('span');
                     noteSpan.style.fontSize = '0.74rem';
                     noteSpan.style.color = '#64748b';
-                    noteSpan.textContent = rack.location_notes || (rack.category_code ? `Kode: ${rack.category_code}` : 'Klik untuk lihat detail & arahkan kamera 360°');
+                    noteSpan.textContent = rack.location_notes || (rack.category_code ? `Kode Klasifikasi: ${rack.category_code}` : 'Klik untuk lihat daftar boks arsip & arahkan kamera 360°');
 
                     leftDiv.appendChild(titleSpan);
                     leftDiv.appendChild(noteSpan);
@@ -591,7 +590,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     rightSpan.style.fontSize = '0.75rem';
                     rightSpan.style.fontWeight = '700';
                     rightSpan.style.color = '#d97706';
-                    rightSpan.textContent = 'Lihat Isi →';
+                    rightSpan.textContent = 'Lihat Boks →';
 
                     btn.appendChild(leftDiv);
                     btn.appendChild(rightSpan);
@@ -612,14 +611,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =========================================================================
-    // MODAL DOKUMENTASI & KATALOG RAK BUKU (SRS-FR-07: Rak 03 Babad)
+    // MODAL DOKUMENTASI & INVENTARIS LEMARI / RAK DEPO ARSIP (SRS-FR-07)
     // =========================================================================
+    function getArchiveStatusClass(status) {
+        const s = (status || '').toLowerCase();
+        if (s.includes('dipinjam')) return 'status-borrowed';
+        if (s.includes('terbatas') || s.includes('baca di tempat')) return 'status-restricted';
+        return 'status-open';
+    }
+
     async function openRackModal(rack) {
-        const rackPhotoSrc = rack.rack_photo_url || 'assets/images/rak-03-babad.jpg';
+        const rackPhotoSrc = rack.rack_photo_url || 'assets/images/depo-arsip-front.jpg';
         document.getElementById('modal-rack-title').textContent = rack.title;
-        document.getElementById('modal-rack-ddc').textContent = rack.category_code || 'DDC-Umum';
+        document.getElementById('modal-rack-ddc').textContent = rack.category_code || 'ARS-Umum';
         document.getElementById('modal-rack-image').src = rackPhotoSrc;
-        document.getElementById('modal-rack-location').textContent = rack.location_notes || 'Lokasi lorong pada ruang koleksi.';
+        document.getElementById('modal-rack-location').textContent = rack.location_notes || 'Patokan lorong & baris/shaf pada ruang depo arsip.';
 
         const rackHeroEl = document.getElementById('rack-modal-hero');
         if (rackHeroEl) {
@@ -629,7 +635,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
         }
 
-        // Muat daftar buku di rak ini
+        // Muat daftar inventaris boks & surat arsip di lemari / rak ini
         const books = await DataService.getBooksByRack(rack.id);
         const tbody = document.getElementById('modal-rack-books-tbody');
         const emptyAlert = document.getElementById('modal-rack-books-empty');
@@ -641,15 +647,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             emptyAlert.style.display = 'none';
             books.forEach((book, idx) => {
                 const tr = document.createElement('tr');
-                const isReadHere = book.status === 'Baca di Tempat';
+                const statusText = book.status || 'Arsip Terbuka';
+                const statusClass = getArchiveStatusClass(statusText);
                 tr.innerHTML = `
                     <td style="font-weight:700;color:#0f172a;">${idx + 1}. ${book.title}</td>
                     <td>${book.author || '-'}</td>
                     <td style="text-align:center;">${book.publish_year || '-'}</td>
-                    <td style="text-align:center;font-weight:700;">${book.copies} Eks</td>
+                    <td style="text-align:center;font-weight:700;">${book.copies} Boks</td>
                     <td>
-                        <span class="status-badge ${isReadHere ? 'status-read-here' : 'status-borrowable'}">
-                            ${book.status}
+                        <span class="status-badge ${statusClass}">
+                            ${statusText}
                         </span>
                     </td>
                 `;
@@ -675,6 +682,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btnViewInPano = document.getElementById('btn-modal-rack-in-pano');
         btnViewInPano.onclick = () => {
             closeModal(modalRack);
+            if (window.innerWidth <= 768) {
+                setViewMode('pano-only');
+            } else if (appState.viewMode === 'map-only') {
+                setViewMode('split');
+            }
             const parentRoom = appState.rooms.find(r => Number(r.id) === Number(rack.room_id)) || appState.currentRoom;
             loadRoomPanorama(parentRoom, rack.pitch, rack.yaw);
             highlightPin('rack', rack.id);
@@ -717,7 +729,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (results.length === 0) {
             elSearchResultsDropdown.innerHTML = `
                 <div class="search-no-results">
-                    <p>Tidak ditemukan ruangan, rak, atau buku dengan kata kunci tersebut.</p>
+                    <p>Tidak ditemukan ruangan, lemari/rak depo arsip, atau nomor boks/surat arsip dengan kata kunci tersebut.</p>
                 </div>
             `;
             elSearchResultsDropdown.style.display = 'block';
@@ -730,13 +742,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const books = results.filter(r => r.type === 'book');
 
         if (rooms.length > 0) {
-            appendSearchGroup('Ruangan Pelayanan & Fasilitas', rooms);
+            appendSearchGroup('Ruangan Gedung Kearsipan', rooms);
         }
         if (racks.length > 0) {
-            appendSearchGroup('Titik Rak & Lemari Arsip', racks);
+            appendSearchGroup('Lemari / Rak Depo Arsip', racks);
         }
         if (books.length > 0) {
-            appendSearchGroup('Katalog Buku & Naskah', books);
+            appendSearchGroup('Daftar Inventaris Boks & Surat Arsip', books);
         }
 
         elSearchResultsDropdown.style.display = 'block';
@@ -754,8 +766,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             let badgeClass = 'badge-room';
             let badgeText = 'Ruangan';
-            if (item.type === 'rack') { badgeClass = 'badge-rack'; badgeText = 'Rak'; }
-            if (item.type === 'book') { badgeClass = 'badge-book'; badgeText = 'Buku'; }
+            if (item.type === 'rack') { badgeClass = 'badge-rack'; badgeText = 'Lemari/Rak'; }
+            if (item.type === 'book') { badgeClass = 'badge-book'; badgeText = 'Boks/Arsip'; }
 
             div.innerHTML = `
                 <div class="search-result-header">
@@ -780,9 +792,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const floor = await DataService.getFloorById(item.floor_id);
         if (!floor) return;
 
-        // 1. Pindah ke gedung dan lantai terkait
-        if (appState.currentBuilding !== floor.building || appState.currentFloorNumber !== Number(floor.floor_number)) {
-            await switchBuildingAndFloor(floor.building, floor.floor_number, false);
+        // 1. Pindah ke lantai terkait tanpa memicu loadRoomPanorama ganda
+        if (appState.currentFloorNumber !== Number(floor.floor_number)) {
+            await switchBuildingAndFloor('Kearsipan', floor.floor_number, false, false);
         }
 
         // 2. Sorot pin pada denah 2D
@@ -862,12 +874,102 @@ document.addEventListener('DOMContentLoaded', async () => {
         appState.isDraggingMap = false;
     });
 
+    // Touch Drag (Pan) & Pinch-to-Zoom untuk Denah di HP / Tablet
+    let initialPinchDistance = null;
+    let initialZoomOnPinch = 1;
+
+    elMapContainer.addEventListener('touchstart', (e) => {
+        if (e.target.closest('.map-pin')) return;
+        if (e.touches.length === 1) {
+            appState.isDraggingMap = true;
+            appState.dragStartX = e.touches[0].clientX - appState.mapPanX;
+            appState.dragStartY = e.touches[0].clientY - appState.mapPanY;
+            initialPinchDistance = null;
+        } else if (e.touches.length === 2) {
+            appState.isDraggingMap = false;
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            initialPinchDistance = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            initialZoomOnPinch = appState.mapZoom;
+        }
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1 && appState.isDraggingMap) {
+            e.preventDefault(); // Mencegah scrolling browser saat menggeser denah
+            appState.mapPanX = e.touches[0].clientX - appState.dragStartX;
+            appState.mapPanY = e.touches[0].clientY - appState.dragStartY;
+            updateMapTransform();
+        } else if (e.touches.length === 2 && initialPinchDistance) {
+            e.preventDefault(); // Mencegah pinch browser bawaan
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            const currentDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            const scaleFactor = currentDist / initialPinchDistance;
+            appState.mapZoom = Math.min(Math.max(initialZoomOnPinch * scaleFactor, 0.75), 3.0);
+            updateMapTransform();
+        }
+    }, { passive: false });
+
+    window.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+            appState.isDraggingMap = false;
+            initialPinchDistance = null;
+        } else if (e.touches.length === 1) {
+            appState.isDraggingMap = true;
+            appState.dragStartX = e.touches[0].clientX - appState.mapPanX;
+            appState.dragStartY = e.touches[0].clientY - appState.mapPanY;
+            initialPinchDistance = null;
+        }
+    });
+
+    window.addEventListener('touchcancel', () => {
+        appState.isDraggingMap = false;
+        initialPinchDistance = null;
+    });
+
     // =========================================================================
     // VIEW MODE SWITCHER (SPLIT / DENAH ONLY / PANORAMA ONLY)
     // =========================================================================
     elViewModeSplit?.addEventListener('click', () => setViewMode('split'));
     elViewModeMap?.addEventListener('click', () => setViewMode('map-only'));
     elViewModePano?.addEventListener('click', () => setViewMode('pano-only'));
+
+    function fitMapStageToContainer() {
+        if (!elMapStage || !elMapImage || !elMapContainer) return;
+        const nw = elMapImage.naturalWidth || 1024;
+        const nh = elMapImage.naturalHeight || 764;
+        const cw = Math.max(200, elMapContainer.clientWidth - 16);
+        const ch = Math.max(200, elMapContainer.clientHeight - 16);
+        const ratio = nw / nh;
+        let w = cw;
+        let h = w / ratio;
+        if (h > ch) {
+            h = ch;
+            w = h * ratio;
+        }
+        elMapStage.style.width = `${Math.floor(w)}px`;
+        elMapStage.style.height = `${Math.floor(h)}px`;
+        elMapStage.style.aspectRatio = `${nw} / ${nh}`;
+    }
+
+    let lastWindowWidth = window.innerWidth;
+    window.addEventListener('resize', () => {
+        fitMapStageToContainer();
+        const currentWidth = window.innerWidth;
+        if (lastWindowWidth > 768 && currentWidth <= 768) {
+            // Transisi Desktop -> Mobile
+            if (appState.viewMode === 'split') {
+                setViewMode('map-only');
+            }
+        } else if (lastWindowWidth <= 768 && currentWidth > 768) {
+            // Transisi Mobile -> Desktop
+            if (appState.viewMode === 'map-only' || appState.viewMode === 'pano-only') {
+                setViewMode('split');
+            }
+        }
+        lastWindowWidth = currentWidth;
+    });
 
     function setViewMode(mode) {
         appState.viewMode = mode;
@@ -882,12 +984,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             elMainWorkspace.classList.add('mode-pano-only');
         }
 
-        // Trigger redraw pannellum jika beralih mode
-        if (pannellumViewer) {
-            setTimeout(() => {
+        // Sesuaikan ukuran stage denah & pannellum jika beralih mode
+        setTimeout(() => {
+            fitMapStageToContainer();
+            if (pannellumViewer) {
                 try { pannellumViewer.resize(); } catch (e) {}
-            }, 300);
-        }
+            }
+        }, 320);
     }
 
     // =========================================================================
@@ -903,7 +1006,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
-    const btnQuickDemo = document.getElementById('btn-quick-demo');
+    const btnToggleLoginPassword = document.getElementById('btn-toggle-login-password');
+    const loginPasswordInput = document.getElementById('login-password');
+
+    btnToggleLoginPassword?.addEventListener('click', () => {
+        if (!loginPasswordInput) return;
+        const show = loginPasswordInput.type === 'password';
+        loginPasswordInput.type = show ? 'text' : 'password';
+        btnToggleLoginPassword.title = show ? 'Sembunyikan Sandi' : 'Tampilkan Sandi';
+        btnToggleLoginPassword.setAttribute('aria-pressed', String(show));
+    });
 
     loginForm?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -924,27 +1036,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Quick 1-Click Demo Login untuk Pengujian Cepat
-    btnQuickDemo?.addEventListener('click', () => {
-        document.getElementById('login-email').value = 'admin@disarpus.cirebonkab.go.id';
-        document.getElementById('login-password').value = 'cirebon123';
-        loginForm.dispatchEvent(new Event('submit'));
-    });
-
     function updateAdminButtonState() {
         if (DataService.isAdminLoggedIn()) {
-            btnAksesPetugas.innerHTML = '⚙️ Dashboard Petugas';
+            btnAksesPetugas.innerHTML = '<span>⚙️</span> <span class="btn-text-desktop">Dashboard Petugas</span><span class="btn-text-mobile">Petugas</span>';
             btnAksesPetugas.classList.add('gold-flavor');
+            btnAksesPetugas.title = 'Buka Dashboard Petugas Kearsipan';
         } else {
-            btnAksesPetugas.innerHTML = '🔐 Akses Petugas';
+            btnAksesPetugas.innerHTML = '<span>🔐</span> <span class="btn-text-desktop">Akses Petugas</span><span class="btn-text-mobile">Petugas</span>';
             btnAksesPetugas.classList.remove('gold-flavor');
+            btnAksesPetugas.title = 'Portal Pengelolaan Petugas Dinas';
         }
     }
-
-    // Modal QR Code Pra-Kunjungan
-    document.getElementById('btn-show-qr')?.addEventListener('click', () => {
-        openModal(modalQr);
-    });
 
     // =========================================================================
     // HELPER MODAL & TOAST
@@ -1028,17 +1130,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        elBuildingPerpusBtn.addEventListener('click', () => {
-            switchBuildingAndFloor('Perpustakaan', appState.currentFloorNumber);
+        elFloor1Btn?.addEventListener('click', () => {
+            switchBuildingAndFloor('Kearsipan', 1);
         });
-        elBuildingArsipBtn.addEventListener('click', () => {
-            switchBuildingAndFloor('Kearsipan', appState.currentFloorNumber);
-        });
-        elFloor1Btn.addEventListener('click', () => {
-            switchBuildingAndFloor(appState.currentBuilding, 1);
-        });
-        elFloor2Btn.addEventListener('click', () => {
-            switchBuildingAndFloor(appState.currentBuilding, 2);
+        elFloor2Btn?.addEventListener('click', () => {
+            switchBuildingAndFloor('Kearsipan', 2);
         });
 
         // Kontrol Panorama

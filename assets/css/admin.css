@@ -148,52 +148,208 @@ body.admin-body {
 }
 
 .admin-sidebar {
-  width: 260px;
-  background: #ffffff;
+  width: 280px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border-right: 1px solid var(--admin-border);
+  box-shadow: 4px 0 24px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
-  padding: 1.25rem 0;
+  padding: 1.05rem 0.9rem;
   flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.sidebar-focus-card {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #1e3a8a 100%);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  color: #ffffff;
+  margin-bottom: 1.1rem;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 8px 20px -6px rgba(15, 23, 42, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-focus-card::after {
+  content: '';
+  position: absolute;
+  top: -28px;
+  right: -28px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.28) 0%, rgba(245, 158, 11, 0) 70%);
+  pointer-events: none;
+}
+
+.sidebar-focus-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  padding: 0.14rem 0.5rem;
+  border-radius: 9999px;
+  margin-bottom: 0.42rem;
+}
+
+.sidebar-focus-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.sidebar-focus-sub {
+  font-size: 0.7rem;
+  color: #cbd5e1;
+  margin-top: 0.15rem;
 }
 
 .admin-menu-heading {
-  padding: 0.5rem 1.5rem;
-  font-size: 0.68rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.45rem 0.55rem;
+  font-size: 0.66rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--admin-muted);
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.admin-menu-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.admin-menu-heading .heading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--admin-blue);
+  flex-shrink: 0;
+}
+
+.admin-menu-heading .heading-dot.dot-slate {
+  background: #94a3b8;
+}
+
+.admin-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.38rem;
+  flex-shrink: 0;
 }
 
 .admin-nav-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  color: var(--admin-muted);
-  font-size: 0.84rem;
+  gap: 0.72rem;
+  padding: 0.66rem 0.75rem;
+  color: #334155;
+  font-size: 0.82rem;
   font-weight: 600;
   text-decoration: none;
-  border-left: 3px solid transparent;
+  border-radius: 12px;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, color 0.2s ease;
 }
 
-.admin-nav-item:hover {
+.admin-nav-item:focus-visible {
+  outline: 2px solid var(--admin-blue);
+  outline-offset: 2px;
+}
+
+.nav-icon-chip {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-icon-chip.chip-blue { background: #e0f2fe; color: #0284c7; }
+.nav-icon-chip.chip-indigo { background: #eef2ff; color: #4f46e5; }
+.nav-icon-chip.chip-amber { background: #fef3c7; color: #d97706; }
+.nav-icon-chip.chip-teal { background: #ccfbf1; color: #0f766e; }
+.nav-icon-chip.chip-slate { background: #f1f5f9; color: #475569; }
+
+.admin-nav-item .nav-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-nav-item .nav-item-text span {
+  line-height: 1.25;
+}
+
+.admin-nav-item .nav-item-text small {
+  font-size: 0.67rem;
+  font-weight: 500;
+  color: #94a3b8;
+  line-height: 1.25;
+}
+
+.nav-chevron {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.admin-nav-item:hover:not(.active) {
   color: var(--admin-text);
-  background: #f1f5f9;
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  transform: translateX(3px);
+}
+
+.admin-nav-item:hover:not(.active) .nav-icon-chip {
+  transform: scale(1.06);
+}
+
+.admin-nav-item:hover:not(.active) .nav-chevron {
+  color: var(--admin-blue);
+  transform: translateX(2px);
 }
 
 .admin-nav-item.active {
-  color: var(--admin-blue);
-  background: #f0f9ff;
-  border-left-color: var(--admin-blue);
+  color: #ffffff;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 55%, #1d4ed8 100%);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 20px -4px rgba(2, 132, 199, 0.42);
   font-weight: 700;
 }
 
-.admin-nav-item i {
-  font-size: 1rem;
+.admin-nav-item.active .nav-icon-chip {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.admin-nav-item.active .nav-item-text small {
+  color: rgba(224, 242, 254, 0.92);
+}
+
+.admin-nav-item.active .nav-chevron {
+  color: #ffffff;
 }
 
 /* Main Content Area */
@@ -302,9 +458,16 @@ body.admin-body {
   border: 1px solid var(--admin-border);
   border-radius: 8px;
   background: #ffffff;
-  color: var(--admin-text);
+  color: #334155;
   outline: none;
   transition: all 0.2s ease;
+}
+
+.admin-body input::placeholder,
+.admin-body textarea::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+  font-weight: 400;
 }
 
 .form-group-admin input:focus,
@@ -339,7 +502,6 @@ body.admin-body {
 .picker-stage {
   position: relative;
   display: inline-block;
-  line-height: 0;
   max-width: 100%;
   max-height: 100%;
   background: #edf0f5;
@@ -409,15 +571,17 @@ body.admin-body {
 .picker-crosshair-label {
   position: absolute;
   left: 18px;
-  top: -11px;
+  top: -12px;
   white-space: nowrap;
-  background: #ef4444;
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f172a;
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  line-height: 1.3;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  border: 1.5px solid #ef4444;
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
   pointer-events: none;
 }
 
@@ -433,6 +597,15 @@ body.admin-body {
   font-size: 0.72rem;
   font-weight: 700;
   pointer-events: none;
+}
+
+/* Pemilih Ruangan di Visual Hotspot Mapper (Tab 3) */
+.mapper-select-room {
+  min-width: 300px;
+  max-width: 480px;
+  flex: 1;
+  background: #ffffff;
+  color: var(--text-dark);
 }
 
 /* Visual Hotspot Mapper Canvas (SRS-FR-13) */
@@ -464,6 +637,69 @@ body.admin-body {
   font-size: 0.76rem;
   border-left: 4px solid var(--admin-gold);
   pointer-events: none;
+}
+
+/* Desktop Default Helper untuk Mapper Mobile Elements */
+.mapper-mobile-nav {
+  display: none;
+}
+.mapper-mobile-floating-bar {
+  display: none;
+}
+.form-mobile-back-row {
+  display: none;
+}
+.btn-instruction-dismiss {
+  display: none;
+}
+
+/* Pin Indikator Hotspot Target Sementara di Kanvas Mapper */
+.pnlm-temp-target-hotspot {
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  z-index: 10 !important;
+}
+
+.temp-target-pin {
+  position: relative;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+}
+
+.temp-target-beacon {
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.4), 0 4px 10px rgba(0, 0, 0, 0.5);
+  animation: pulseBeacon 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseBeacon {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.15); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.temp-target-label {
+  background: rgba(15, 23, 42, 0.92);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  border: 1px solid rgba(239, 68, 68, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
 .pnlm-custom-hotspot {
@@ -527,6 +763,8 @@ body.admin-body {
   border: 1px solid var(--admin-border);
   border-radius: 6px;
   font-family: inherit;
+  color: #334155;
+  background: #ffffff;
 }
 
 .btn-remove-row {
@@ -661,16 +899,584 @@ body.admin-body {
   cursor: pointer;
 }
 
-@media (max-width: 900px) {
+/* Label responsif default (Desktop >768px) */
+.btn-label-mobile {
+  display: none;
+}
+.btn-label-desktop {
+  display: inline;
+}
+.nav-label-mobile {
+  display: none;
+}
+.nav-label-desktop {
+  display: inline;
+}
+
+@media (min-width: 769px) and (max-width: 900px) {
   .admin-grid-2 {
     grid-template-columns: 1fr;
   }
   .admin-sidebar {
-    width: 70px;
+    width: 74px;
+    padding: 0.85rem 0.5rem;
+    align-items: center;
   }
-  .admin-sidebar .admin-nav-item span,
-  .admin-menu-heading {
+  .sidebar-focus-card,
+  .admin-menu-heading,
+  .admin-sidebar .admin-nav-item .nav-item-text,
+  .admin-sidebar .admin-nav-item .nav-chevron {
     display: none;
+  }
+  .admin-sidebar .admin-nav-list {
+    align-items: center;
+    width: 100%;
+  }
+  .admin-sidebar .admin-nav-item {
+    justify-content: center;
+    padding: 0.5rem;
+    width: 48px;
+    height: 48px;
+  }
+  .admin-sidebar .admin-nav-item .nav-icon-chip {
+    display: inline-flex;
+  }
+}
+
+/* =========================================================================
+   ATURAN KHUSUS MOBILE LAYAR HP (@media (max-width: 768px)) - PANEL ADMIN
+   ========================================================================= */
+@media (max-width: 768px) {
+  body.admin-body {
+    overflow-x: hidden !important;
+  }
+
+  /* 1. Header Admin di Layar HP */
+  .admin-navbar {
+    padding: 0.45rem 0.65rem !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .admin-brand {
+    min-width: 0 !important;
+    flex: 0 1 auto !important;
+    gap: 0.4rem !important;
+  }
+  .admin-brand-logo {
+    width: 28px !important;
+    height: 28px !important;
+    flex-shrink: 0 !important;
+  }
+  .admin-brand-text {
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  .admin-brand-text h2 {
+    font-size: 0.72rem !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .admin-badge-role {
+    display: none !important; /* Sembunyikan badge Staff Admin di HP agar tombol tidak terpotong */
+  }
+  .admin-brand-text p {
+    display: none !important; /* Sembunyikan sub-judul panjang */
+  }
+  .admin-user-pill {
+    display: none !important; /* Sembunyikan email panjang agar tidak meluber */
+  }
+  .admin-nav-right {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    flex-shrink: 0 !important;
+    margin-left: auto !important;
+  }
+  .btn-label-desktop {
+    display: none !important;
+  }
+  .btn-label-mobile {
+    display: inline !important;
+  }
+  .btn-admin-nav {
+    padding: 0.32rem 0.45rem !important;
+    font-size: 0.68rem !important;
+    border-radius: 6px !important;
+    gap: 0.2rem !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    line-height: 1.2 !important;
+  }
+
+  /* 2. Fixed Bottom Navigation Bar */
+  .admin-container {
+    display: block !important;
+    width: 100% !important;
+    min-height: calc(100vh - 54px) !important;
+  }
+
+  .admin-sidebar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100vw !important;
+    height: 60px !important;
+    z-index: 1000 !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    border-right: none !important;
+    box-shadow: 0 -4px 18px rgba(15, 23, 42, 0.08) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+  }
+
+  .sidebar-focus-card,
+  .admin-menu-heading,
+  .nav-heading-divider,
+  .nav-chevron,
+  .admin-sidebar .admin-nav-item small {
+    display: none !important;
+  }
+
+  .admin-sidebar .admin-nav-list {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 4px !important;
+    align-items: center !important;
+    justify-content: space-around !important;
+    gap: 2px !important;
+  }
+
+  .admin-sidebar .admin-nav-item {
+    flex: 1 !important;
+    height: 100% !important;
+    width: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 2px !important;
+    padding: 3px 2px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    border-top: 3px solid transparent !important;
+    transition: all 0.15s ease !important;
+  }
+
+  .admin-sidebar .admin-nav-item .nav-icon-chip {
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 6px !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .admin-sidebar .admin-nav-item .nav-icon-chip svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .admin-sidebar .admin-nav-item .nav-item-text {
+    display: block !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+  }
+
+  .nav-label-desktop {
+    display: none !important;
+  }
+
+  .nav-label-mobile {
+    display: block !important;
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    color: #64748b !important;
+    white-space: nowrap !important;
+  }
+
+  .admin-sidebar .admin-nav-item.active {
+    background: #f0f9ff !important;
+    border-top: 3px solid #0284c7 !important;
+  }
+
+  .admin-sidebar .admin-nav-item.active .nav-label-mobile {
+    color: #0284c7 !important;
+    font-weight: 800 !important;
+  }
+
+  /* 3. Area Konten Admin Full-Width di HP */
+  .admin-content-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 1rem 0.85rem calc(60px + 1.25rem) 0.85rem !important;
+    overflow-x: hidden !important;
+  }
+
+  .admin-page-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  /* Toolbar Estetik Tab Kelola di Mobile */
+  .kelola-toolbar-card {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.5rem !important;
+    padding: 0.85rem !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .kelola-toolbar-card .kelola-search-wrapper {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .kelola-toolbar-card #filter-kelola-search {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .kelola-toolbar-card .btn-admin-search {
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 0.5rem 0.6rem !important;
+  }
+
+  .kelola-toolbar-card .btn-admin-refresh {
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    margin-left: 0 !important;
+    justify-content: center !important;
+    text-align: center !important;
+    padding: 0.5rem 0.6rem !important;
+  }
+
+  .admin-page-header h1 {
+    font-size: 1.15rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .admin-page-header p {
+    font-size: 0.78rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .btn-admin-primary {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .admin-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  /* Switcher Tampilan Mapper di Layar HP (Kanvas vs Formulir) */
+  .mapper-mobile-nav {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+    margin-bottom: 0.85rem !important;
+    background: #e2e8f0 !important;
+    padding: 4px !important;
+    border-radius: 12px !important;
+  }
+
+  .mapper-tab-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    padding: 0.55rem 0.5rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 9px !important;
+    background: transparent !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .mapper-tab-btn.active {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35) !important;
+  }
+
+  .mapper-coord-pill-badge {
+    background: #f59e0b !important;
+    color: #ffffff !important;
+    font-size: 0.62rem !important;
+    padding: 1px 6px !important;
+    border-radius: 9999px !important;
+    font-weight: 800 !important;
+  }
+
+  /* Di HP: Beralih penuh antara Kanvas 360° dan Formulir Rak */
+  .admin-grid-2.mapper-show-canvas > form#form-rack {
+    display: none !important;
+  }
+
+  .admin-grid-2.mapper-show-form > .mapper-canvas-card {
+    display: none !important;
+  }
+
+  /* Kanvas Mapper di HP Tampil Lega */
+  .hotspot-mapper-canvas-box {
+    height: 380px !important;
+    min-height: 340px !important;
+    border-radius: 12px !important;
+  }
+
+  /* Instruksi Kanvas di HP Ramping & Bersih (Tidak Menutupi Kanvas) */
+  .mapper-overlay-instruction {
+    top: 0.5rem !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    padding: 0.45rem 0.65rem !important;
+    font-size: 0.7rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    border-radius: 8px !important;
+    background: rgba(15, 23, 42, 0.92) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35) !important;
+    line-height: 1.25 !important;
+  }
+
+  .mapper-overlay-instruction.dismissed {
+    display: none !important;
+  }
+
+  .btn-instruction-dismiss {
+    display: inline-flex !important;
+    background: none !important;
+    border: none !important;
+    color: #94a3b8 !important;
+    font-size: 0.85rem !important;
+    cursor: pointer !important;
+    padding: 0 0.25rem !important;
+    margin-left: auto !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Floating Bar di Bawah Kanvas saat Titik Terkunci */
+  .mapper-mobile-floating-bar {
+    position: absolute !important;
+    bottom: 0.5rem !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+    z-index: 25 !important;
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(2, 132, 199, 0.6) !important;
+    border-radius: 10px !important;
+    padding: 0.5rem 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    animation: slideUpFloating 0.25s ease !important;
+  }
+
+  @keyframes slideUpFloating {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .floating-bar-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    min-width: 0 !important;
+  }
+
+  .floating-coords {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+  }
+
+  .floating-coords strong {
+    font-size: 0.75rem !important;
+    color: #38bdf8 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .floating-coords small {
+    font-size: 0.62rem !important;
+    color: #94a3b8 !important;
+  }
+
+  .btn-floating-goto-form {
+    background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 0.45rem 0.75rem !important;
+    border-radius: 7px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4) !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Baris Balik ke Kanvas di Atas Form */
+  .form-mobile-back-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    padding: 0.45rem 0.65rem !important;
+    background: #f0f9ff !important;
+    border: 1px solid #bae6fd !important;
+    border-radius: 8px !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .btn-back-to-canvas {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 0.35rem 0.65rem !important;
+    border-radius: 6px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+  }
+
+  .form-mobile-coord-summary {
+    font-size: 0.72rem !important;
+    color: #0369a1 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* Pemilih Ruangan di Visual Hotspot Mapper (Tab 3) di Mobile */
+  .mapper-room-selector-card {
+    padding: 0.85rem 0.85rem !important;
+  }
+
+  .mapper-room-selector-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.45rem !important;
+    width: 100% !important;
+  }
+
+  .mapper-room-selector-row label {
+    width: 100% !important;
+    font-size: 0.82rem !important;
+  }
+
+  #mapper-select-room,
+  .mapper-select-room {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  #mapper-pano-status {
+    width: 100% !important;
+    font-size: 0.74rem !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Form & Upload Responsif di Layar HP */
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  .upload-side-by-side {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Grid Statistik Ruangan Lantai 1 & Lantai 2 */
+  div[style*="grid-template-columns: repeat(auto-fit"] {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem !important;
+  }
+
+  .admin-card {
+    padding: 1rem 0.85rem !important;
+    border-radius: 12px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .admin-card-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.6rem !important;
+  }
+
+  .admin-card-header > div:last-child {
+    width: 100% !important;
+    display: flex !important;
+    gap: 0.4rem !important;
+  }
+
+  .search-input-box {
+    flex: 1 !important;
+    width: auto !important;
+  }
+
+  #filter-room-search {
+    width: 100% !important;
+  }
+
+  .data-table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+  }
+
+  /* Modal Admin di HP */
+  .admin-modal-overlay {
+    padding: 0.5rem !important;
+  }
+
+  .admin-modal-card,
+  .modal-admin-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    max-height: 92vh !important;
+    border-radius: 16px !important;
+    padding: 1rem !important;
+    overflow-y: auto !important;
   }
 }
 
@@ -942,3 +1748,285 @@ body.admin-body {
 .btn-toggle-url:hover {
   color: #0284c7;
 }
+
+/* Side-by-side Upload File & Input Teks URL */
+.upload-side-by-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.45rem;
+  align-items: stretch;
+}
+
+.upload-file-col,
+.upload-url-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+}
+
+.upload-file-col {
+  border-style: dashed;
+  border-color: #94a3b8;
+}
+
+.upload-file-col.dragover {
+  border-color: #0284c7;
+  background: #f0f9ff;
+}
+
+.upload-sub-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.admin-file-input {
+  width: 100%;
+  font-size: 0.74rem !important;
+  padding: 0.2rem 0 !important;
+  border: none !important;
+  background: transparent !important;
+  color: #334155;
+  cursor: pointer;
+}
+
+.admin-file-input::file-selector-button {
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.32rem 0.65rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: background 0.15s ease;
+}
+
+.admin-file-input::file-selector-button:hover {
+  background: #0369a1;
+}
+
+.admin-url-input {
+  width: 100%;
+  font-size: 0.76rem !important;
+  padding: 0.38rem 0.55rem !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+}
+
+.upload-file-status {
+  display: inline-block;
+  align-self: flex-start;
+  background: #dcfce7;
+  color: #166534;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.12rem 0.45rem;
+  border-radius: 9999px;
+}
+
+@media (max-width: 640px) {
+  .upload-side-by-side {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================================
+   TOMBOL SEGARKAN / REFRESH DATA DARI DATABASE SUPABASE
+   ========================================================================= */
+.btn-admin-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  padding: 0.45rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  user-select: none;
+}
+
+.btn-admin-refresh:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0369a1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.18);
+}
+
+.btn-admin-refresh:active {
+  transform: translateY(0);
+}
+
+.btn-admin-refresh:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  background: #f1f5f9;
+}
+
+.btn-admin-refresh .refresh-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+  transform-origin: center center;
+}
+
+.btn-admin-refresh.is-spinning .refresh-icon {
+  animation: adminRefreshSpin 0.75s linear infinite;
+}
+
+#filter-room-search:focus {
+  border-color: #0284c7;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+#btn-clear-room-search:hover {
+  color: #ef4444 !important;
+}
+
+/* =========================================================================
+   BILAH FILTER PENCARIAN & AKSI TERPADU (TAB KELOLA DATA - TOOLBAR ESTETIK)
+   ========================================================================= */
+.kelola-toolbar-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
+}
+
+.kelola-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 480px;
+}
+
+.kelola-search-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: #94a3b8;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+#filter-kelola-search {
+  width: 100%;
+  padding: 0.52rem 2.2rem 0.52rem 2.45rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: #1e293b;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+#filter-kelola-search:hover {
+  background: #ffffff;
+  border-color: #94a3b8;
+}
+
+#filter-kelola-search:focus {
+  background: #ffffff;
+  border-color: #0284c7;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+#btn-clear-kelola-search {
+  display: none;
+  position: absolute;
+  right: 0.65rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  line-height: 1;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+#btn-clear-kelola-search:hover {
+  color: #ef4444 !important;
+  background: #fee2e2;
+}
+
+.kelola-toolbar-card .btn-admin-search {
+  padding: 0.52rem 1rem;
+}
+
+.kelola-toolbar-card .btn-admin-refresh {
+  padding: 0.52rem 1rem;
+  margin-left: auto;
+}
+
+/* Tombol Cari Admin */
+.btn-admin-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  background: var(--admin-blue);
+  border: 1px solid var(--admin-blue);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+  user-select: none;
+}
+
+.btn-admin-search:hover {
+  background: var(--admin-blue-hover);
+  border-color: var(--admin-blue-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+}
+
+.btn-admin-search:active {
+  transform: translateY(0);
+}
+
+@keyframes adminRefreshSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+

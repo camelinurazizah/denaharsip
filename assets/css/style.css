@@ -57,12 +57,12 @@ body {
 .main-header {
   background: var(--primary-navy);
   color: #ffffff;
-  height: 64px;
-  padding: 0 1.5rem;
+  min-height: 64px;
+  padding: 0.45rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 0.75rem;
   z-index: 100;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
@@ -75,7 +75,8 @@ body {
   gap: 0.85rem;
   text-decoration: none;
   color: inherit;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .brand-logo {
@@ -117,18 +118,20 @@ body {
 }
 
 .brand-subtitle {
-  font-size: 0.72rem;
+  font-size: 0.69rem;
   color: #94a3b8;
   font-weight: 500;
-  margin-top: 1px;
+  margin-top: 2px;
+  line-height: 1.25;
+  max-width: 470px;
 }
 
 /* Bilah Pencarian Cepat Multi-Entitas (SRS-FR-04) */
 .search-container {
   position: relative;
-  flex: 1;
-  max-width: 420px;
-  min-width: 260px;
+  margin-left: auto;
+  width: clamp(260px, 28vw, 420px);
+  max-width: 440px;
 }
 
 .search-input-wrapper {
@@ -317,11 +320,12 @@ body {
    ========================================================================== */
 .sub-header-bar {
   background: var(--navy-800);
-  height: 48px;
-  padding: 0 1.5rem;
+  min-height: 48px;
+  padding: 0.35rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 90;
@@ -348,7 +352,7 @@ body {
   border: none;
   color: #cbd5e1;
   font-family: inherit;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
   padding: 0.35rem 0.85rem;
   border-radius: 6px;
@@ -356,6 +360,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  white-space: nowrap;
   transition: var(--transition-smooth);
 }
 
@@ -446,7 +451,7 @@ body {
 .main-workspace {
   display: flex;
   flex: 1;
-  height: calc(100vh - 112px);
+  min-height: 0;
   position: relative;
   overflow: hidden;
   background: #0f172a;
@@ -620,7 +625,7 @@ body {
 .map-stage {
   position: relative;
   width: auto;
-  height: 100%;
+  height: auto;
   max-width: 100%;
   max-height: calc(100% - 4px);
   aspect-ratio: 1024 / 764;
@@ -630,7 +635,7 @@ body {
   transition: transform 0.15s ease-out;
   transform-origin: center center;
   overflow: visible;
-  display: block;
+  display: inline-block;
 }
 
 .map-stage-img {
@@ -650,6 +655,7 @@ body {
   height: 100%;
   pointer-events: none;
   z-index: 20;
+  line-height: 1.25;
 }
 
 /* ==========================================================================
@@ -660,66 +666,119 @@ body {
   transform: translate(-50%, -50%);
   pointer-events: auto;
   cursor: pointer;
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   z-index: 25;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  line-height: 1.25;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
 }
 
 .map-pin:hover {
-  transform: translate(-50%, -50%) scale(1.12);
+  transform: translate(-50%, calc(-50% - 2px)) scale(1.06);
   z-index: 40;
-}
-
-.map-pin-pulse {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(220, 38, 38, 0.4);
-  animation: pulse-ring 2s infinite ease-out;
-  pointer-events: none;
-}
-
-@keyframes pulse-ring {
-  0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.9; }
-  100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
 }
 
 .map-pin-badge {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  padding: 0.25rem 0.55rem;
+  gap: 0.42rem;
+  padding: 0.34rem 0.72rem 0.34rem 0.5rem;
   border-radius: 9999px;
-  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-  color: #ffffff;
-  font-size: 0.68rem;
-  font-weight: 800;
-  box-shadow: 0 3px 8px rgba(185, 28, 28, 0.4);
-  border: 1.5px solid #ffffff;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #0f172a;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.25;
   white-space: nowrap;
   letter-spacing: 0.01em;
+  border: 1.5px solid rgba(239, 68, 68, 0.48);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(220, 38, 38, 0.14);
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.map-pin:hover .map-pin-badge {
+  background: #fff1f2;
+  border-color: #ef4444;
+  box-shadow: 0 8px 22px rgba(220, 38, 38, 0.24), 0 2px 6px rgba(15, 23, 42, 0.12);
+}
+
+.map-pin-beacon {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f87171 0%, #dc2626 100%);
+  box-shadow: 0 0 0 2px rgba(254, 226, 226, 0.95);
+}
+
+.map-pin-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(239, 68, 68, 0.55);
+  background: rgba(239, 68, 68, 0.16);
+  animation: pulse-ring 2.2s infinite cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.85); opacity: 0.95; }
+  75%, 100% { transform: scale(2.15); opacity: 0; }
+}
+
+.map-pin-label {
+  display: inline-block;
+  line-height: 1.25;
 }
 
 .map-pin.pin-rack .map-pin-badge {
-  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
-  box-shadow: 0 3px 8px rgba(180, 83, 9, 0.4);
+  background: rgba(255, 251, 235, 0.96);
+  color: #78350f;
+  border-color: rgba(217, 119, 6, 0.5);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12), 0 2px 5px rgba(217, 119, 6, 0.16);
+}
+
+.map-pin.pin-rack:hover .map-pin-badge {
+  background: #fef3c7;
+  border-color: #d97706;
+  box-shadow: 0 8px 20px rgba(217, 119, 6, 0.26);
+}
+
+.map-pin.pin-rack .map-pin-beacon {
+  background: radial-gradient(circle at 35% 35%, #fbbf24 0%, #d97706 100%);
+  box-shadow: 0 0 0 2px rgba(254, 243, 199, 0.95);
 }
 
 .map-pin.pin-rack .map-pin-pulse {
-  background: rgba(217, 119, 6, 0.45);
+  border-color: rgba(217, 119, 6, 0.55);
+  background: rgba(217, 119, 6, 0.16);
+}
+
+.map-pin.active-highlight {
+  z-index: 45;
 }
 
 .map-pin.active-highlight .map-pin-badge {
-  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%) !important;
-  box-shadow: 0 0 16px rgba(34, 197, 94, 0.8) !important;
-  transform: scale(1.15);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.28), 0 8px 22px rgba(5, 150, 105, 0.38) !important;
+  transform: scale(1.08);
+}
+
+.map-pin.active-highlight .map-pin-beacon {
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+}
+
+.map-pin.active-highlight .map-pin-pulse {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* Footer Denah */
@@ -1343,16 +1402,24 @@ body {
   border-radius: 9999px;
   font-size: 0.68rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.status-badge.status-read-here {
+.status-badge.status-read-here,
+.status-badge.status-restricted {
   background: #fef3c7;
   color: #b45309;
 }
 
-.status-badge.status-borrowable {
+.status-badge.status-borrowable,
+.status-badge.status-open {
   background: #dcfce7;
   color: #15803d;
+}
+
+.status-badge.status-borrowed {
+  background: #e0f2fe;
+  color: #0369a1;
 }
 
 /* Footer Modal */
@@ -1406,70 +1473,195 @@ body {
 }
 
 /* ==========================================================================
-   6. MODAL LOGIN DENGAN LOGO RESMI DISARPUS (FOTO KIRIMAN PENGGUNA)
+   6. MODAL LOGIN 2-SIDE DENGAN FOTO KANTOR DISARPUS KAB. CIREBON
    ========================================================================== */
-.login-modal-card {
-  max-width: 440px;
-  background: #ffffff;
-  border-radius: 16px;
+.modal-overlay.login-backdrop-overlay {
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35);
-  border: 2px solid rgba(2, 132, 199, 0.2);
+  background: rgba(15, 23, 42, 0.78);
 }
 
-.login-header {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e3a8a 100%);
-  padding: 2.25rem 1.5rem 1.5rem;
-  text-align: center;
+.modal-overlay.login-backdrop-overlay::before {
+  content: '';
+  position: absolute;
+  inset: -24px;
+  background: url('../images/kantor-disarpus-bg.jpg') center center / cover no-repeat;
+  filter: blur(11px) brightness(0.42) saturate(1.1);
+  z-index: -1;
+}
+
+.login-modal-card {
+  width: 100%;
+  max-width: 860px;
+  min-height: 500px;
+  max-height: 92vh;
+  background: #ffffff;
+  border-radius: 22px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  box-shadow: 0 30px 70px -15px rgba(2, 6, 23, 0.75);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  transform: translateY(20px) scale(0.98);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .login-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+/* Sisi Kiri: Foto Eksterior Kantor Dinas Kearsipan */
+.login-side-visual {
   position: relative;
+  min-width: 0;
+  background: url('../images/kantor-disarpus-bg.jpg') 50% 88% / auto 128% no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem;
   color: #ffffff;
+  overflow: hidden;
 }
 
-.login-logo-wrapper {
+.login-side-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.52) 0%,
+    rgba(15, 23, 42, 0.08) 38%,
+    rgba(15, 23, 42, 0.14) 64%,
+    rgba(15, 23, 42, 0.88) 100%
+  );
+  pointer-events: none;
+}
+
+.login-visual-top,
+.login-visual-bottom {
   position: relative;
-  display: inline-block;
-  margin-bottom: 0.75rem;
+  z-index: 1;
+}
+
+.login-visual-pill {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.32rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.login-visual-heading {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.login-visual-desc {
+  font-size: 0.74rem;
+  color: rgba(241, 245, 249, 0.9);
+  margin-top: 0.22rem;
+  line-height: 1.45;
+}
+
+/* Sisi Kanan: Panel Formulir Bersih */
+.login-side-form {
+  position: relative;
+  min-width: 0;
+  background: #ffffff;
+  padding: 2rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.login-close-btn {
+  top: 0.9rem;
+  right: 0.9rem;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  width: 32px;
+  height: 32px;
+  font-size: 0.85rem;
+}
+
+.login-close-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.login-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
 }
 
 /* Foto Logo Resmi Disarpus Cirebon */
 .login-logo-img {
-  width: 86px;
-  height: 86px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 3px solid var(--cirebon-gold);
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+  border: 2px solid var(--cirebon-gold);
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.25);
   background: #ffffff;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
-.login-title {
-  font-size: 1.15rem;
+.login-brand-text {
+  text-align: left;
+}
+
+.login-brand-name {
+  font-size: 0.95rem;
   font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.3px;
+  color: #0f172a;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
 }
 
-.login-subtitle {
-  font-size: 0.76rem;
-  color: #cbd5e1;
-  margin-top: 0.25rem;
+.login-brand-tagline {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cirebon-blue);
+  margin-top: 0.1rem;
+}
+
+.login-heading {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.08em;
+  text-align: center;
+  margin-bottom: 1.15rem;
 }
 
 .login-body {
-  padding: 1.75rem 1.5rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 0.95rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.32rem;
 }
 
 .form-label {
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 700;
   color: var(--navy-800);
 }
@@ -1483,85 +1675,143 @@ body {
 .form-input-icon {
   position: absolute;
   left: 0.85rem;
-  color: #94a3b8;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.65rem 0.85rem 0.65rem 2.4rem;
-  border: 1px solid var(--border-accent);
-  border-radius: 8px;
+  padding: 0.68rem 0.85rem 0.68rem 2.45rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f1f5f9;
   font-family: inherit;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: var(--text-main);
   outline: none;
   transition: var(--transition-smooth);
 }
 
+.form-input.has-toggle {
+  padding-right: 2.5rem;
+}
+
 .form-input:focus {
+  background: #ffffff;
   border-color: var(--cirebon-blue);
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.form-input::placeholder,
+.qr-url-input::placeholder,
+.modal-card input::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+  font-weight: 400;
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 0.65rem;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.btn-toggle-password:hover {
+  color: var(--navy-900);
+  background: rgba(15, 23, 42, 0.06);
 }
 
 .login-error-alert {
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #dc2626;
-  padding: 0.65rem 0.85rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 8px;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   display: none;
 }
 
 .btn-login-submit {
-  background: linear-gradient(135deg, #0284c7, #0369a1);
+  background: linear-gradient(135deg, #0284c7, #1d4ed8);
   color: #ffffff;
   border: none;
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 800;
-  padding: 0.75rem;
-  border-radius: 8px;
+  padding: 0.78rem;
+  border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.35);
   transition: var(--transition-smooth);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  margin-top: 0.15rem;
 }
 
 .btn-login-submit:hover {
-  background: linear-gradient(135deg, #0369a1, #075985);
-  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.5);
+  background: linear-gradient(135deg, #0369a1, #1e40af);
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.45);
+  transform: translateY(-1px);
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
 }
 
 .demo-account-box {
-  background: #f8fafc;
-  border: 1px dashed var(--border-accent);
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-size: 0.74rem;
-  color: var(--navy-700);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
   text-align: center;
 }
 
 .btn-quick-demo {
+  width: 100%;
   background: #fef3c7;
-  border: 1px solid var(--cirebon-gold-light);
+  border: 1px solid #fcd34d;
   color: #92400e;
   font-family: inherit;
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  padding: 0.35rem 0.65rem;
-  border-radius: 4px;
-  margin-top: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
   cursor: pointer;
   transition: var(--transition-smooth);
 }
 
 .btn-quick-demo:hover {
   background: #fde68a;
+}
+
+.demo-creds-hint {
+  font-size: 0.68rem;
+  color: #64748b;
 }
 
 /* Toast Notifications */
@@ -1598,8 +1848,142 @@ body {
   to { transform: translateX(0); opacity: 1; }
 }
 
+/* Modal QR Code Kiosk & Pemandu Ponsel */
+.qr-modal-card {
+  max-width: 440px;
+  text-align: center;
+}
+
+.qr-modal-head {
+  padding: 1.35rem 1.5rem 0.5rem;
+}
+
+.qr-modal-body {
+  padding: 0.75rem 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.qr-code-frame {
+  background: #ffffff;
+  padding: 0.75rem;
+  border-radius: 14px;
+  border: 2px solid var(--border-light);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 212px;
+  min-height: 212px;
+}
+
+.qr-code-frame svg {
+  display: block;
+  border-radius: 6px;
+}
+
+.qr-network-hint {
+  width: 100%;
+  font-size: 0.73rem;
+  line-height: 1.4;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  text-align: left;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.qr-network-hint.is-ready {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+.qr-network-hint.is-warning {
+  background: #fffbeb;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.qr-url-field-group {
+  width: 100%;
+  text-align: left;
+}
+
+.qr-url-label {
+  display: block;
+  font-size: 0.71rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.35rem;
+}
+
+.qr-url-editor-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.qr-url-input {
+  flex: 1;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.72rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-accent);
+  color: var(--navy-900);
+  background: #f8fafc;
+}
+
+.qr-url-input:focus {
+  outline: none;
+  border-color: var(--cirebon-blue);
+  background: #ffffff;
+}
+
+.qr-mini-btn {
+  border: 1px solid var(--border-accent);
+  background: #ffffff;
+  color: var(--navy-700);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.qr-mini-btn:hover {
+  background: #f1f5f9;
+}
+
+.qr-modal-footer {
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Label Lantai Responsif default (Desktop >768px) */
+.floor-label-mobile {
+  display: none;
+}
+.floor-label-desktop {
+  display: inline;
+}
+
+/* Label Tombol Akses Petugas Responsif default (Desktop >768px) */
+.btn-text-mobile {
+  display: none;
+}
+.btn-text-desktop {
+  display: inline;
+}
+
 /* ==========================================================================
-   RESPONSIVITAS MOBILE (<768px)
+   RESPONSIVITAS MOBILE (<768px) - ANTARMUKA PUBLIK
    ========================================================================== */
 @media (max-width: 1024px) {
   .sub-header-bar {
@@ -1611,31 +1995,423 @@ body {
   body {
     overflow-y: auto;
     height: auto;
+    min-height: 100vh;
   }
+
+  /* 1. Header Publik Menumpuk Rapi ke Bawah (3 Baris Terpadu) */
   .main-header {
-    height: auto;
-    padding: 0.75rem 1rem;
-    flex-wrap: wrap;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    grid-template-rows: auto auto !important;
+    grid-template-areas:
+      "brand actions"
+      "search search" !important;
+    padding: 0.5rem 0.75rem !important;
+    gap: 0.45rem 0.5rem !important;
+    height: auto !important;
+    background: var(--primary-navy) !important;
+    align-items: center !important;
   }
+
+  /* Baris 1 - Kiri: Brand & Logo */
+  .brand-wrapper {
+    grid-area: brand !important;
+    min-width: 0 !important;
+    gap: 0.45rem !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .brand-logo {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .brand-info {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+  }
+
+  .brand-title {
+    font-size: clamp(0.74rem, 3.5vw, 0.88rem) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.2px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+  }
+
+  .brand-title .badge-instansi,
+  .brand-subtitle {
+    display: none !important; /* Sembunyikan teks panjang di HP agar ramping */
+  }
+
+  /* Baris 1 - Kanan: Tombol Akses Petugas / Dashboard */
+  .header-actions {
+    grid-area: actions !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0.25rem !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  #btn-show-qr {
+    display: none !important; /* Scan QR tidak diperlukan untuk pengguna yang sudah membuka di HP */
+  }
+
+  .btn-text-desktop {
+    display: none !important;
+  }
+
+  .btn-text-mobile {
+    display: inline !important;
+  }
+
+  #btn-akses-petugas {
+    padding: 0.32rem 0.55rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+  }
+
+  #btn-akses-petugas.gold-flavor {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #ffffff !important;
+    border-color: #f59e0b !important;
+  }
+
+  /* Baris 2: Kolom Pencarian Cepat Full-Width */
   .search-container {
-    order: 3;
-    max-width: 100%;
-    width: 100%;
+    grid-area: search !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
   }
+
+  .search-input-wrapper {
+    width: 100% !important;
+  }
+
+  .search-input {
+    font-size: 0.78rem !important;
+    padding: 0.45rem 1.8rem 0.45rem 2.2rem !important;
+    height: 38px !important;
+  }
+
+  .search-icon {
+    font-size: 0.85rem !important;
+    left: 0.65rem !important;
+  }
+
+  .search-results-dropdown {
+    width: 100% !important;
+    max-height: 280px !important;
+  }
+
+  /* Baris 3: Sub-Header Tab Lantai 1 & Lantai 2 Proporsional 50%-50% */
   .sub-header-bar {
-    height: auto;
-    padding: 0.6rem 1rem;
-    flex-direction: column;
-    gap: 0.6rem;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0.5rem 0.85rem !important;
+    gap: 0.45rem !important;
+    height: auto !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--border-light) !important;
   }
+
+  .sub-header-left {
+    width: 100% !important;
+  }
+
+  .sub-header-left .segmented-control {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: 100% !important;
+    gap: 4px !important;
+    padding: 3px !important;
+    background: #f1f5f9 !important;
+    border-radius: 10px !important;
+  }
+
+  .sub-header-left .segmented-control .control-btn {
+    width: 100% !important;
+    padding: 0.5rem 0.35rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    justify-content: center !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    border-radius: 8px !important;
+  }
+
+  .floor-label-desktop {
+    display: none !important;
+  }
+
+  .floor-label-mobile {
+    display: inline !important;
+  }
+
+  .sub-header-right {
+    display: none !important; /* Ringkasan teks lokasi kanan disembunyikan agar bersih */
+  }
+
+  /* 2. Switcher Mode Sentuh Ramah Ibu Jari [🗺️ Peta Denah 2D] vs [🔄 Tur 360°] */
+  .sub-header-center {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  #view-mode-split {
+    display: none !important; /* Di HP split 2 layar tidak efektif, gantikan tab penuh */
+  }
+
+  .view-mode-pill {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    width: 100% !important;
+    padding: 3px !important;
+    background: #e2e8f0 !important;
+    border-radius: 10px !important;
+    gap: 4px !important;
+  }
+
+  .view-mode-item {
+    width: 100% !important;
+    padding: 0.5rem 0.5rem !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    border: none !important;
+  }
+
+  .view-mode-item.active {
+    background: var(--primary-navy) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25) !important;
+  }
+
+  /* 3. Panel Konten Workspace Mobile (Tampil Penuh Bergantian) */
   .main-workspace {
-    flex-direction: column;
-    height: auto;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
   }
-  .panel-map, .panel-panorama {
-    height: 60vh;
-    min-height: 420px;
-    border-right: none;
-    border-bottom: 1px solid var(--border-light);
+
+  /* Bawaan HP: Denah 2D Tampil Penuh */
+  .main-workspace:not(.mode-pano-only) .panel-map {
+    display: flex !important;
+    width: 100% !important;
+    height: calc(100vh - 215px) !important;
+    min-height: 380px !important;
+  }
+
+  .main-workspace:not(.mode-pano-only) .panel-panorama {
+    display: none !important;
+  }
+
+  /* Saat Beralih ke Tur Panorama 360°: Panorama Tampil Penuh */
+  .main-workspace.mode-pano-only .panel-panorama {
+    display: flex !important;
+    width: 100% !important;
+    height: calc(100vh - 215px) !important;
+    min-height: 380px !important;
+  }
+
+  .main-workspace.mode-pano-only .panel-map {
+    display: none !important;
+  }
+
+  /* 4. Denah 2D & Pin Merah / Emas di HP */
+  .map-pin-badge {
+    padding: 0.18rem 0.42rem 0.18rem 0.32rem !important;
+    font-size: 0.62rem !important;
+    gap: 0.25rem !important;
+    border-width: 1px !important;
+    backdrop-filter: blur(4px) !important;
+  }
+
+  .map-pin-beacon {
+    width: 7px !important;
+    height: 7px !important;
+  }
+
+  .map-pin-pulse {
+    inset: -3px !important;
+    border-width: 1.5px !important;
+  }
+
+  .map-pin-label {
+    max-width: 85px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 0.62rem !important;
+  }
+
+  .map-toolbar {
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    gap: 0.35rem !important;
+  }
+
+  .toolbar-btn {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* 5. Modal Dokumentasi Bottom-Sheet di Layar HP */
+  .modal-overlay:not(.login-backdrop-overlay) {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+
+  .modal-overlay:not(.login-backdrop-overlay) .modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+    max-height: 85vh !important;
+    transform: translateY(100%) !important;
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  .modal-overlay:not(.login-backdrop-overlay).active .modal-card {
+    transform: translateY(0) !important;
+  }
+
+  /* Drag handle bar di atas Bottom-Sheet */
+  .modal-overlay:not(.login-backdrop-overlay) .modal-card::before {
+    content: '' !important;
+    display: block !important;
+    width: 38px !important;
+    height: 4px !important;
+    background: #cbd5e1 !important;
+    border-radius: 9999px !important;
+    margin: 8px auto 4px auto !important;
+    flex-shrink: 0 !important;
+  }
+
+  .modal-header-hero {
+    height: 135px !important;
+  }
+
+  .modal-hero-title {
+    font-size: 1rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .modal-body {
+    padding: 0.85rem 1rem !important;
+    max-height: calc(85vh - 210px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1rem !important;
+    flex-direction: column-reverse !important;
+    gap: 0.45rem !important;
+    background: #f8fafc !important;
+  }
+
+  .modal-footer .btn-primary,
+  .modal-footer .btn-secondary {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.6rem !important;
+    font-size: 0.82rem !important;
+  }
+
+  /* 6. Tabel Inventaris Boks & Surat Arsip Gaya Kartu & Geser */
+  .books-table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    margin-top: 0.45rem !important;
+    background: #ffffff !important;
+  }
+
+  .books-table thead {
+    display: none !important; /* Header kolom disembunyikan untuk tata letak kartu */
+  }
+
+  .books-table,
+  .books-table tbody,
+  .books-table tr,
+  .books-table td {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .books-table tr {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    padding: 0.65rem 0.8rem !important;
+    margin-bottom: 0.6rem !important;
+  }
+
+  .books-table tr:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .books-table td {
+    padding: 0.18rem 0 !important;
+    border: none !important;
+    font-size: 0.76rem !important;
+    color: #475569 !important;
+  }
+
+  .books-table td:first-child {
+    font-size: 0.84rem !important;
+    font-weight: 800 !important;
+    color: var(--primary-navy) !important;
+    padding-bottom: 0.35rem !important;
+    border-bottom: 1px dashed #e2e8f0 !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* Modal Login 2-Side di Mobile */
+  .modal-overlay.login-backdrop-overlay {
+    padding: 0.75rem !important;
+  }
+
+  .login-modal-card {
+    grid-template-columns: 1fr !important;
+    max-width: 420px !important;
+    min-height: auto !important;
+    border-radius: 16px !important;
+    overflow-y: auto !important;
+  }
+
+  .login-side-visual {
+    min-height: 165px !important;
+    background-size: 135% auto !important;
+    background-position: 50% 60% !important;
+  }
+
+  .login-side-form {
+    padding: 1.25rem 1.15rem !important;
   }
 }

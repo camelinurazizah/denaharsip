@@ -59,7 +59,7 @@ CREATE TABLE rack_books (
     author VARCHAR(150),
     publish_year VARCHAR(20),
     copies INT DEFAULT 1 NOT NULL,
-    status VARCHAR(50) DEFAULT 'Baca di Tempat' NOT NULL, -- 'Baca di Tempat' atau 'Boleh Dipinjam'
+    status VARCHAR(50) DEFAULT 'Arsip Terbuka' NOT NULL, -- 'Arsip Terbuka', 'Akses Terbatas', atau 'Sedang Dipinjam'
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -84,127 +84,80 @@ CREATE POLICY "Admin All Racks" ON racks FOR ALL TO authenticated USING (true) W
 CREATE POLICY "Admin All Rack Books" ON rack_books FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 -- ====================================================================
--- 3. SEED DATA AWAL DISARPUS KABUPATEN CIREBON
+-- 3. SEED DATA AWAL GEDUNG KEARSIPAN DISARPUS KABUPATEN CIREBON
 -- ====================================================================
 
--- 3.1 Data Lantai (2 Gedung x 2 Lantai)
+-- 3.1 Data Lantai (Gedung Kearsipan: Lantai 1 & Lantai 2)
 INSERT INTO floors (id, building, name, floor_number, map_image_url, description) VALUES
-(1, 'Perpustakaan', 'Lantai 1 - Layanan Administrasi & Ruang Baca Umum', 1, 'assets/images/gedung-perpustakaan-lantai-1.svg', 'Zonasi pelayanan kartu anggota perpustakaan, ruang baca anak dan remaja, serta koleksi umum dan meja sirkulasi.'),
-(2, 'Perpustakaan', 'Lantai 2 - Koleksi Khusus Babad & E-Library', 2, 'assets/images/gedung-perpustakaan-lantai-2.svg', 'Zonasi penyimpanan naskah kuno, literatur babad sejarah Cirebon, perpustakaan digital (e-library), dan aula literasi.'),
-(3, 'Kearsipan', 'Lantai 1 - Pelayanan & Restorasi Konservasi Arsip', 1, 'assets/images/gedung-kearsipan-lantai-1.svg', 'Zonasi loket konsultasi kearsipan daerah, ruang restorasi dokumen kuno, serta ruang pengolahan arsip masuk.'),
-(4, 'Kearsipan', 'Lantai 2 - Depo Arsip Utama & Preservasi Digital', 2, 'assets/images/gedung-kearsipan-lantai-2.svg', 'Zonasi depo lemari Roll O Pack suhu terkontrol, ruang digitalisasi scanner ukuran besar, dan pusat server data kearsipan.');
+(1, 'Kearsipan', 'Lantai 1 - Layanan & Tata Usaha Arsip', 1, 'assets/images/gedung-kearsipan-lantai-1.svg', 'Zonasi layanan konsultasi kearsipan, peminjaman arsip, penerimaan surat & tamu, serta ruang pengolahan, pemberkasan & alih media arsip.'),
+(2, 'Kearsipan', 'Lantai 2 - Depo & Restorasi Arsip', 2, 'assets/images/gedung-kearsipan-lantai-2.svg', 'Zonasi Depo Arsip Dinamis & Statis (lemari Roll O''Pack & rak besi suhu terkontrol) serta Ruang Restorasi & Preservasi Arsip kertas kuno.');
 
--- 3.2 Data Ruangan
+-- 3.2 Data Ruangan Gedung Kearsipan
 INSERT INTO rooms (id, floor_id, name, nearby_notes, services_info, room_photo_url, panorama_image_url, map_x, map_y) VALUES
--- Gedung Perpustakaan - Lantai 1
-(1, 1, 'Ruang Pelayanan Administrasi (PA)', 
- 'Terletak di Lantai 1, tepat di sebelah kiri lobi utama, berhadapan langsung dengan Ruang Baca Anak & Remaja.', 
- 'Layanan yang tersedia:\n1. Pendaftaran & Cetak Kartu Tanda Anggota (KTA) Perpustakaan baru (Syarat: KTP/Kartu Pelajar Kab. Cirebon, pasfoto 2x3).\n2. Pembuatan Surat Keterangan Bebas Pustaka untuk syarat kelulusan/wisuda mahasiswa.\n3. Legalisasi dokumen literatur dan surat keterangan penelitian naskah.\n\nJam Buka Loket: Senin - Kamis 08.00 - 15.30 WIB, Jumat 08.00 - 14.30 WIB (Gratis / Bebas Biaya).', 
- 'assets/images/ruang-pa-front.jpg', 
- 'assets/images/ruang-pa-pano.jpg', 
- 24.5, 32.0),
+-- Lantai 1 Gedung Kearsipan
+(1, 1, 'Ruang Pelayanan Kearsipan & Tamu (PA)',
+ 'Terletak di Lantai 1 Gedung Kearsipan, tepat di area lobi utama setelah melewati Pintu Masuk Utama sisi selatan, berhadapan langsung dengan meja penerima tamu.',
+ 'Layanan yang tersedia:\n1. Konsultasi kearsipan daerah & pendampingan tata naskah dinas OPD.\n2. Layanan peminjaman, penelusuran, dan akses baca arsip dinamis/statis.\n3. Penerimaan surat masuk, registrasi tamu dinas, dan permohonan informasi arsip.\n\nJam Pelayanan Loket: Senin - Kamis 08.00 - 15.30 WIB, Jumat 08.00 - 14.30 WIB.',
+ 'assets/images/ruang-pa-front.jpg',
+ 'assets/images/ruang-pa-pano.jpg',
+ 47.0, 66.0),
 
-(2, 1, 'Ruang Baca Anak & Remaja', 
- 'Terletak di Lantai 1 bagian sayap depan selatan, berhadapan dengan Ruang PA dan bersebelahan dengan taman baca lobi.', 
- 'Fasilitas membaca khusus anak-anak dengan karpet lesehan edukatif, buku dongeng nusantara, ensiklopedia bergambar, dan permainan edukatif motorik.', 
- 'assets/images/ruang-pa-front.jpg', 
- 'assets/images/ruang-pa-pano.jpg', 
- 24.5, 68.0),
+(2, 1, 'Ruang Pengolahan & Alih Media Arsip',
+ 'Terletak di Lantai 1 Gedung Kearsipan sayap utara-tengah, tepat di belakang tangga sentral menuju Lantai 2.',
+ 'Kegiatan & layanan teknis pengolahan arsip:\n1. Pemilahan, deskripsi berkas, dan pemberkasan arsip dinamis inaktif.\n2. Penomoran, pelabelan kode klasifikasi, dan pengemasan ke dalam boks arsip standar ANRI.\n3. Alih media & digitalisasi (scanning) dokumen/surat arsip bersejarah maupun berkas OPD.\n\nAkses Ruang: Area kerja teknis arsiparis & koordinasi alih media.',
+ 'assets/images/depo-arsip-front.jpg',
+ 'assets/images/ruang-pa-pano.jpg',
+ 44.5, 25.0),
 
-(3, 1, 'Ruang Koleksi Buku Umum & Sirkulasi', 
- 'Terletak di sisi timur Lantai 1, melalui selasar lobi utama lurus ke depan.', 
- 'Peminjaman dan pengembalian mandiri buku ilmu pengetahuan umum, sains, sastra, hukum, dan fiksi. Dilengkapi meja baca tenang dan stopkontak laptop.', 
- 'assets/images/ruang-pa-front.jpg', 
- 'assets/images/ruang-pa-pano.jpg', 
- 76.0, 52.0),
+-- Lantai 2 Gedung Kearsipan
+(3, 2, 'Ruang Depo Arsip Dinamis & Statis',
+ 'Terletak di Lantai 2 Gedung Kearsipan sepanjang sayap utara, diakses dari selasar penghubung setelah menaiki tangga dari Lantai 1.',
+ 'Pusat penyimpanan fisik boks arsip dinamis inaktif dan arsip statis Kabupaten Cirebon menggunakan lemari gerak (Roll O''Pack) dan rak besi standar ANRI.\n\nFasilitas & Standar Penyimpanan:\n1. Pengatur suhu ruangan terkontrol (18-20 C) dan kelembaban (50-60% RH).\n2. Penataan boks arsip terindeks berdasarkan Kode Klasifikasi, Unit Pencipta, dan Kurun Waktu.\n3. Penelusuran fisik boks & surat arsip didampingi oleh petugas arsiparis.',
+ 'assets/images/depo-arsip-front.jpg',
+ 'assets/images/depo-arsip-pano.jpg',
+ 49.0, 47.0),
 
--- Gedung Perpustakaan - Lantai 2
-(4, 2, 'Ruang Koleksi Khusus & Babad Cirebon', 
- 'Terletak di Lantai 2 sisi barat, tepat setelah menaiki tangga utama dan belok ke arah kiri melintasi selasar void.', 
- 'Penyimpanan literatur sejarah lokal Cirebon, babad dan naskah kuno caruban, manuskrip Kesultanan Kasepuhan/Kanoman/Kacirebonan, serta kajian wali sanga. Akses koleksi bersifat baca di tempat dengan pengawasan petugas kurator pustaka.', 
- 'assets/images/rak-03-babad.jpg', 
- 'assets/images/ruang-babad-pano.jpg', 
- 25.0, 48.0),
+(4, 2, 'Ruang Restorasi & Preservasi Arsip',
+ 'Terletak di Lantai 2 Gedung Kearsipan sayap tenggara (kanan bawah), tepat di samping tangga timur menuju Lantai 1.',
+ 'Laboratorium perawatan, restorasi, dan preservasi fisik dokumen arsip kertas kuno yang rusak, rapuh, sobek, atau bernoda asam.\n\nLayanan & Proses Konservasi:\n1. Pembersihan fisik dokumen & netralisasi keasaman kertas (deasidifikasi).\n2. Penambalan serat kertas Jepang (tissue mending) dan laminasi arsip.\n3. Enkapsulasi pelindung film poliester serta penjilidan ulang bundel arsip kuno.',
+ 'assets/images/ruang-restorasi-front.jpg',
+ 'assets/images/ruang-restorasi-pano.jpg',
+ 72.8, 80.1);
 
-(5, 2, 'Ruang E-Library & Multimedia', 
- 'Terletak di Lantai 2 sayap timur laut, bersebelahan dengan Aula Seminar.', 
- 'Akses komputer riset internet kecepatan tinggi, katalog digital OPAC terintegrasi, repositori jurnal internasional, dan pemutaran audio-visual sejarah.', 
- 'assets/images/ruang-pa-front.jpg', 
- 'assets/images/ruang-babad-pano.jpg', 
- 76.0, 28.0),
-
--- Gedung Kearsipan - Lantai 1
-(6, 3, 'Ruang Restorasi & Konservasi Arsip', 
- 'Terletak di Lantai 1 Gedung Kearsipan sisi barat laut, di samping lobi pelayanan kearsipan.', 
- 'Laboratorium perbaikan fisik arsip kertas rapuh dan naskah tua. Melayani proses deasidifikasi netralisasi asam, penambalan serat kertas Jepang (tissue mending), laminasi enkapsulasi polyester film, dan penjilidan naskah bersejarah.', 
- 'assets/images/ruang-restorasi-front.jpg', 
- 'assets/images/ruang-restorasi-pano.jpg', 
- 24.5, 32.0),
-
-(7, 3, 'Ruang Konsultasi & Layanan Arsip Dinamis / Statis', 
- 'Terletak di Lantai 1 Gedung Kearsipan sisi timur, menghadap langsung meja resepsionis.', 
- 'Layanan peminjaman arsip inaktif pemerintah daerah, riset arsip statis untuk skripsi/tesis, konsultasi penataan arsip instansi OPD se-Kabupaten Cirebon.', 
- 'assets/images/ruang-pa-front.jpg', 
- 'assets/images/ruang-restorasi-pano.jpg', 
- 76.0, 52.0),
-
--- Gedung Kearsipan - Lantai 2
-(8, 4, 'Depo Arsip Utama (Inaktif & Statis)', 
- 'Terletak di Lantai 2 Gedung Kearsipan, menempati seluruh sayap barat lantai 2 dengan akses pintu keamanan sidik jari.', 
- 'Pusat penyimpanan puluhan ribu berkas arsip resmi pemerintah Kabupaten Cirebon menggunakan sistem rak bergerak kompak (Roll O Pack). Ruangan steril dengan pengatur suhu 18-20 C dan kelembaban 50-60% RH.', 
- 'assets/images/depo-arsip-front.jpg', 
- 'assets/images/depo-arsip-pano.jpg', 
- 25.0, 48.0);
-
--- 3.3 Data Rak / Hotspots
+-- 3.3 Data Lemari / Rak Depo Arsip (Hotspots)
 INSERT INTO racks (id, room_id, title, category_code, location_notes, rack_photo_url, pitch, yaw, map_x, map_y, search_tags) VALUES
--- Hotspots di Ruang Koleksi Babad Cirebon (Room 4)
-(1, 4, 'Rak 01 - Naskah Kuno Sunda & Primbon Jawa', 'DDC 091', 'Lorong barat pertama dari pintu masuk Ruang Babad sebelah kiri.', 'assets/images/rak-03-babad.jpg', -2.5, -45.0, 16.0, 24.0, 'naskah kuno, primbon, aksara pegon, daluang, sunda kuno'),
-(2, 4, 'Rak 02 - Caruban Nagari & Wiracarita', 'DDC 959.82', 'Lorong barat kedua, berjejer dengan Rak 01.', 'assets/images/rak-03-babad.jpg', -1.0, -18.0, 16.0, 34.0, 'caruban nagari, purwaka, wiracarita, sejarah cirebon, nagarakretabhumi'),
-(3, 4, 'Rak 03 - Koleksi Babad & Sejarah Cirebon', 'DDC 959.82', 'Gedung Perpustakaan Lantai 2, Ruang Koleksi Khusus, lorong ke-2 dari pintu masuk sebelah kiri, berada tepat di bagian tengah dinding utama.', 'assets/images/rak-03-babad.jpg', 0.5, 5.0, 16.0, 45.0, 'babad, mertasinga, sejarah, keraton, naskah kuno, cirebon, sunan gunung jati'),
-(4, 4, 'Rak 04 - Keraton Kasepuhan, Kanoman & Kacirebonan', 'DDC 959.82', 'Lorong barat ketiga, bersisian dengan meja display etalase naskah asli.', 'assets/images/rak-03-babad.jpg', -3.0, 32.0, 16.0, 56.0, 'kasepuhan, kanoman, kacirebonan, silsilah sultan, piagam perjanjian'),
+-- Hotspots di Ruang Depo Arsip Dinamis & Statis (Room 3)
+(1, 3, 'Rak Roll O''Pack 01 - Arsip Sejarah & Naskah Daerah', 'ARS-000 / Roll O''Pack 01', 'Lorong 1 sebelah kanan, Rak Roll O''Pack 01, Baris/Shaf ke-2 dari atas', 'assets/images/depo-arsip-front.jpg', -2.0, -38.0, 27.5, 34.5, 'roll opack 01, arsip sejarah, naskah daerah, boks a-01, peta kadaster, statis, cirebon'),
+(2, 3, 'Rak Besi 02 - Arsip SK Bupati & Peraturan Daerah', 'ARS-900 / Rak Besi 02', 'Lorong 2 sebelah kiri, Rak Besi 02, Baris/Shaf ke-3 dari atas', 'assets/images/depo-arsip-front.jpg', 0.0, 12.0, 48.5, 34.5, 'rak besi 02, boks b-04, sk bupati, kepegawaian, peraturan daerah, perda, surat keputusan'),
+(3, 3, 'Rak Roll O''Pack 03 - Arsip Perizinan & Pertanahan', 'ARS-500 / Roll O''Pack 03', 'Lorong 3 bagian tengah, Rak Roll O''Pack 03, Baris/Shaf ke-1 dari atas', 'assets/images/depo-arsip-front.jpg', -1.5, 50.0, 68.5, 34.5, 'roll opack 03, boks c-12, perizinan, pertanahan, imb, pbg, aset daerah'),
 
--- Hotspots di Ruang PA (Room 1)
-(5, 1, 'Loket 01 - Pendaftaran KTA & Akses Pemustaka', 'ADM-KTA-01', 'Meja loket paling kiri dekat pintu masuk Ruang PA.', 'assets/images/ruang-pa-front.jpg', -4.0, -25.0, 15.0, 20.0, 'kta, kartu anggota, pendaftaran, akun pemustaka, foto'),
-(6, 1, 'Loket 02 - Legalisasi Dokumen & Bebas Pustaka', 'ADM-LEG-02', 'Meja loket bagian tengah Ruang PA.', 'assets/images/ruang-pa-front.jpg', -3.5, 0.0, 25.0, 25.0, 'legalisasi, bebas pustaka, skripsi, wisuda, cap dinas'),
+-- Hotspot di Ruang Restorasi & Preservasi Arsip (Room 4)
+(4, 4, 'Meja Restorasi 01 - Laminasi & Deasidifikasi Dokumen', 'ARS-RST-01', 'Area laboratorium konservasi sisi tengah Ruang Restorasi & Preservasi Arsip', 'assets/images/ruang-restorasi-front.jpg', -2.0, 0.0, NULL, NULL, 'restorasi, laminasi, deasidifikasi, preservasi, kertas kuno, tissue mending'),
 
--- Hotspots di Ruang Restorasi Arsip (Room 6)
-(7, 6, 'Meja Restorasi 01 - Deasidifikasi & Laminasi', 'ARS-RST-01', 'Area laboratorium basah sisi kiri ruang restorasi.', 'assets/images/ruang-restorasi-front.jpg', -2.0, -30.0, 18.0, 24.0, 'restorasi, deasidifikasi, kimia, pembersihan arsip, laminasi'),
-(8, 6, 'Meja Restorasi 02 - Penjilidan & Pres Hidrolik', 'ARS-RST-02', 'Sisi kanan laboratorium dekat lemari pengering.', 'assets/images/ruang-restorasi-front.jpg', -1.5, 35.0, 32.0, 24.0, 'pres buku, jilid naskah, benang katun, kulit samak, lem kanji'),
+-- Hotspot di Ruang Pelayanan Kearsipan & Tamu (Room 1)
+(5, 1, 'Loket Layanan Kearsipan, Peminjaman & Penerimaan Surat', 'ARS-LAY-01', 'Meja loket pelayanan utama tepat di depan pintu masuk Ruang Pelayanan Kearsipan & Tamu (PA)', 'assets/images/ruang-pa-front.jpg', -3.5, 0.0, NULL, NULL, 'loket, konsultasi kearsipan, peminjaman arsip, penerimaan surat, tamu');
 
--- Hotspots di Depo Arsip (Room 8)
-(9, 8, 'Roll O Pack A - Arsip SK Bupati & Keputusan Daerah', 'ROP-SK-01', 'Jajaran rel lemari gerak A1 sampai A10 sisi selatan.', 'assets/images/depo-arsip-front.jpg', 1.0, -20.0, 18.0, 22.0, 'sk bupati, perda, keputusan bupati, arsip inaktif, cirebon'),
-(10, 8, 'Roll O Pack C - Arsip Statis Bersejarah Cirebon', 'ROP-ST-03', 'Jajaran rel lemari tengah dekat sensor kelembaban.', 'assets/images/depo-arsip-front.jpg', 0.0, 15.0, 18.0, 38.0, 'arsip statis, dokumen kolonial, batas wilayah, peta kadaster');
-
--- 3.4 Data Buku & Koleksi Naskah (Rack Books)
+-- 3.4 Data Daftar Inventaris Boks & Surat Arsip (Rack Books)
 INSERT INTO rack_books (id, rack_id, title, author, publish_year, copies, status) VALUES
--- Buku di Rak 03 (Featured Target Babad Cirebon)
-(1, 3, 'Babad Cirebon Edisi Naskah Mertasinga', 'P.S. Sulendraningrat / Tim Ahli Filologi', '1985', 3, 'Baca di Tempat'),
-(2, 3, 'Carita Purwaka Caruban Nagari (Transliterasi & Terjemahan)', 'Pangeran Arya Cerbon / Drs. Atja', '1986', 2, 'Baca di Tempat'),
-(3, 3, 'Sejarah Cirebon: Kerajaan Cerbon Abad XV - XVII', 'Drs. P.S. Sulendraningrat', '1984', 4, 'Boleh Dipinjam'),
-(4, 3, 'Sunan Gunung Jati: Tokoh Sejarah, Mitos, dan Persebaran Islam di Tanah Jawa', 'Prof. Dr. Nina H. Lubis, M.S.', '2004', 3, 'Boleh Dipinjam'),
-(5, 3, 'Nagarakretabhumi: Kajian Kritis Naskah Pustaka Wangsakerta', 'Dadan Wildan, M.Hum.', '2002', 2, 'Baca di Tempat'),
-(6, 3, 'Babad Cerbon Terjemahan J.L.A. Brandes', 'Dr. J.L.A. Brandes', '1911', 1, 'Baca di Tempat'),
-(7, 3, 'Arsitektur & Ragam Hias Keraton Kasepuhan Cirebon', 'Ir. H. Sudrajat', '2012', 3, 'Boleh Dipinjam'),
-(8, 3, 'Kearifan Lokal dan Budaya Pesisir Caruban', 'Dinas Kebudayaan & Pariwisata Kab. Cirebon', '2019', 5, 'Boleh Dipinjam'),
+-- Boks & Surat Arsip di Rak Roll O'Pack 01
+(1, 1, 'Boks A-01: Arsip Sejarah & Naskah Daerah', 'Bagian Umum & Kearsipan Daerah Kab. Cirebon', '1975 - 1998', 2, 'Akses Terbatas'),
+(2, 1, 'Boks A-02: Peta Kadaster & Dokumen Batas Wilayah Kabupaten', 'Dinas Tata Ruang & Agraria Kab. Cirebon', '1980 - 2005', 3, 'Arsip Terbuka'),
+(3, 1, 'Boks A-03: Album Dokumentasi Pembangunan Daerah Cirebon', 'Humas & Protokol Setda Kab. Cirebon', '1990 - 2010', 2, 'Arsip Terbuka'),
 
--- Buku di Rak 01
-(9, 1, 'Primbon Mujarobat Kuno Peninggalan Pesantren Cirebon', 'K.H. Syatori Arsyad', '1978', 2, 'Baca di Tempat'),
-(10, 1, 'Katalog Naskah Kuno Cirebon Koleksi Masyarakat', 'Pusat Dokumentasi Kearsipan Cirebon', '2016', 3, 'Boleh Dipinjam'),
+-- Boks & Surat Arsip di Rak Besi 02
+(4, 2, 'Boks B-04: SK Bupati & Arsip Kepegawaian', 'Sekretariat Daerah / Bidang Umum', '2019 - 2021', 3, 'Arsip Terbuka'),
+(5, 2, 'Boks B-05: Surat Keputusan & Peraturan Daerah (Perda)', 'Bagian Hukum Setda & DPRD Kab. Cirebon', '2015 - 2020', 4, 'Arsip Terbuka'),
+(6, 2, 'Boks B-06: Berkas Mutasi & Kenaikan Pangkat ASN Daerah', 'BKPSDM Kabupaten Cirebon', '2018 - 2022', 2, 'Akses Terbatas'),
+(7, 2, 'Boks B-07: Bundel Nota Dinas & Surat Perintah Tugas', 'Disarpus / Tata Usaha Kepegawaian', '2020 - 2023', 3, 'Sedang Dipinjam'),
 
--- Buku di Rak 02
-(11, 2, 'Kitab Serat Centhini: Jejak Penjelajahan Pasundan dan Cirebon', 'Pakubuwana V / R. Ng. Ronggowarsito', '1992', 2, 'Baca di Tempat'),
-(12, 2, 'Wawacan Angling Darma Versi Pesisir Cirebon', 'Koleksi Balai Pustaka', '1982', 1, 'Baca di Tempat'),
+-- Boks & Surat Arsip di Rak Roll O'Pack 03
+(8, 3, 'Boks C-12: Berkas Perizinan & Pertanahan', 'DPMPTSP & Dinas Pertanahan Kab. Cirebon', '2016 - 2021', 5, 'Akses Terbatas'),
+(9, 3, 'Boks C-14: Surat Izin Mendirikan Bangunan (IMB) & PBG', 'Dinas Pekerjaan Umum & Penataan Ruang', '2018 - 2022', 4, 'Arsip Terbuka'),
+(10, 3, 'Boks C-15: Dokumen Sertifikat Aset Tanah Pemerintah Daerah', 'BKAD Bidang Aset Kab. Cirebon', '2010 - 2020', 2, 'Sedang Dipinjam');
 
--- Buku di Rak 04
-(13, 4, 'Silsilah Sultan-Sultan Keraton Kasepuhan & Kanoman Cirebon', 'Badan Pengelola Keraton Kasepuhan', '2008', 2, 'Baca di Tempat'),
-(14, 4, 'Perjanjian 1681 dan Pengaruh VOC di Kesultanan Cirebon', 'Dr. Ambary & H. Uka Tjandrasasmita', '1990', 2, 'Baca di Tempat'),
-
--- Arsip di Roll O Pack A
-(15, 9, 'Bundel SK Bupati Cirebon Periode 1990 - 1995 (Pengesahan Batas Desa)', 'Sekretariat Daerah Kab. Cirebon', '1995', 1, 'Baca di Tempat'),
-(16, 9, 'Peraturan Daerah No. 4 Tahun 1988 tentang Rencana Tata Ruang Wilayah', 'DPRD & Pemerintah Kabupaten Cirebon', '1988', 2, 'Baca di Tempat'),
-
--- Arsip di Roll O Pack C
-(17, 10, 'Peta Kadaster Agraria Karesidenan Tjirebon 1928 (Salinan Statis)', 'Topografische Dienst Batavia', '1928', 1, 'Baca di Tempat'),
-(18, 10, 'Album Dokumentasi Foto Pembangunan Bendungan Rentang & Pelabuhan Cirebon', 'Kantor Pekerjaan Umum Residen Cirebon', '1937', 1, 'Baca di Tempat');
+-- Sinkronisasi sequence ID agar INSERT berikutnya dari Admin tidak bentrok
+SELECT setval(pg_get_serial_sequence('floors', 'id'), COALESCE((SELECT MAX(id) FROM floors), 1));
+SELECT setval(pg_get_serial_sequence('rooms', 'id'), COALESCE((SELECT MAX(id) FROM rooms), 1));
+SELECT setval(pg_get_serial_sequence('racks', 'id'), COALESCE((SELECT MAX(id) FROM racks), 1));
+SELECT setval(pg_get_serial_sequence('rack_books', 'id'), COALESCE((SELECT MAX(id) FROM rack_books), 1));
 

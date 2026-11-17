@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tabPanes = document.querySelectorAll('.tab-pane');
 
         navItems.forEach(item => {
-            item.addEventListener('click', () => {
+            const activateTab = () => {
                 const targetTab = item.getAttribute('data-tab');
                 navItems.forEach(n => n.classList.remove('active'));
                 tabPanes.forEach(p => p.classList.remove('active'));
@@ -52,12 +52,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const targetPane = document.getElementById(targetTab);
                 if (targetPane) {
                     targetPane.classList.add('active');
-                    // Jika tab Hotspot Mapper diaktifkan, resize canvas pannellum
-                    if (targetTab === 'tab-hotspot-mapper' && adminPanoViewer) {
-                        setTimeout(() => {
-                            try { adminPanoViewer.resize(); } catch (e) {}
-                        }, 200);
+                    if (window.innerWidth <= 768) {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
+                    // Jika tab Hotspot Mapper diaktifkan, resize atau inisialisasi ulang kanvas pannellum
+                    if (targetTab === 'tab-hotspot-mapper') {
+                        setTimeout(() => {
+                            if (adminPanoViewer && !isMapperFallbackMode) {
+                                try { adminPanoViewer.resize(); } catch (e) {}
+                            }
+                        }, 150);
+                    }
+                }
+            };
+            item.addEventListener('click', activateTab);
+            item.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    activateTab();
                 }
             });
         });
@@ -71,11 +83,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =========================================================================
-    // HELPER GLOBAL: WIDGET UPLOAD BERKAS & PREVIEW (SVG / JPG / PNG / WEBP)
+    // HELPER GLOBAL: WIDGET UPLOAD BERKAS & INPUT URL BERDAMPINGAN
     // =========================================================================
     function formatMediaLabel(src, fallback = 'Berkas Terpilih') {
         if (!src) return fallback;
-        if (src.startsWith('data:')) return '📷 Foto Terunggah (Tersimpan di Sistem)';
+        if (src.startsWith('data:')) return '📷 Gambar dari Perangkat (Data URL)';
         return src.split('?')[0].split('/').pop() || fallback;
     }
 
@@ -104,13 +116,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const btnToggle = document.getElementById(btnToggleId);
         const urlGroup = document.getElementById(urlGroupId);
 
-        if (!fileInput) return { showPreview: () => {}, hidePreview: () => {} };
+        if (!fileInput && !manualInput) return { showPreview: () => {}, hidePreview: () => {} };
 
-        // Klik dropzone atau tombol ganti
-        dropzone?.addEventListener('click', () => fileInput.click());
-        btnChange?.addEventListener('click', () => fileInput.click());
+        // Klik dropzone atau tombol ganti jika ada
+        dropzone?.addEventListener('click', (e) => {
+            if (e.target !== fileInput) fileInput?.click();
+        });
+        btnChange?.addEventListener('click', () => fileInput?.click());
 
-        // Toggle input manual
+        // Toggle input manual (jika memakai mode toggle lama)
         btnToggle?.addEventListener('click', (e) => {
             e.preventDefault();
             if (urlGroup) {
@@ -120,19 +134,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Saat file dipilih dari file explorer
-        fileInput.addEventListener('change', async (e) => {
+        // Saat file dipilih dari perangkat (laptop/komputer)
+        fileInput?.addEventListener('change', async (e) => {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            showAdminToast(`⏳ Mengoptimalkan & memuat berkas ${file.name}...`, 'info');
+            showAdminToast(`⏳ Membaca & mengoptimalkan gambar "${file.name}"...`, 'info');
             try {
                 const mediaUrl = await DataService.uploadMedia(file, bucket);
                 if (mediaUrl) {
                     if (hiddenInput) hiddenInput.value = mediaUrl;
-                    if (manualInput) manualInput.value = mediaUrl.startsWith('data:') ? '' : mediaUrl;
-                    showPreview(mediaUrl, file.name);
-                    showAdminToast(`✅ Berkas "${file.name}" berhasil dimuat!`, 'success');
+                    showPreview(mediaUrl, file.name, true);
+                    showAdminToast(`✅ Gambar "${file.name}" berhasil dimuat!`, 'success');
                     if (typeof onChange === 'function') onChange(mediaUrl);
                 }
             } catch (err) {
@@ -143,60 +156,76 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        // Drag & Drop
-        if (dropzone) {
+        // Drag & Drop ke area upload
+        const dragTarget = dropzone || fileInput?.closest('.upload-file-col');
+        if (dragTarget && fileInput) {
             ['dragenter', 'dragover'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
+                dragTarget.addEventListener(eventName, (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    dropzone.classList.add('dragover');
+                    dragTarget.classList.add('dragover');
                 });
             });
 
             ['dragleave', 'drop'].forEach(eventName => {
-                dropzone.addEventListener(eventName, (e) => {
+                dragTarget.addEventListener(eventName, (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    dropzone.classList.remove('dragover');
+                    dragTarget.classList.remove('dragover');
                 });
             });
 
-            dropzone.addEventListener('drop', (e) => {
+            dragTarget.addEventListener('drop', (e) => {
                 const file = e.dataTransfer?.files?.[0];
                 if (!file) return;
-                fileInput.files = e.dataTransfer.files;
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
                 fileInput.dispatchEvent(new Event('change'));
             });
         }
 
-        // Sinkronisasi input manual
+        // Sinkronisasi input teks URL berdampingan
         if (manualInput) {
             manualInput.addEventListener('input', (e) => {
                 const val = e.target.value.trim();
                 if (hiddenInput) hiddenInput.value = val;
                 if (val) {
-                    showPreview(val, 'Tautan URL / Path');
+                    showPreview(val, 'Tautan URL / Path', false);
                 } else {
-                    hidePreview();
+                    hidePreview(false);
                 }
                 if (typeof onChange === 'function') onChange(val);
             });
         }
 
-        function showPreview(src, name = 'Berkas Dipilih') {
+        function showPreview(src, name = 'Berkas Dipilih', syncManual = true) {
+            if (!src) {
+                hidePreview(syncManual);
+                return;
+            }
             if (previewImg) previewImg.src = src;
-            if (previewName) previewName.textContent = name;
-            if (dropzone) dropzone.style.display = 'none';
+            if (previewName) previewName.textContent = formatMediaLabel(src, name);
             if (previewCard) previewCard.style.display = 'flex';
+            if (syncManual && manualInput) {
+                if (src.startsWith('data:')) {
+                    manualInput.value = '';
+                    manualInput.placeholder = '✅ Data URL perangkat aktif (ketik URL untuk ganti)';
+                } else {
+                    manualInput.value = src;
+                    manualInput.placeholder = 'Atau input teks URL / path gambar...';
+                }
+            }
         }
 
-        function hidePreview() {
+        function hidePreview(clearManual = true) {
             if (previewImg) previewImg.src = '';
-            if (dropzone) dropzone.style.display = 'flex';
             if (previewCard) previewCard.style.display = 'none';
             if (fileInput) fileInput.value = '';
-            if (urlGroup) urlGroup.style.display = 'none';
-            if (manualInput) manualInput.value = '';
+            if (clearManual && manualInput) {
+                manualInput.value = '';
+                manualInput.placeholder = 'Atau input teks URL / path gambar...';
+            }
         }
 
         return { showPreview, hidePreview };
@@ -294,10 +323,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     async function loadFloorFormData() {
-        const building = floorSelectBuilding.value;
-        const floorNum = Number(floorSelectNumber.value);
-        const floors = await DataService.getFloors();
-        const floor = floors.find(f => f.building === building && Number(f.floor_number) === floorNum);
+        const building = floorSelectBuilding?.value || 'Kearsipan';
+        const floorNum = Number(floorSelectNumber?.value || 1);
+        const floors = await DataService.getFloors('Kearsipan');
+        const floor = floors.find(f => Number(f.floor_number) === floorNum) || floors[0];
 
         if (floor) {
             floorInputName.value = floor.name || '';
@@ -309,13 +338,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             formFloor.setAttribute('data-id', floor.id);
 
             if (floor.map_image_url) {
-                uploaderFloorMap.showPreview(floor.map_image_url, floor.map_image_url.split('?')[0].split('/').pop());
+                uploaderFloorMap.showPreview(floor.map_image_url, formatMediaLabel(floor.map_image_url, 'denah.svg'), true);
             } else {
                 uploaderFloorMap.hidePreview();
             }
 
             if (floor.blueprint_image_url) {
-                uploaderFloorBlueprint.showPreview(floor.blueprint_image_url, floor.blueprint_image_url.split('?')[0].split('/').pop());
+                uploaderFloorBlueprint.showPreview(floor.blueprint_image_url, formatMediaLabel(floor.blueprint_image_url, 'blueprint.jpg'), true);
             } else {
                 uploaderFloorBlueprint.hidePreview();
             }
@@ -329,19 +358,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     formFloor?.addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (!floorInputMapUrl.value.trim()) {
+            showAdminToast('⚠️ Silakan pilih gambar denah atau masukkan URL denah digital 2D.', 'warning');
+            return;
+        }
         const floorId = formFloor.getAttribute('data-id');
         const updated = {
             id: floorId ? Number(floorId) : undefined,
-            building: floorSelectBuilding.value,
+            building: 'Kearsipan',
             floor_number: Number(floorSelectNumber.value),
             name: floorInputName.value.trim(),
             description: floorInputDesc.value.trim(),
             map_image_url: floorInputMapUrl.value.trim(),
             blueprint_image_url: floorInputBlueprintUrl?.value?.trim() || floorInputMapUrl.value.trim()
         };
-        await DataService.saveFloor(updated);
-        showAdminToast('Data Denah & Cetak Biru Lantai berhasil disimpan!', 'success');
-        refreshRecordsTable();
+        try {
+            await DataService.saveFloor(updated);
+            showAdminToast('Data Denah & Cetak Biru Lantai Gedung Kearsipan berhasil disimpan!', 'success');
+            await loadInitialAdminData();
+        } catch (err) {
+            console.error('Gagal menyimpan lantai:', err);
+            showAdminToast(`❌ ${err.message || 'Gagal menyimpan data lantai.'}`, 'error');
+        }
     });
 
     // =========================================================================
@@ -354,6 +392,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalRoomHeading = document.getElementById('modal-room-heading');
     const modalRoomIcon = document.getElementById('modal-room-icon');
     const filterRoomSearch = document.getElementById('filter-room-search');
+    const filterKelolaSearch = document.getElementById('filter-kelola-search');
+    const btnClearKelolaSearch = document.getElementById('btn-clear-kelola-search');
+    const btnSearchKelola = document.getElementById('btn-search-kelola');
 
     const roomSelectFloor = document.getElementById('room-select-floor');
     const roomInputName = document.getElementById('room-input-name');
@@ -435,12 +476,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             roomInputPhoto.value = room.room_photo_url || 'assets/images/ruang-pa-front.jpg';
             roomInputPano.value = room.panorama_image_url || 'assets/images/ruang-pa-pano.jpg';
             if (room.room_photo_url) {
-                uploaderRoomPhoto.showPreview(room.room_photo_url, formatMediaLabel(room.room_photo_url, 'ruang-pa-front.jpg'));
+                uploaderRoomPhoto.showPreview(room.room_photo_url, formatMediaLabel(room.room_photo_url, 'ruang-pa-front.jpg'), true);
             } else {
                 uploaderRoomPhoto.hidePreview();
             }
             if (room.panorama_image_url) {
-                uploaderRoomPano.showPreview(room.panorama_image_url, formatMediaLabel(room.panorama_image_url, 'ruang-pa-pano.jpg'));
+                uploaderRoomPano.showPreview(room.panorama_image_url, formatMediaLabel(room.panorama_image_url, 'ruang-pa-pano.jpg'), true);
             } else {
                 uploaderRoomPano.hidePreview();
             }
@@ -562,11 +603,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             id: roomId ? Number(roomId) : undefined,
             floor_id: Number(roomSelectFloor.value),
             name: nameVal,
-            short_name: nameVal.length > 20 ? nameVal.substring(0, 18) + '...' : nameVal,
+            short_name: nameVal.length > 22 ? nameVal.substring(0, 20) + '...' : nameVal,
             nearby_notes: roomInputNearby.value.trim(),
             services_info: roomInputServices.value.trim(),
             room_photo_url: roomInputPhoto.value.trim() || 'assets/images/ruang-pa-front.jpg',
-            panorama_image_url: roomInputPano.value.trim() || 'assets/images/ruang-babad-pano.jpg',
+            panorama_image_url: roomInputPano.value.trim() || 'assets/images/ruang-pa-pano.jpg',
             map_x: parseFloat(roomInputMapX.value) || 25.0,
             map_y: parseFloat(roomInputMapY.value) || 30.0
         };
@@ -598,17 +639,183 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (roomInputPhoto) roomInputPhoto.value = 'assets/images/ruang-pa-front.jpg';
         if (roomInputPano) roomInputPano.value = 'assets/images/ruang-pa-pano.jpg';
-        uploaderRoomPhoto?.showPreview('assets/images/ruang-pa-front.jpg', 'ruang-pa-front.jpg (Bawaan)');
-        uploaderRoomPano?.showPreview('assets/images/ruang-pa-pano.jpg', 'ruang-pa-pano.jpg (Bawaan)');
+        uploaderRoomPhoto?.showPreview('assets/images/ruang-pa-front.jpg', 'ruang-pa-front.jpg (Bawaan)', true);
+        uploaderRoomPano?.showPreview('assets/images/ruang-pa-pano.jpg', 'ruang-pa-pano.jpg (Bawaan)', true);
     }
 
     // Filter live search di tabel ruangan
-    filterRoomSearch?.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
+    const btnClearRoomSearch = document.getElementById('btn-clear-room-search');
+
+    function applyRoomSearchFilter() {
+        if (!filterRoomSearch) return;
+        const query = filterRoomSearch.value.toLowerCase().trim();
+        if (btnClearRoomSearch) {
+            btnClearRoomSearch.style.display = query.length > 0 ? 'inline-block' : 'none';
+        }
         document.querySelectorAll('#table-tab-rooms-tbody tr').forEach(row => {
             const text = row.textContent.toLowerCase();
             row.style.display = text.includes(query) ? '' : 'none';
         });
+    }
+
+    filterRoomSearch?.addEventListener('input', applyRoomSearchFilter);
+    filterRoomSearch?.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            filterRoomSearch.value = '';
+            applyRoomSearchFilter();
+        }
+    });
+
+    btnClearRoomSearch?.addEventListener('click', () => {
+        if (filterRoomSearch) {
+            filterRoomSearch.value = '';
+            filterRoomSearch.focus();
+        }
+        applyRoomSearchFilter();
+    });
+
+    // Fitur Refresh / Segarkan Data dari Supabase
+    const btnRefreshRooms = document.getElementById('btn-refresh-rooms');
+    const btnRefreshKelola = document.getElementById('btn-refresh-kelola');
+
+    async function handleDataRefresh(btn = null, label = 'ruangan') {
+        if (btn) {
+            btn.classList.add('is-spinning');
+            btn.disabled = true;
+        }
+
+        // 1. Bersihkan filter dan input pencarian agar seluruh data langsung tampil
+        if (filterRoomSearch) {
+            filterRoomSearch.value = '';
+        }
+        if (btnClearRoomSearch) {
+            btnClearRoomSearch.style.display = 'none';
+        }
+        if (filterKelolaSearch) {
+            filterKelolaSearch.value = '';
+        }
+        if (btnClearKelolaSearch) {
+            btnClearKelolaSearch.style.display = 'none';
+        }
+
+        showAdminToast(`⏳ Menyegarkan data ${label} dari database Supabase...`, 'info');
+        try {
+            // 2. Tarik data live langsung dari Supabase & sinkronkan cache lokal
+            const result = await DataService.refreshAllData();
+
+            // 3. Render ulang tabel dan kartu statistik
+            await refreshRecordsTable();
+
+            // 4. Perbarui dropdown form ruangan jika ada
+            if (mapperSelectRoom && result.rooms && result.rooms.length > 0) {
+                const prevId = mapperSelectRoom.value;
+                mapperSelectRoom.innerHTML = '';
+                result.rooms.forEach(r => {
+                    const floorNum = r.floors?.floor_number || (Number(r.floor_id) === 1 ? 1 : 2);
+                    const opt = document.createElement('option');
+                    opt.value = r.id;
+                    opt.textContent = `${r.name} (Lantai ${floorNum})`;
+                    mapperSelectRoom.appendChild(opt);
+                });
+                if (prevId && result.rooms.some(r => String(r.id) === String(prevId))) {
+                    mapperSelectRoom.value = prevId;
+                }
+            }
+
+            const count = result.rooms ? result.rooms.length : 0;
+            const source = result.isLive ? 'Supabase Cloud' : 'Penyimpanan Lokal';
+            showAdminToast(`✅ Data ${label} berhasil diperbarui dari ${source}! (${count} Ruangan)`, 'success');
+        } catch (err) {
+            console.error('Gagal menyegarkan data:', err);
+            showAdminToast(`❌ Gagal menyegarkan data: ${err.message || 'Koneksi terganggu'}`, 'error');
+        } finally {
+            if (btn) {
+                setTimeout(() => {
+                    btn.classList.remove('is-spinning');
+                    btn.disabled = false;
+                }, 400);
+            }
+        }
+    }
+
+    btnRefreshRooms?.addEventListener('click', () => handleDataRefresh(btnRefreshRooms, 'ruangan'));
+    btnRefreshKelola?.addEventListener('click', () => handleDataRefresh(btnRefreshKelola, 'ruangan & rak'));
+
+    // Filter live search di tabel Kelola Data & Hapus (Tabel Ruangan & Tabel Rak Depo)
+    function applyKelolaSearchFilter() {
+        if (!filterKelolaSearch) return;
+        const query = filterKelolaSearch.value.toLowerCase().trim();
+        if (btnClearKelolaSearch) {
+            btnClearKelolaSearch.style.display = query.length > 0 ? 'inline-block' : 'none';
+        }
+
+        // 1. Filter Tabel Ruangan di Tab Kelola (#table-rooms-tbody)
+        let visibleRooms = 0;
+        const roomRows = document.querySelectorAll('#table-rooms-tbody tr:not(.empty-search-row)');
+        roomRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const matches = text.includes(query);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleRooms++;
+        });
+
+        const roomsTbody = document.getElementById('table-rooms-tbody');
+        const existingEmptyRoom = roomsTbody?.querySelector('.empty-search-row');
+        if (query.length > 0 && visibleRooms === 0 && roomRows.length > 0) {
+            if (!existingEmptyRoom && roomsTbody) {
+                const tr = document.createElement('tr');
+                tr.className = 'empty-search-row';
+                tr.innerHTML = `<td colspan="5" style="text-align:center; color:#64748b; padding:1.25rem; font-style:italic; background:#f8fafc;">Tidak ada ruangan yang cocok dengan pencarian "<strong>${filterKelolaSearch.value}</strong>".</td>`;
+                roomsTbody.appendChild(tr);
+            }
+        } else if (existingEmptyRoom) {
+            existingEmptyRoom.remove();
+        }
+
+        // 2. Filter Tabel Titik Lemari / Rak Depo Arsip (#table-racks-tbody)
+        let visibleRacks = 0;
+        const rackRows = document.querySelectorAll('#table-racks-tbody tr:not(.empty-search-row)');
+        rackRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const matches = text.includes(query);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleRacks++;
+        });
+
+        const racksTbody = document.getElementById('table-racks-tbody');
+        const existingEmptyRack = racksTbody?.querySelector('.empty-search-row');
+        if (query.length > 0 && visibleRacks === 0 && rackRows.length > 0) {
+            if (!existingEmptyRack && racksTbody) {
+                const tr = document.createElement('tr');
+                tr.className = 'empty-search-row';
+                tr.innerHTML = `<td colspan="5" style="text-align:center; color:#64748b; padding:1.25rem; font-style:italic; background:#f8fafc;">Tidak ada lemari / rak yang cocok dengan pencarian "<strong>${filterKelolaSearch.value}</strong>".</td>`;
+                racksTbody.appendChild(tr);
+            }
+        } else if (existingEmptyRack) {
+            existingEmptyRack.remove();
+        }
+    }
+
+    filterKelolaSearch?.addEventListener('input', applyKelolaSearchFilter);
+    filterKelolaSearch?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyKelolaSearchFilter();
+        } else if (e.key === 'Escape') {
+            filterKelolaSearch.value = '';
+            applyKelolaSearchFilter();
+        }
+    });
+    btnSearchKelola?.addEventListener('click', () => {
+        applyKelolaSearchFilter();
+        if (filterKelolaSearch) filterKelolaSearch.focus();
+    });
+    btnClearKelolaSearch?.addEventListener('click', () => {
+        if (filterKelolaSearch) {
+            filterKelolaSearch.value = '';
+            filterKelolaSearch.focus();
+        }
+        applyKelolaSearchFilter();
     });
 
     // =========================================================================
@@ -630,29 +837,159 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formRack = document.getElementById('form-rack');
     const viewerEl = document.getElementById('admin-mapper-viewer');
 
-    // Klik langsung pada viewer Pannellum (didaftarkan sekali)
+    const uploaderRackPhoto = setupImageUploader({
+        fileInputId: 'rack-file-photo',
+        previewCardId: 'preview-rack-photo-card',
+        previewImgId: 'preview-rack-photo-img',
+        previewNameId: 'preview-rack-photo-name',
+        hiddenInputId: 'rack-input-photo',
+        manualInputId: 'rack-input-photo-manual',
+        bucket: 'details'
+    });
+    uploaderRackPhoto?.showPreview('assets/images/depo-arsip-front.jpg', 'depo-arsip-front.jpg (Bawaan)', true);
+
+    // =========================================================================
+    // KONTROL TAMPILAN INTERAKTIF MAPPER KHUSUS LAYAR HP (MOBILE)
+    // =========================================================================
+    const btnMapperViewCanvas = document.getElementById('btn-mapper-view-canvas');
+    const btnMapperViewForm = document.getElementById('btn-mapper-view-form');
+    const mapperGridContainer = document.getElementById('mapper-grid-container');
+    const btnFloatingGotoForm = document.getElementById('btn-floating-goto-form');
+    const btnBackToCanvas = document.getElementById('btn-back-to-canvas');
+    const btnDismissMapperHelp = document.getElementById('btn-dismiss-mapper-help');
+    const mapperInstructionBox = document.getElementById('mapper-instruction-box');
+
+    function setMapperMobileView(mode) {
+        if (!mapperGridContainer) return;
+        if (mode === 'canvas') {
+            mapperGridContainer.classList.remove('mapper-show-form');
+            mapperGridContainer.classList.add('mapper-show-canvas');
+            btnMapperViewCanvas?.classList.add('active');
+            btnMapperViewForm?.classList.remove('active');
+            setTimeout(() => {
+                if (adminPanoViewer && !isMapperFallbackMode) {
+                    try { adminPanoViewer.resize(); } catch (e) {}
+                }
+            }, 100);
+        } else {
+            mapperGridContainer.classList.remove('mapper-show-canvas');
+            mapperGridContainer.classList.add('mapper-show-form');
+            btnMapperViewForm?.classList.add('active');
+            btnMapperViewCanvas?.classList.remove('active');
+            if (window.innerWidth <= 768) {
+                const formEl = document.getElementById('form-rack');
+                if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    }
+
+    btnMapperViewCanvas?.addEventListener('click', () => setMapperMobileView('canvas'));
+    btnMapperViewForm?.addEventListener('click', () => setMapperMobileView('form'));
+    btnFloatingGotoForm?.addEventListener('click', () => {
+        setMapperMobileView('form');
+        setTimeout(() => {
+            const inputTitle = document.getElementById('rack-input-title');
+            if (inputTitle) inputTitle.focus();
+        }, 220);
+    });
+    btnBackToCanvas?.addEventListener('click', () => setMapperMobileView('canvas'));
+
+    btnDismissMapperHelp?.addEventListener('click', () => {
+        if (mapperInstructionBox) mapperInstructionBox.classList.add('dismissed');
+    });
+
+    // Indikator Pin Hotspot Sementara saat Titik Diklik / Disentuh di Kanvas
+    let tempHotspotId = 'temp-selected-hotspot';
+    function updateTemporaryHotspotMarker(pitch, yaw) {
+        if (!adminPanoViewer || isMapperFallbackMode) return;
+        try {
+            adminPanoViewer.removeHotSpot(tempHotspotId);
+        } catch(e) {}
+        try {
+            adminPanoViewer.addHotSpot({
+                id: tempHotspotId,
+                pitch: Number(pitch),
+                yaw: Number(yaw),
+                cssClass: 'pnlm-temp-target-hotspot',
+                createTooltipFunc: (hotSpotDiv) => {
+                    hotSpotDiv.innerHTML = '<div class="temp-target-pin"><span class="temp-target-beacon"></span><span class="temp-target-label">Titik Terpilih</span></div>';
+                }
+            });
+        } catch (e) {
+            console.log('Temp hotspot error:', e);
+        }
+    }
+
+    function handleMapperCoordsSelected(coords) {
+        if (!coords || coords.length !== 2 || isNaN(coords[0]) || isNaN(coords[1])) return;
+        const pitch = Number(coords[0]).toFixed(2);
+        const yaw = Number(coords[1]).toFixed(2);
+        if (rackInputPitch) rackInputPitch.value = pitch;
+        if (rackInputYaw) rackInputYaw.value = yaw;
+
+        showAdminToast(`🎯 Hotspot Terkunci! Pitch: ${pitch}°, Yaw: ${yaw}°`, 'info');
+
+        const floatingBar = document.getElementById('mapper-floating-bar');
+        const floatingText = document.getElementById('floating-coord-text');
+        const badge = document.getElementById('mapper-coord-badge');
+        const coordPreview = document.getElementById('form-coord-preview');
+
+        if (floatingText) floatingText.textContent = `Pitch: ${pitch}° | Yaw: ${yaw}°`;
+        if (floatingBar) floatingBar.style.display = 'flex';
+        if (badge) {
+            badge.style.display = 'inline-block';
+            badge.textContent = `${pitch}°, ${yaw}°`;
+        }
+        if (coordPreview) {
+            coordPreview.textContent = `Pitch: ${pitch}° | Yaw: ${yaw}°`;
+        }
+
+        updateTemporaryHotspotMarker(pitch, yaw);
+    }
+
+    // Klik langsung pada viewer Pannellum (Mouse Drag & Click)
     let mapperMouseDownPos = null;
     viewerEl?.addEventListener('mousedown', (ev) => {
         mapperMouseDownPos = { x: ev.clientX, y: ev.clientY };
     });
     viewerEl?.addEventListener('mouseup', (event) => {
         if (isMapperFallbackMode || !adminPanoViewer) return;
-        // Abaikan jika admin sedang menggeser (drag) kamera, hanya tangkap klik titik
         if (mapperMouseDownPos) {
             const dist = Math.hypot(event.clientX - mapperMouseDownPos.x, event.clientY - mapperMouseDownPos.y);
             if (dist > 6) return;
         }
         try {
             const coords = adminPanoViewer.mouseEventToCoords(event);
-            if (coords && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
-                const pitch = coords[0].toFixed(2);
-                const yaw = coords[1].toFixed(2);
-                if (rackInputPitch) rackInputPitch.value = pitch;
-                if (rackInputYaw) rackInputYaw.value = yaw;
-                showAdminToast(`🎯 Hotspot Terkunci! Pitch: ${pitch}°, Yaw: ${yaw}°`, 'info');
-            }
+            handleMapperCoordsSelected(coords);
         } catch (err) {
             console.log('Coords calculation:', err);
+        }
+    });
+
+    // Sentuhan Langsung pada Layar HP / Touchscreen (Touch Drag & Tap)
+    let mapperTouchStartPos = null;
+    let mapperTouchStartTime = 0;
+    viewerEl?.addEventListener('touchstart', (ev) => {
+        if (ev.touches.length === 1) {
+            mapperTouchStartPos = { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+            mapperTouchStartTime = Date.now();
+        }
+    }, { passive: true });
+
+    viewerEl?.addEventListener('touchend', (ev) => {
+        if (isMapperFallbackMode || !adminPanoViewer) return;
+        if (!mapperTouchStartPos || ev.changedTouches.length !== 1) return;
+        const touch = ev.changedTouches[0];
+        const dist = Math.hypot(touch.clientX - mapperTouchStartPos.x, touch.clientY - mapperTouchStartPos.y);
+        const timeDiff = Date.now() - mapperTouchStartTime;
+        // Hanya tangkap tap jika jari tidak digeser jauh (< 12px) dan durasi sentuh singkat (< 400ms)
+        if (dist > 12 || timeDiff > 400) return;
+
+        try {
+            const coords = adminPanoViewer.mouseEventToCoords(touch);
+            handleMapperCoordsSelected(coords);
+        } catch (err) {
+            console.log('Touch coords calculation:', err);
         }
     });
 
@@ -704,9 +1041,40 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const relY = 0.5 - (e.clientY - rect.top) / rect.height;
                 const calcYaw = (((yaw + relX * 90) % 360) + 540) % 360 - 180;
                 const calcPitch = Math.max(-45, Math.min(45, pitch + relY * 60));
-                if (rackInputPitch) rackInputPitch.value = calcPitch.toFixed(2);
-                if (rackInputYaw) rackInputYaw.value = calcYaw.toFixed(2);
-                showAdminToast(`🎯 Hotspot Terkunci! Pitch: ${calcPitch.toFixed(2)}°, Yaw: ${calcYaw.toFixed(2)}°`, 'info');
+                handleMapperCoordsSelected([calcPitch, calcYaw]);
+            }
+        });
+
+        // Touch support di mode fallback
+        wrap.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                dragging = true;
+                downX = lastX = e.touches[0].clientX;
+                downY = lastY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+        window.addEventListener('touchmove', (e) => {
+            if (!dragging || e.touches.length !== 1) return;
+            yaw -= (e.touches[0].clientX - lastX) * 0.25;
+            pitch = Math.max(-35, Math.min(35, pitch + (e.touches[0].clientY - lastY) * 0.2));
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+            updatePos();
+        }, { passive: true });
+        window.addEventListener('touchend', (e) => {
+            if (!dragging) return;
+            dragging = false;
+            if (e.changedTouches.length === 1) {
+                const touch = e.changedTouches[0];
+                const moved = Math.hypot(touch.clientX - downX, touch.clientY - downY);
+                if (moved <= 10 && wrap.contains(e.target)) {
+                    const rect = wrap.getBoundingClientRect();
+                    const relX = (touch.clientX - rect.left) / rect.width - 0.5;
+                    const relY = 0.5 - (touch.clientY - rect.top) / rect.height;
+                    const calcYaw = (((yaw + relX * 90) % 360) + 540) % 360 - 180;
+                    const calcPitch = Math.max(-45, Math.min(45, pitch + relY * 60));
+                    handleMapperCoordsSelected([calcPitch, calcYaw]);
+                }
             }
         });
     }
@@ -742,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 pill.className = 'hotspot-marker-pill';
                 pill.title = args.title;
                 const icon = document.createElement('span');
-                icon.textContent = '📚';
+                icon.textContent = '🗄️';
                 const label = document.createElement('span');
                 label.textContent = args.title;
                 pill.appendChild(icon);
@@ -801,20 +1169,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         rackInputPitch.value = rack.pitch;
         rackInputYaw.value = rack.yaw;
         rackInputTags.value = rack.search_tags || '';
-        rackInputPhoto.value = rack.rack_photo_url || 'assets/images/rak-03-babad.jpg';
+        const rackPhotoUrl = rack.rack_photo_url || 'assets/images/depo-arsip-front.jpg';
+        rackInputPhoto.value = rackPhotoUrl;
+        uploaderRackPhoto?.showPreview(rackPhotoUrl, formatMediaLabel(rackPhotoUrl, 'depo-arsip-front.jpg'), true);
+
         const submitBtn = document.getElementById('btn-rack-submit');
-        if (submitBtn) submitBtn.innerHTML = '<span>💾</span> Perbarui Titik Rak &amp; Buku';
+        if (submitBtn) submitBtn.innerHTML = '<span>💾</span> Perbarui Lemari / Rak &amp; Boks Arsip';
 
         const books = await DataService.getBooksByRack(rack.id);
         rackBooksTbody.innerHTML = '';
         if (books.length > 0) {
             books.forEach(b => addBookTableRow(b.title, b.author, b.publish_year, b.copies, b.status));
         } else {
-            addBookTableRow('', '', '', 1, 'Baca di Tempat');
+            addBookTableRow('', '', '', 1, 'Arsip Terbuka');
         }
         if (adminPanoViewer && !isMapperFallbackMode) {
             try { adminPanoViewer.lookAt(Number(rack.pitch) || 0, Number(rack.yaw) || 0, 100, 600); } catch (e) {}
         }
+        updateTemporaryHotspotMarker(rack.pitch, rack.yaw);
+
+        const coordPreview = document.getElementById('form-coord-preview');
+        const badge = document.getElementById('mapper-coord-badge');
+        if (coordPreview) coordPreview.textContent = `Pitch: ${rack.pitch}° | Yaw: ${rack.yaw}°`;
+        if (badge) {
+            badge.style.display = 'inline-block';
+            badge.textContent = `${rack.pitch}°, ${rack.yaw}°`;
+        }
+
+        if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
+            setMapperMobileView('form');
+        }
+
         showAdminToast(`✏️ Memuat "${rack.title}" untuk disunting.`, 'info');
     }
 
@@ -824,7 +1209,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tbody.innerHTML = '';
         if (!racks || racks.length === 0) {
             const emptyTr = document.createElement('tr');
-            emptyTr.innerHTML = '<td colspan="5" style="text-align:center;color:#64748b;padding:1.25rem;">Belum ada titik rak / lemari arsip yang ditandai di ruangan ini. Klik objek pada panorama di atas lalu isi formulir di sebelah kanan untuk menambahkannya.</td>';
+            emptyTr.innerHTML = '<td colspan="5" style="text-align:center;color:#64748b;padding:1.25rem;">Belum ada titik lemari / rak depo arsip yang ditandai di ruangan ini. Klik objek pada panorama di atas lalu isi formulir di sebelah kanan untuk menambahkannya.</td>';
             tbody.appendChild(emptyTr);
             return;
         }
@@ -866,11 +1251,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnDel.className = 'btn-table-delete';
             btnDel.textContent = '🗑️ Hapus';
             btnDel.addEventListener('click', async () => {
-                if (confirm(`Apakah Anda yakin ingin menghapus "${rk.title}" beserta daftar isinya?`)) {
-                    await DataService.deleteRack(rk.id);
-                    showAdminToast('Titik rak berhasil dihapus.', 'info');
-                    await initHotspotMapperRoom();
-                    refreshRecordsTable();
+                if (confirm(`Apakah Anda yakin ingin menghapus "${rk.title}" beserta daftar inventaris boks & surat arsipnya?`)) {
+                    try {
+                        await DataService.deleteRack(rk.id);
+                        showAdminToast('Titik lemari / rak depo arsip berhasil dihapus.', 'info');
+                        await initHotspotMapperRoom();
+                        refreshRecordsTable();
+                    } catch (err) {
+                        console.error('Gagal menghapus rak:', err);
+                        showAdminToast(`❌ ${err.message || 'Gagal menghapus rak di database.'}`, 'error');
+                    }
                 }
             });
 
@@ -887,53 +1277,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // Upload Foto Close-up Rak
-    const rackFilePhoto = document.getElementById('rack-file-photo');
-    const btnRackUploadPhoto = document.getElementById('btn-rack-upload-photo');
-    btnRackUploadPhoto?.addEventListener('click', () => rackFilePhoto?.click());
-    rackFilePhoto?.addEventListener('change', async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        showAdminToast(`⏳ Mengunggah foto rak "${file.name}"...`, 'info');
-        try {
-            const mediaUrl = await DataService.uploadMedia(file, 'details');
-            if (mediaUrl && rackInputPhoto) {
-                rackInputPhoto.value = mediaUrl;
-                showAdminToast(`✅ Foto rak "${file.name}" berhasil dimuat!`, 'success');
-            }
-        } catch (err) {
-            showAdminToast('⚠️ Gagal mengunggah foto rak.', 'error');
-        } finally {
-            rackFilePhoto.value = '';
-        }
-    });
-
     mapperSelectRoom?.addEventListener('change', initHotspotMapperRoom);
 
-    // SRS-FR-14: Manajemen Baris Buku Dinamis (+ Tambah Buku)
+    // SRS-FR-14: Manajemen Baris Inventaris Boks & Surat Arsip Dinamis
     btnAddBookRow?.addEventListener('click', () => {
-        addBookTableRow('', '', '', 1, 'Baca di Tempat');
+        addBookTableRow('', '', '', 1, 'Arsip Terbuka');
     });
 
-    function addBookTableRow(title = '', author = '', year = '', copies = 1, status = 'Baca di Tempat') {
+    function addBookTableRow(title = '', author = '', year = '', copies = 1, status = 'Arsip Terbuka') {
+        const normalizedStatus = ['Arsip Terbuka', 'Akses Terbatas', 'Sedang Dipinjam'].includes(status)
+            ? status
+            : (status === 'Baca di Tempat' ? 'Akses Terbatas' : 'Arsip Terbuka');
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><input type="text" class="book-row-title" placeholder="Judul Buku / Berkas (Opsional)" value="${title}"></td>
-            <td><input type="text" class="book-row-author" placeholder="Nama Pengarang / Instansi" value="${author}"></td>
-            <td style="width:100px;"><input type="text" class="book-row-year" placeholder="Tahun" value="${year}"></td>
-            <td style="width:70px;"><input type="number" class="book-row-copies" min="1" value="${copies}"></td>
-            <td style="width:140px;">
+            <td><input type="text" class="book-row-title" placeholder="cth: Boks B-04: SK Bupati & Kepegawaian"></td>
+            <td><input type="text" class="book-row-author" placeholder="cth: Sekretariat Daerah / Bidang Umum"></td>
+            <td style="width:110px;"><input type="text" class="book-row-year" placeholder="2019 - 2021"></td>
+            <td style="width:76px;"><input type="number" class="book-row-copies" min="1" title="Jumlah Boks / Sampul"></td>
+            <td style="width:150px;">
                 <select class="book-row-status">
-                    <option value="Baca di Tempat" ${status === 'Baca di Tempat' ? 'selected' : ''}>Baca di Tempat</option>
-                    <option value="Boleh Dipinjam" ${status === 'Boleh Dipinjam' ? 'selected' : ''}>Boleh Dipinjam</option>
+                    <option value="Arsip Terbuka">Arsip Terbuka</option>
+                    <option value="Akses Terbatas">Akses Terbatas</option>
+                    <option value="Sedang Dipinjam">Sedang Dipinjam</option>
                 </select>
             </td>
-            <td style="width:40px;text-align:center;">
-                <button type="button" class="btn-remove-row" title="Hapus Buku">✕</button>
+            <td style="width:38px;text-align:center;">
+                <button type="button" class="btn-remove-row" title="Hapus Baris">✕</button>
             </td>
         `;
 
-        tr.querySelector?.('.btn-remove-row')?.addEventListener('click', () => {
+        tr.querySelector('.book-row-title').value = title || '';
+        tr.querySelector('.book-row-author').value = author || '';
+        tr.querySelector('.book-row-year').value = year || '';
+        tr.querySelector('.book-row-copies').value = Number(copies) || 1;
+        tr.querySelector('.book-row-status').value = normalizedStatus;
+
+        tr.querySelector('.btn-remove-row')?.addEventListener('click', () => {
             tr.remove();
         });
 
@@ -946,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const rackId = formRack.getAttribute('data-id');
 
         if (!rackInputPitch.value || !rackInputYaw.value) {
-            showAdminToast('⚠️ Klik tepat di posisi rak pada foto panorama sebelah kiri untuk mengunci koordinat Pitch & Yaw!', 'warning');
+            showAdminToast('⚠️ Klik tepat di posisi lemari / rak pada foto panorama sebelah kiri untuk mengunci koordinat Pitch & Yaw!', 'warning');
             return;
         }
 
@@ -959,13 +1339,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             pitch: parseFloat(rackInputPitch.value) || 0.0,
             yaw: parseFloat(rackInputYaw.value) || 0.0,
             search_tags: rackInputTags.value.trim(),
-            rack_photo_url: rackInputPhoto.value.trim() || 'assets/images/rak-03-babad.jpg'
+            rack_photo_url: rackInputPhoto.value.trim() || 'assets/images/depo-arsip-front.jpg'
         };
 
         try {
             const savedRack = await DataService.saveRack(rackData);
 
-            // Ambil daftar buku / berkas dari baris tabel (baris kosong otomatis dilewati)
+            // Ambil daftar boks & surat arsip dari baris tabel (baris kosong otomatis dilewati)
             const bookRows = rackBooksTbody.querySelectorAll('tr');
             const booksList = [];
             bookRows.forEach(row => {
@@ -981,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
-            // Simpan katalog buku ke database
+            // Simpan inventaris boks & surat arsip ke database
             await DataService.saveRackBooks(savedRack.id, booksList);
 
             showAdminToast(`✅ Titik "${rackData.title}" berhasil disimpan ke ruangan ini!`, 'success');
@@ -989,7 +1369,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await initHotspotMapperRoom();
             refreshRecordsTable();
         } catch (err) {
-            console.error('Gagal menyimpan titik rak:', err);
+            console.error('Gagal menyimpan titik lemari / rak:', err);
             showAdminToast(`❌ Gagal menyimpan rak: ${err.message || 'Periksa ukuran foto atau koneksi.'}`, 'error');
         }
     });
@@ -1004,27 +1384,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         rackInputPitch.value = '';
         rackInputYaw.value = '';
         rackInputTags.value = '';
-        if (rackInputPhoto) rackInputPhoto.value = 'assets/images/rak-03-babad.jpg';
+        if (rackInputPhoto) rackInputPhoto.value = 'assets/images/depo-arsip-front.jpg';
+        uploaderRackPhoto?.showPreview('assets/images/depo-arsip-front.jpg', 'depo-arsip-front.jpg (Bawaan)', true);
         rackBooksTbody.innerHTML = '';
-        addBookTableRow('', '', '', 1, 'Baca di Tempat');
+        addBookTableRow('', '', '', 1, 'Arsip Terbuka');
         
         const submitBtn = document.getElementById('btn-rack-submit');
         if (submitBtn) {
-            submitBtn.innerHTML = '<span>➕</span> Simpan &amp; Tambahkan Lemari Rak';
+            submitBtn.innerHTML = '<span>💾</span> Simpan Lemari / Rak &amp; Daftar Boks Arsip';
         }
         if (btnRackReset) {
-            btnRackReset.innerHTML = '<span>➕</span> Tambah Rak Baru';
+            btnRackReset.innerHTML = '<span>➕</span> Lemari / Rak Baru';
+        }
+
+        if (adminPanoViewer && !isMapperFallbackMode) {
+            try { adminPanoViewer.removeHotSpot(tempHotspotId); } catch(e) {}
+        }
+        const floatingBar = document.getElementById('mapper-floating-bar');
+        const badge = document.getElementById('mapper-coord-badge');
+        const coordPreview = document.getElementById('form-coord-preview');
+        if (floatingBar) floatingBar.style.display = 'none';
+        if (badge) badge.style.display = 'none';
+        if (coordPreview) coordPreview.textContent = 'Belum ada titik dipilih';
+
+        if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
+            setMapperMobileView('canvas');
         }
 
         if (showToast) {
-            showAdminToast('✨ Formulir Tambah Rak Baru siap. Silakan klik foto panorama untuk menangkap sudut Pitch & Yaw.', 'info');
+            showAdminToast('✨ Formulir Tambah Lemari / Rak Depo Arsip siap. Silakan klik foto panorama untuk menangkap sudut Pitch & Yaw.', 'info');
         }
     }
 
     btnRackReset?.addEventListener('click', () => {
         if (rackInputTitle.value.trim() !== '') {
             if (!rackInputPitch.value || !rackInputYaw.value) {
-                showAdminToast('⚠️ Silakan klik pada gambar panorama di sebelah kiri untuk mengunci koordinat Pitch & Yaw rak!', 'warning');
+                showAdminToast('⚠️ Silakan klik pada gambar panorama di sebelah kiri untuk mengunci koordinat Pitch & Yaw lemari/rak!', 'warning');
                 document.getElementById('admin-mapper-viewer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
@@ -1045,22 +1440,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     // TAB 4: KELOLA DATA TABLES (EDIT & DELETE)
     // =========================================================================
     async function refreshRecordsTable() {
+        const floors = await DataService.getFloors('Kearsipan');
         const rooms = await DataService.getAllRooms();
         const racks = await DataService.getAllRacks();
 
-        // Update Statistik di Menu Registrasi Ruangan
+        const getRoomFloorNum = (r) => {
+            if (r.floors?.floor_number) return Number(r.floors.floor_number);
+            const matchedFloor = floors.find(f => Number(f.id) === Number(r.floor_id));
+            return matchedFloor ? Number(matchedFloor.floor_number) : (Number(r.floor_id) % 2 === 1 ? 1 : 2);
+        };
+
+        // Update Statistik di Menu Registrasi Ruangan Gedung Kearsipan
         const statTotal = document.getElementById('stat-total-rooms');
-        const statPerpus = document.getElementById('stat-perpus-rooms');
-        const statArsip = document.getElementById('stat-arsip-rooms');
+        const statFloor1 = document.getElementById('stat-floor1-rooms');
+        const statFloor2 = document.getElementById('stat-floor2-rooms');
         if (statTotal) statTotal.textContent = `${rooms.length} Ruangan`;
-        if (statPerpus) statPerpus.textContent = `${rooms.filter(r => Number(r.floor_id) === 1 || Number(r.floor_id) === 2).length} Ruangan`;
-        if (statArsip) statArsip.textContent = `${rooms.filter(r => Number(r.floor_id) === 3 || Number(r.floor_id) === 4).length} Ruangan`;
+        if (statFloor1) statFloor1.textContent = `${rooms.filter(r => getRoomFloorNum(r) === 1).length} Ruangan`;
+        if (statFloor2) statFloor2.textContent = `${rooms.filter(r => getRoomFloorNum(r) === 2).length} Ruangan`;
 
         // 1. Render Tabel Ruangan di Tab Registrasi Ruangan (#table-tab-rooms-tbody)
         const tabRoomsTbody = document.getElementById('table-tab-rooms-tbody');
         if (tabRoomsTbody) {
             tabRoomsTbody.innerHTML = '';
             rooms.forEach((r, idx) => {
+                const floorNum = getRoomFloorNum(r);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-weight:700; color:var(--admin-muted); text-align:center;">${idx + 1}</td>
@@ -1069,7 +1472,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </td>
                     <td>
                         <span class="badge-instansi" style="background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;">
-                            ${r.floors?.building || (Number(r.floor_id) <= 2 ? 'Perpustakaan' : 'Kearsipan')} Lt. ${r.floors?.floor_number || (Number(r.floor_id) % 2 === 1 ? 1 : 2)}
+                            Lantai ${floorNum} — Gedung Kearsipan
                         </span>
                     </td>
                     <td style="color:#64748b; font-size:0.78rem;">${(r.nearby_notes || '-').substring(0, 55)}${(r.nearby_notes || '').length > 55 ? '...' : ''}</td>
@@ -1085,6 +1488,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
                 tabRoomsTbody.appendChild(tr);
             });
+            applyRoomSearchFilter();
         }
 
         // 2. Render Tabel Ruangan di Tab Kelola Data (#table-rooms-tbody)
@@ -1092,10 +1496,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (roomsTbody) {
             roomsTbody.innerHTML = '';
             rooms.forEach(r => {
+                const floorNum = getRoomFloorNum(r);
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td style="font-weight:700;">${r.name}</td>
-                    <td>${r.floors?.building || (Number(r.floor_id) <= 2 ? 'Perpustakaan' : 'Kearsipan')} Lt. ${r.floors?.floor_number || (Number(r.floor_id) % 2 === 1 ? 1 : 2)}</td>
+                    <td>Lantai ${floorNum} — Gedung Kearsipan</td>
                     <td>${(r.nearby_notes || '').substring(0, 50)}...</td>
                     <td>X: ${r.map_x}% | Y: ${r.map_y}%</td>
                     <td>
@@ -1109,7 +1514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // 3. Render Tabel Rak di Tab Kelola Data (#table-racks-tbody)
+        // 3. Render Tabel Lemari / Rak di Tab Kelola Data (#table-racks-tbody)
         const racksTbody = document.getElementById('table-racks-tbody');
         if (racksTbody) {
             racksTbody.innerHTML = '';
@@ -1131,6 +1536,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        // Terapkan filter pencarian di Tab Kelola jika sedang ada kata kunci
+        applyKelolaSearchFilter();
+
         // Event listener Edit & Delete
         attachTableActionListeners();
     }
@@ -1151,11 +1559,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.btn-table-delete[data-type="room"]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.getAttribute('data-id');
-                if (confirm('Apakah Anda yakin ingin menghapus ruangan ini beserta seluruh titik rak dan bukunya?')) {
-                    await DataService.deleteRoom(id);
-                    showAdminToast('Ruangan berhasil dihapus.', 'info');
-                    await loadInitialAdminData();
-                    refreshRecordsTable();
+                if (confirm('Apakah Anda yakin ingin menghapus ruangan ini beserta seluruh titik lemari/rak dan daftar boks arsipnya?')) {
+                    try {
+                        await DataService.deleteRoom(id);
+                        showAdminToast('Ruangan berhasil dihapus.', 'info');
+                        await loadInitialAdminData();
+                        refreshRecordsTable();
+                    } catch (err) {
+                        console.error('Gagal menghapus ruangan:', err);
+                        showAdminToast(`❌ ${err.message || 'Gagal menghapus ruangan di database.'}`, 'error');
+                    }
                 }
             });
         });
@@ -1178,11 +1591,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.btn-table-delete[data-type="rack"]').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.getAttribute('data-id');
-                if (confirm('Apakah Anda yakin ingin menghapus lemari rak ini beserta daftar bukunya?')) {
-                    await DataService.deleteRack(id);
-                    showAdminToast('Rak buku berhasil dihapus.', 'info');
-                    await initHotspotMapperRoom();
-                    refreshRecordsTable();
+                if (confirm('Apakah Anda yakin ingin menghapus lemari / rak depo arsip ini beserta daftar boks surat arsipnya?')) {
+                    try {
+                        await DataService.deleteRack(id);
+                        showAdminToast('Lemari / rak depo arsip berhasil dihapus.', 'info');
+                        await initHotspotMapperRoom();
+                        refreshRecordsTable();
+                    } catch (err) {
+                        console.error('Gagal menghapus rak:', err);
+                        showAdminToast(`❌ ${err.message || 'Gagal menghapus rak di database.'}`, 'error');
+                    }
                 }
             });
         });
@@ -1196,16 +1614,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     const formSupabaseConfig = document.getElementById('form-supabase-config');
     const btnResetSeedData = document.getElementById('btn-reset-seed-data');
 
+    const elSupabaseStatus = document.getElementById('supabase-connection-status');
+
+    async function refreshSupabaseStatusBanner() {
+        if (!elSupabaseStatus || typeof DataService.getConnectionStatus !== 'function') return;
+        const st = await DataService.getConnectionStatus();
+        if (!st.url || !st.hasKey) {
+            elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc;font-size:0.82rem;color:#475569;';
+            elSupabaseStatus.innerHTML = '⚪ <strong>Mode Penyimpanan Lokal (Browser Cache):</strong> Project URL &amp; Anon Key belum disimpan. Perubahan/hapus data saat ini hanya tersimpan di browser ini dan belum masuk ke database Supabase.';
+        } else if (!st.connected) {
+            elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;font-size:0.82rem;color:#991b1b;';
+            elSupabaseStatus.textContent = `🔴 Gagal terhubung ke Supabase (${st.error || 'Periksa Project URL / Anon Key / tabel SQL'}).`;
+        } else if (!st.hasAuthSession) {
+            elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #fde68a;background:#fffbeb;font-size:0.82rem;color:#92400e;';
+            elSupabaseStatus.innerHTML = '🟠 <strong>Terhubung ke Supabase (Mode Baca Saja):</strong> Sesi login Supabase Auth belum aktif sehingga simpan/hapus ke database akan ditolak RLS. Klik <strong>Keluar</strong> di kanan atas lalu login ulang memakai akun yang sudah dibuat di <em>Authentication → Users</em> Supabase.';
+        } else {
+            elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #a7f3d0;background:#ecfdf5;font-size:0.82rem;color:#065f46;';
+            elSupabaseStatus.textContent = `🟢 Terhubung penuh ke Supabase Cloud (${st.authEmail || 'Authenticated'}). Semua aksi Simpan & Hapus langsung tersinkron ke database.`;
+        }
+    }
+
     if (inputSupabaseUrl) {
-        inputSupabaseUrl.value = safeStorage.getItem('disarpus_supabase_url') || '';
-        inputSupabaseKey.value = safeStorage.getItem('disarpus_supabase_key') || '';
+        const cfg = typeof DataService.getActiveConfig === 'function'
+            ? DataService.getActiveConfig()
+            : { url: safeStorage.getItem('disarpus_supabase_url') || '', anonKey: safeStorage.getItem('disarpus_supabase_key') || '' };
+        inputSupabaseUrl.value = cfg.url || '';
+        inputSupabaseKey.value = cfg.anonKey || '';
+        refreshSupabaseStatusBanner();
     }
 
     formSupabaseConfig?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const url = inputSupabaseUrl.value.trim();
+        const rawUrl = inputSupabaseUrl.value.trim();
+        const url = typeof DataService.normalizeSupabaseUrl === 'function'
+            ? DataService.normalizeSupabaseUrl(rawUrl)
+            : rawUrl;
         const key = inputSupabaseKey.value.trim();
 
+        inputSupabaseUrl.value = url;
         safeStorage.setItem('disarpus_supabase_url', url);
         safeStorage.setItem('disarpus_supabase_key', key);
 
@@ -1214,7 +1660,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     btnResetSeedData?.addEventListener('click', () => {
-        if (confirm('Kembalikan seluruh data ruangan, denah, dan buku ke kondisi bawaan Disarpus Kab. Cirebon?')) {
+        if (confirm('Kembalikan seluruh data denah Lantai 1 & Lantai 2 Gedung Kearsipan, ruangan, lemari/rak depo arsip, dan daftar boks surat arsip ke kondisi bawaan?')) {
             DataService.resetDemoData();
         }
     });
@@ -1223,16 +1669,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // LOAD INITIAL DATA DROPDOWNS
     // =========================================================================
     async function loadInitialAdminData() {
-        const floors = await DataService.getFloors();
+        const floors = await DataService.getFloors('Kearsipan');
         const rooms = await DataService.getAllRooms();
 
-        // 1. Isi dropdown Lantai pada form Ruangan
+        // 1. Isi dropdown Lantai pada form Ruangan (Khusus Gedung Kearsipan)
         if (roomSelectFloor) {
             roomSelectFloor.innerHTML = '';
             floors.forEach(f => {
                 const opt = document.createElement('option');
                 opt.value = f.id;
-                opt.textContent = `${f.building} - Lantai ${f.floor_number} (${f.name})`;
+                opt.textContent = f.name || `Lantai ${f.floor_number} - Gedung Kearsipan`;
                 roomSelectFloor.appendChild(opt);
             });
             updateRoomPickerFloorMap();
@@ -1243,17 +1689,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const prevRoomId = mapperSelectRoom.value;
             mapperSelectRoom.innerHTML = '';
             rooms.forEach(r => {
+                const floorNum = r.floors?.floor_number || (Number(r.floor_id) === 1 ? 1 : 2);
                 const opt = document.createElement('option');
                 opt.value = r.id;
-                opt.textContent = `${r.name} (${r.floors?.building || 'Gedung'} Lt. ${r.floors?.floor_number || 1})`;
+                opt.textContent = `${r.name} (Lantai ${floorNum})`;
                 mapperSelectRoom.appendChild(opt);
             });
 
             if (prevRoomId && rooms.some(r => String(r.id) === String(prevRoomId))) {
                 mapperSelectRoom.value = prevRoomId;
             } else {
-                const babadRoom = rooms.find(r => r.name.toLowerCase().includes('babad'));
-                if (babadRoom) mapperSelectRoom.value = babadRoom.id;
+                const depoRoom = rooms.find(r => r.name.toLowerCase().includes('depo'));
+                if (depoRoom) mapperSelectRoom.value = depoRoom.id;
             }
 
             initHotspotMapperRoom();
@@ -1262,13 +1709,324 @@ document.addEventListener('DOMContentLoaded', async () => {
         // 3. Muat data denah default
         loadFloorFormData();
 
-        // 4. Baris buku default pada form rak
+        // 4. Baris inventaris boks default pada form lemari/rak
         if (rackBooksTbody && rackBooksTbody.children.length === 0) {
-            addBookTableRow('', '', '', 1, 'Baca di Tempat');
+            addBookTableRow('', '', '', 1, 'Arsip Terbuka');
         }
 
         // 5. Muat tabel data kelola
-        refreshRecordsTable();
+        await refreshRecordsTable();
+    }
+
+    // =========================================================================
+    // MODAL GENERATOR & CETAK QR CODE KIOSK / AKSES PENGUNJUNG
+    // =========================================================================
+    const modalAdminQr = document.getElementById('modal-admin-qr');
+    const btnAdminQr = document.getElementById('btn-admin-qr');
+    const btnAdminQrClose = document.getElementById('btn-admin-qr-close');
+    const btnAdminQrFooterClose = document.getElementById('btn-admin-qr-footer-close');
+    const btnAdminQrReset = document.getElementById('btn-admin-qr-reset');
+    const btnAdminQrCopy = document.getElementById('btn-admin-qr-copy');
+    const btnAdminQrDownload = document.getElementById('btn-admin-qr-download');
+    const btnAdminQrPrint = document.getElementById('btn-admin-qr-print');
+    const adminQrRenderEl = document.getElementById('admin-qr-code-render');
+    const adminQrUrlInput = document.getElementById('admin-qr-url-input');
+    const adminQrHintEl = document.getElementById('admin-qr-network-hint');
+    let adminLastAutoQrUrl = '';
+
+    function renderAdminQr(rawUrl) {
+        if (!adminQrRenderEl) return;
+        const cleanUrl = (rawUrl || '').trim();
+        if (!cleanUrl) {
+            adminQrRenderEl.innerHTML = '<div style="font-size:0.75rem;color:#64748b;padding:1rem;">Masukkan alamat URL untuk membuat QR Code.</div>';
+            return;
+        }
+        try {
+            if (!window.QRCodeGenerator) throw new Error('Generator QR belum dimuat.');
+            adminQrRenderEl.innerHTML = window.QRCodeGenerator.toSvgString(cleanUrl, {
+                displaySize: 196,
+                quietZone: 4,
+                darkColor: '#0f172a',
+                lightColor: '#ffffff'
+            });
+        } catch (err) {
+            adminQrRenderEl.textContent = err.message || 'URL terlalu panjang untuk QR Code.';
+        }
+    }
+
+    function setAdminQrHint(message, variant) {
+        if (!adminQrHintEl) return;
+        adminQrHintEl.textContent = message;
+        adminQrHintEl.classList.remove('is-ready', 'is-warning');
+        if (variant === 'ready') adminQrHintEl.classList.add('is-ready');
+        else if (variant === 'warning') adminQrHintEl.classList.add('is-warning');
+    }
+
+    async function resolveBestAdminQrUrl() {
+        const proto = window.location.protocol;
+        const host = window.location.hostname;
+        
+        // Tautan pengunjung selalu mengarah ke index.html
+        let pathname = window.location.pathname || '';
+        if (pathname.endsWith('admin.html')) {
+            pathname = pathname.replace(/admin\.html$/, 'index.html');
+        } else if (!pathname.endsWith('index.html')) {
+            pathname = pathname.replace(/\/$/, '') + '/index.html';
+        }
+
+        if (proto === 'file:') {
+            setAdminQrHint('Aplikasi dibuka lewat file://. Agar pengunjung bisa scan lewat HP, jalankan lewat server lokal atau masukkan domain hosting resmi Anda di bawah.', 'warning');
+            return 'https://disarpus.cirebonkab.go.id/index.html';
+        }
+
+        const isLoopback = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+        if (isLoopback) {
+            try {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), 1200);
+                const resp = await fetch('/api/network-info', { signal: controller.signal });
+                clearTimeout(timer);
+                if (resp.ok) {
+                    const info = await resp.json();
+                    if (info.primaryLanIp) {
+                        const portPart = window.location.port ? `:${window.location.port}` : '';
+                        const lanUrl = `${proto}//${info.primaryLanIp}${portPart}${pathname}`;
+                        setAdminQrHint(`IP Wi-Fi server terdeteksi (${info.primaryLanIp}). Cetak QR ini agar pengunjung yang terhubung ke Wi-Fi kantor dapat langsung scan.`, 'ready');
+                        return lanUrl;
+                    }
+                }
+            } catch (err) {
+                // Abaikan bila server.js tidak menyediakan /api/network-info
+            }
+            setAdminQrHint('Sedang berjalan di localhost. Ganti localhost dengan IP Wi-Fi laptop (contoh: 192.168.1.xxx) atau domain hosting Anda agar HP pengunjung bisa membuka.', 'warning');
+            return window.location.origin + pathname;
+        }
+
+        setAdminQrHint('QR siap dicetak! Mengarah langsung ke halaman publik peta Gedung Kearsipan.', 'ready');
+        return window.location.origin + pathname;
+    }
+
+    async function openAdminQrModal() {
+        if (!modalAdminQr) return;
+        modalAdminQr.classList.add('active');
+        const autoUrl = await resolveBestAdminQrUrl();
+        adminLastAutoQrUrl = autoUrl;
+        if (adminQrUrlInput) adminQrUrlInput.value = autoUrl;
+        renderAdminQr(autoUrl);
+    }
+
+    function closeAdminQrModal() {
+        if (modalAdminQr) modalAdminQr.classList.remove('active');
+    }
+
+    btnAdminQr?.addEventListener('click', openAdminQrModal);
+    btnAdminQrClose?.addEventListener('click', closeAdminQrModal);
+    btnAdminQrFooterClose?.addEventListener('click', closeAdminQrModal);
+
+    modalAdminQr?.addEventListener('click', (e) => {
+        if (e.target === modalAdminQr) closeAdminQrModal();
+    });
+
+    adminQrUrlInput?.addEventListener('input', () => {
+        renderAdminQr(adminQrUrlInput.value);
+    });
+
+    btnAdminQrReset?.addEventListener('click', async () => {
+        const autoUrl = await resolveBestAdminQrUrl();
+        adminLastAutoQrUrl = autoUrl;
+        if (adminQrUrlInput) adminQrUrlInput.value = autoUrl;
+        renderAdminQr(autoUrl);
+    });
+
+    btnAdminQrCopy?.addEventListener('click', async () => {
+        const urlToCopy = (adminQrUrlInput?.value || adminLastAutoQrUrl || '').trim();
+        if (!urlToCopy) return;
+        try {
+            await navigator.clipboard.writeText(urlToCopy);
+            showAdminToast('Tautan QR berhasil disalin ke clipboard!', 'success');
+        } catch (err) {
+            adminQrUrlInput?.select?.();
+            document.execCommand('copy');
+            showAdminToast('Tautan QR berhasil disalin.', 'success');
+        }
+    });
+
+    btnAdminQrDownload?.addEventListener('click', () => {
+        const urlToEncode = (adminQrUrlInput?.value || adminLastAutoQrUrl || '').trim();
+        if (!urlToEncode || !window.QRCodeGenerator) return;
+        try {
+            const canvas = document.createElement('canvas');
+            window.QRCodeGenerator.renderToCanvas(canvas, urlToEncode, {
+                pixelSize: 640,
+                quietZone: 4,
+                darkColor: '#0f172a',
+                lightColor: '#ffffff'
+            });
+            const link = document.createElement('a');
+            link.download = 'QR-Akses-Gedung-Kearsipan-Disarpus.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            showAdminToast('Gambar QR (PNG Resolusi Tinggi) berhasil diunduh.', 'success');
+        } catch (err) {
+            showAdminToast(err.message || 'Gagal mengunduh gambar QR.', 'error');
+        }
+    });
+
+    btnAdminQrPrint?.addEventListener('click', () => {
+        const urlToEncode = (adminQrUrlInput?.value || adminLastAutoQrUrl || '').trim();
+        if (!urlToEncode || !window.QRCodeGenerator) return;
+        printAdminQrStandee(urlToEncode);
+    });
+
+    function printAdminQrStandee(urlToEncode) {
+        if (!urlToEncode || !window.QRCodeGenerator) return;
+        const canvas = document.createElement('canvas');
+        window.QRCodeGenerator.renderToCanvas(canvas, urlToEncode, {
+            pixelSize: 800,
+            quietZone: 4,
+            darkColor: '#0f172a',
+            lightColor: '#ffffff'
+        });
+        const qrDataUrl = canvas.toDataURL('image/png');
+
+        const printWin = window.open('', '_blank', 'width=750,height=900');
+        if (!printWin) {
+            showAdminToast('Izin jendela cetak terblokir. Izinkan pop-up di browser Anda.', 'warning');
+            return;
+        }
+
+        printWin.document.write(`
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Cetak Standee QR Akses — Gedung Kearsipan Disarpus Cirebon</title>
+  <style>
+    @page { size: A4 portrait; margin: 1.5cm; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      color: #0f172a;
+      text-align: center;
+      background: #ffffff;
+    }
+    .print-card {
+      border: 3px solid #0284c7;
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      max-width: 580px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .print-logo {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      margin-bottom: 0.75rem;
+    }
+    .print-instansi {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .print-sub-instansi {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0284c7;
+      text-transform: uppercase;
+      margin: 0.2rem 0 1.25rem;
+    }
+    .divider {
+      height: 2px;
+      background: #e2e8f0;
+      margin: 1rem auto 1.5rem;
+      width: 80%;
+    }
+    .print-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 0.5rem;
+    }
+    .print-desc {
+      font-size: 0.88rem;
+      color: #475569;
+      line-height: 1.5;
+      margin: 0 auto 1.5rem;
+      max-width: 440px;
+    }
+    .qr-container {
+      display: inline-block;
+      padding: 1rem;
+      background: #ffffff;
+      border: 2px dashed #0284c7;
+      border-radius: 16px;
+      margin-bottom: 1.25rem;
+    }
+    .qr-img {
+      width: 260px;
+      height: 260px;
+      display: block;
+    }
+    .print-instruction {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #0284c7;
+      margin: 0 0 0.5rem;
+    }
+    .print-url {
+      font-size: 0.75rem;
+      color: #64748b;
+      word-break: break-all;
+      background: #f1f5f9;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .print-footer {
+      margin-top: 1.75rem;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="print-card">
+    <img src="assets/images/logo-disarpus.png" alt="Logo Disarpus" class="print-logo">
+    <h2 class="print-instansi">Pemerintah Kabupaten Cirebon</h2>
+    <div class="print-sub-instansi">Dinas Kearsipan dan Perpustakaan</div>
+    <div class="divider"></div>
+    <h1 class="print-title">📱 Panduan Mandiri Gedung Kearsipan</h1>
+    <p class="print-desc">Sistem Informasi Denah Digital 2D, Tur Panorama 360°, dan Pencarian Cepat Lokasi Lemari / Boks Arsip.</p>
+    
+    <div class="qr-container">
+      <img src="${qrDataUrl}" alt="QR Code Gedung Kearsipan" class="qr-img">
+    </div>
+
+    <div class="print-instruction">📸 Buka Kamera HP Anda &amp; Pindai QR Code di Atas</div>
+    <div class="print-url">${urlToEncode}</div>
+
+    <div class="print-footer">
+      Gedung Kearsipan Disarpus Kabupaten Cirebon • Jl. Sunan Drajat No. 10, Sumber
+    </div>
+  </div>
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 350);
+    };
+  </script>
+</body>
+</html>
+        `);
+        printWin.document.close();
     }
 
     function showAdminToast(msg, type = 'info') {
