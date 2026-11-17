@@ -8,10 +8,21 @@
 PRAGMA foreign_keys = ON;
 
 -- 1. PEMBUATAN TABEL RELASIONAL (SQLite / Turso)
+DROP TABLE IF EXISTS admin_users;
 DROP TABLE IF EXISTS rack_books;
 DROP TABLE IF EXISTS racks;
 DROP TABLE IF EXISTS rooms;
 DROP TABLE IF EXISTS floors;
+
+-- Master Akun Petugas & Admin Dinas (Autentikasi Aplikasi)
+CREATE TABLE admin_users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    nama_petugas TEXT NOT NULL,
+    role TEXT DEFAULT 'Staff Admin',
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Master Gedung & Denah Lantai
 CREATE TABLE floors (
@@ -75,6 +86,10 @@ CREATE INDEX IF NOT EXISTS idx_rack_books_rack ON rack_books(rack_id);
 -- ====================================================================
 -- 2. INSERT DATA LENGKAP DARI SUPABASE DATABASE
 -- ====================================================================
+
+-- 2.0 Data Akun Petugas Dinas (Admin Users)
+INSERT INTO admin_users (email, password, nama_petugas, role) VALUES
+('admin@disarpus.cirebonkab.go.id', 'admin123', 'Camelia Nur Azizah', 'Staff Admin');
 
 -- 2.1 Data Lantai (Floors)
 INSERT INTO floors (id, building, name, floor_number, map_image_url, blueprint_image_url, description, created_at) VALUES

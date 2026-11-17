@@ -18,10 +18,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Tampilkan email petugas yang sedang login
+    // Tampilkan nama & email petugas yang sedang login
     const elAdminEmail = document.getElementById('admin-logged-email');
     if (elAdminEmail) {
-        elAdminEmail.textContent = DataService.getAdminEmail();
+        const email = DataService.getAdminEmail();
+        const name = typeof DataService.getAdminName === 'function' ? DataService.getAdminName() : '';
+        elAdminEmail.textContent = name ? `${name} • ${email}` : email;
+        elAdminEmail.title = `Petugas Login: ${name || email}`;
     }
 
     // Tombol Logout

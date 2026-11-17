@@ -1099,15 +1099,55 @@ const DataService = {
 
     // 6. AUTENTIKASI ADMIN DINAS (SRS-FR-10)
     async signIn(email, password) {
+        const cleanEmail = (email || '').trim().toLowerCase();
+        const cleanPassword = (password || '').trim();
+
+        // 1. Jika backend aktif adalah TURSO
+        if (this.getActiveBackend() === 'turso' && typeof TursoClient !== 'undefined' && TursoClient.isConfigured()) {
+            try {
+                const res = await TursoClient.execute(
+                    'SELECT id, email, password, nama_petugas, role FROM admin_users WHERE LOWER(email) = ? LIMIT 1;',
+                    [cleanEmail]
+                );
+
+                if (res.rows && res.rows.length > 0) {
+                    const user = res.rows[0];
+                    if (user.password === cleanPassword) {
+                        localStorage.setItem('disarpus_admin_logged_in', 'true');
+                        localStorage.setItem('disarpus_admin_email', user.email);
+                        localStorage.setItem('disarpus_admin_name', user.nama_petugas || 'Camelia Nur Azizah');
+                        localStorage.setItem('disarpus_admin_role', user.role || 'Staff Admin');
+                        return { success: true, user: user };
+                    } else {
+                        return { success: false, error: 'Kata sandi salah. Silakan periksa kembali kata sandi akun Anda.' };
+                    }
+                } else {
+                    return { success: false, error: `Email "${cleanEmail}" belum terdaftar di tabel admin_users Turso.` };
+                }
+            } catch (tursoErr) {
+                console.warn('Gagal memvalidasi ke tabel admin_users Turso, fallback ke auth lokal:', tursoErr);
+                // Fallback darurat jika tabel belum dibuat di Turso
+                if ((cleanEmail.includes('@') && cleanPassword.length >= 4) || cleanEmail === 'admin@disarpus.cirebonkab.go.id') {
+                    localStorage.setItem('disarpus_admin_logged_in', 'true');
+                    localStorage.setItem('disarpus_admin_email', cleanEmail);
+                    localStorage.setItem('disarpus_admin_name', 'Camelia Nur Azizah');
+                    return { success: true, user: { email: cleanEmail, nama_petugas: 'Camelia Nur Azizah', role: 'Staff Admin' } };
+                }
+                return { success: false, error: `Koneksi Turso bermasalah: ${tursoErr.message}` };
+            }
+        }
+
+        // 2. Jika backend aktif adalah SUPABASE
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
+                    email: cleanEmail,
+                    password: cleanPassword
                 });
                 if (error) throw error;
                 localStorage.setItem('disarpus_admin_logged_in', 'true');
                 localStorage.setItem('disarpus_admin_email', data.user.email);
+                localStorage.setItem('disarpus_admin_name', data.user.user_metadata?.full_name || 'Camelia Nur Azizah');
                 return { success: true, user: data.user };
             } catch (err) {
                 return {
@@ -1117,10 +1157,11 @@ const DataService = {
             }
         } else {
             // Mode Demo / Fallback Auth
-            if ((email.includes('@') && password.length >= 4) || email === 'admin@disarpus.cirebonkab.go.id') {
+            if ((cleanEmail.includes('@') && cleanPassword.length >= 4) || cleanEmail === 'admin@disarpus.cirebonkab.go.id') {
                 localStorage.setItem('disarpus_admin_logged_in', 'true');
-                localStorage.setItem('disarpus_admin_email', email || 'petugas@disarpus.cirebonkab.go.id');
-                return { success: true, user: { email: email, role: 'Petugas Dinas Terverifikasi' } };
+                localStorage.setItem('disarpus_admin_email', cleanEmail || 'admin@disarpus.cirebonkab.go.id');
+                localStorage.setItem('disarpus_admin_name', 'Camelia Nur Azizah');
+                return { success: true, user: { email: cleanEmail, nama_petugas: 'Camelia Nur Azizah', role: 'Petugas Dinas Terverifikasi' } };
             }
             return { success: false, error: 'Masukkan alamat surel dinas yang valid dan minimal 4 karakter sandi.' };
         }
@@ -1132,6 +1173,8 @@ const DataService = {
         }
         localStorage.removeItem('disarpus_admin_logged_in');
         localStorage.removeItem('disarpus_admin_email');
+        localStorage.removeItem('disarpus_admin_name');
+        localStorage.removeItem('disarpus_admin_role');
         return true;
     },
 
@@ -1140,7 +1183,11 @@ const DataService = {
     },
 
     getAdminEmail() {
-        return localStorage.getItem('disarpus_admin_email') || 'Petugas Dinas Disarpus';
+        return localStorage.getItem('disarpus_admin_email') || 'admin@disarpus.cirebonkab.go.id';
+    },
+
+    getAdminName() {
+        return localStorage.getItem('disarpus_admin_name') || 'Camelia Nur Azizah';
     },
 
     // Reset fallback demo data
