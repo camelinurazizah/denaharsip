@@ -399,6 +399,18 @@ initSupabase();
 const DataService = {
     normalizeSupabaseUrl,
 
+    getProvider() {
+        return safeStorage.getItem('disarpus_db_provider') || 'supabase';
+    },
+
+    setProvider(provider) {
+        safeStorage.setItem('disarpus_db_provider', provider);
+    },
+
+    isTursoActive() {
+        return this.getProvider() === 'turso' && typeof window !== 'undefined' && Boolean(window.TursoClient?.isConfigured?.());
+    },
+
     getActiveConfig() {
         return getEffectiveSupabaseConfig();
     },
@@ -408,15 +420,33 @@ const DataService = {
     },
 
     async getConnectionStatus() {
+        const provider = this.getProvider();
+        if (provider === 'turso') {
+            if (typeof window !== 'undefined' && window.TursoClient) {
+                const conf = window.TursoClient.getConfig();
+                const test = await window.TursoClient.testConnection();
+                return {
+                    provider: 'turso',
+                    connected: test.connected,
+                    url: conf.url,
+                    hasKey: Boolean(conf.token),
+                    authEmail: test.connected ? 'Turso libSQL Database' : null,
+                    error: test.connected ? null : test.message
+                };
+            }
+            return { provider: 'turso', connected: false, url: '', hasKey: false, authEmail: null, error: 'Turso client belum dimuat.' };
+        }
+
         const { url, anonKey: key } = getEffectiveSupabaseConfig();
         if (!this.isLiveSupabase()) {
-            return { connected: false, hasAuthSession: false, url, hasKey: Boolean(key), authEmail: null, error: null };
+            return { provider: 'supabase', connected: false, hasAuthSession: false, url, hasKey: Boolean(key), authEmail: null, error: null };
         }
         try {
             const { data: sessionData } = await supabaseClient.auth.getSession();
             const session = sessionData?.session || null;
             const { error: pingErr } = await supabaseClient.from('floors').select('id').limit(1);
             return {
+                provider: 'supabase',
                 connected: !pingErr,
                 hasAuthSession: Boolean(session),
                 authEmail: session?.user?.email || null,
@@ -425,7 +455,7 @@ const DataService = {
                 error: pingErr ? pingErr.message : null
             };
         } catch (err) {
-            return { connected: false, hasAuthSession: false, authEmail: null, url, hasKey: Boolean(key), error: err.message };
+            return { provider: 'supabase', connected: false, hasAuthSession: false, authEmail: null, url, hasKey: Boolean(key), error: err.message };
         }
     },
 
@@ -438,8 +468,31 @@ const DataService = {
         return true;
     },
 
-    // Sinkronisasi & Muat Ulang Penuh dari Database Supabase Cloud (Refresh)
+    // Sinkronisasi & Muat Ulang Penuh dari Database (Turso / Supabase / Cache)
     async refreshAllData() {
+        if (this.isTursoActive()) {
+            try {
+                const fData = await this.getFloors();
+                const rData = await this.getAllRooms();
+                const rkData = await this.getAllRacks();
+                return {
+                    isLive: true,
+                    provider: 'turso',
+                    floors: fData,
+                    rooms: rData,
+                    racks: rkData
+                };
+            } catch (err) {
+                return {
+                    isLive: false,
+                    provider: 'turso',
+                    error: err.message,
+                    floors: getLocalData('floors', DEFAULT_FLOORS),
+                    rooms: getLocalData('rooms', DEFAULT_ROOMS),
+                    racks: getLocalData('racks', DEFAULT_RACKS)
+                };
+            }
+        }
         const result = {
             isLive: this.isLiveSupabase(),
             rooms: [],
@@ -524,6 +577,24 @@ const DataService = {
 
     // 1. DATA LANTAI (FLOORS) - Fokus Gedung Kearsipan
     async getFloors(building = 'Kearsipan') {
+        if (this.isTursoActive()) {
+            try {
+                let sql = 'SELECT * FROM floors';
+                const args = [];
+                if (building) {
+                    sql += ' WHERE LOWER(building) = LOWER(?)';
+                    args.push(building);
+                }
+                sql += ' ORDER BY floor_number ASC';
+                const res = await window.TursoClient.execute(sql, args);
+                if (res.rows && res.rows.length > 0) {
+                    setLocalData('floors', res.rows);
+                    return res.rows;
+                }
+            } catch (err) {
+                console.warn('Fallback floors dari Turso:', err);
+            }
+        }
         if (this.isLiveSupabase()) {
             try {
                 let q = supabaseClient.from('floors').select('*').order('floor_number');
@@ -627,6 +698,31 @@ const DataService = {
     },
 
     async getAllRooms() {
+        if (this.isTursoActive()) {
+            try {
+                const sql = `
+                    SELECT r.*, f.building, f.floor_number as floor_num, f.name as floor_name
+                    FROM rooms r
+                    LEFT JOIN floors f ON r.floor_id = f.id
+                    ORDER BY r.id ASC
+                `;
+                const res = await window.TursoClient.execute(sql);
+                if (res.rows && res.rows.length > 0) {
+                    const formatted = res.rows.map(r => ({
+                        ...r,
+                        floors: r.building ? {
+                            building: r.building,
+                            floor_number: r.floor_num,
+                            name: r.floor_name
+                        } : null
+                    })).filter(r => !r.floors || (r.floors.building || '').toLowerCase() === 'kearsipan');
+                    setLocalData('rooms', formatted);
+                    return formatted;
+                }
+            } catch (err) {
+                console.warn('Fallback rooms dari Turso:', err);
+            }
+        }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('rooms').select('*, floors(building, floor_number, name)').order('id');
@@ -656,7 +752,23 @@ const DataService = {
 
     async saveRoom(roomData) {
         let savedResult = null;
-        if (this.isLiveSupabase()) {
+        if (this.isTursoActive()) {
+            if (roomData.id) {
+                const sql = 'UPDATE rooms SET floor_id = ?, name = ?, nearby_notes = ?, services_info = ?, room_photo_url = ?, panorama_image_url = ?, map_x = ?, map_y = ? WHERE id = ?';
+                await window.TursoClient.execute(sql, [
+                    roomData.floor_id, roomData.name, roomData.nearby_notes, roomData.services_info,
+                    roomData.room_photo_url, roomData.panorama_image_url, roomData.map_x, roomData.map_y, roomData.id
+                ]);
+                savedResult = { ...roomData };
+            } else {
+                const sql = 'INSERT INTO rooms (floor_id, name, nearby_notes, services_info, room_photo_url, panorama_image_url, map_x, map_y) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                const res = await window.TursoClient.execute(sql, [
+                    roomData.floor_id, roomData.name, roomData.nearby_notes, roomData.services_info,
+                    roomData.room_photo_url, roomData.panorama_image_url, roomData.map_x, roomData.map_y
+                ]);
+                savedResult = { ...roomData, id: res.lastInsertRowid || Date.now() };
+            }
+        } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
             const dbRoom = {
                 floor_id: roomData.floor_id,
@@ -691,7 +803,9 @@ const DataService = {
     },
 
     async deleteRoom(roomId) {
-        if (this.isLiveSupabase()) {
+        if (this.isTursoActive()) {
+            await window.TursoClient.execute('DELETE FROM rooms WHERE id = ?', [roomId]);
+        } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
             const { error } = await supabaseClient.from('rooms').delete().eq('id', roomId).select();
             if (error) throw new Error(`Gagal menghapus ruangan di Supabase: ${error.message}`);
@@ -717,6 +831,35 @@ const DataService = {
     },
 
     async getAllRacks() {
+        if (this.isTursoActive()) {
+            try {
+                const sql = `
+                    SELECT rk.*, rm.name as room_name, rm.floor_id, f.building, f.floor_number
+                    FROM racks rk
+                    LEFT JOIN rooms rm ON rk.room_id = rm.id
+                    LEFT JOIN floors f ON rm.floor_id = f.id
+                    ORDER BY rk.id ASC
+                `;
+                const res = await window.TursoClient.execute(sql);
+                if (res.rows && res.rows.length > 0) {
+                    const formatted = res.rows.map(rk => ({
+                        ...rk,
+                        rooms: rk.room_name ? {
+                            name: rk.room_name,
+                            floor_id: rk.floor_id,
+                            floors: rk.building ? {
+                                building: rk.building,
+                                floor_number: rk.floor_number
+                            } : null
+                        } : null
+                    })).filter(rk => !rk.rooms?.floors || (rk.rooms.floors.building || '').toLowerCase() === 'kearsipan');
+                    setLocalData('racks', formatted);
+                    return formatted;
+                }
+            } catch (err) {
+                console.warn('Fallback racks dari Turso:', err);
+            }
+        }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('racks').select('*, rooms(name, floor_id, floors(building, floor_number))').order('id');

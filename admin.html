@@ -731,18 +731,62 @@
       <section class="tab-pane" id="tab-pengaturan">
         <div class="admin-page-header">
           <div>
-            <h1>Konfigurasi Cloud Backend Supabase</h1>
-            <p>Hubungkan aplikasi ke proyek Supabase PostgreSQL Anda atau atur ulang data contoh bawaan Gedung
-              Kearsipan.</p>
+            <h1>Konfigurasi Cloud Backend &amp; Database (Turso / Supabase)</h1>
+            <p>Hubungkan aplikasi ke database Turso (libSQL/SQLite) atau Supabase (PostgreSQL), serta kelola sumber data aktif Gedung Kearsipan.</p>
           </div>
+        </div>
+
+        <!-- Pemilih Database Aktif -->
+        <div style="margin-bottom:1.15rem;display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;background:#ffffff;padding:0.85rem 1.25rem;border-radius:10px;border:1px solid #cbd5e1;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <span style="font-weight:700;font-size:0.875rem;color:#1e293b;">Pilih Database Aktif:</span>
+          <label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.875rem;cursor:pointer;color:#0f172a;">
+            <input type="radio" name="db_provider" value="turso" id="provider-turso">
+            <span>⚡ <strong>Turso Database (libSQL / SQLite)</strong></span>
+          </label>
+          <label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.875rem;cursor:pointer;color:#0f172a;">
+            <input type="radio" name="db_provider" value="supabase" id="provider-supabase">
+            <span>☁️ <strong>Supabase (PostgreSQL)</strong></span>
+          </label>
         </div>
 
         <div id="supabase-connection-status"
           style="margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc;font-size:0.82rem;color:#334155;">
-          Memeriksa status koneksi Supabase...
+          Memeriksa status koneksi database...
         </div>
 
         <div class="admin-grid-2">
+          <!-- Card Kredensial Turso Database -->
+          <form id="form-turso-config" class="admin-card">
+            <div class="admin-card-header">
+              <div class="admin-card-title">
+                <span>⚡</span> Kredensial Turso Database (libSQL / SQLite)
+              </div>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="config-turso-url">Database URL</label>
+              <input type="text" id="config-turso-url"
+                placeholder="https://[nama-db]-[org].turso.io atau libsql://...">
+              <span class="help-text">Dapat ditemukan di Turso Dashboard atau hasil perintah: <code>turso db show [nama-db] --url</code></span>
+            </div>
+
+            <div class="form-group-admin">
+              <label for="config-turso-token">Auth Token (JWT)</label>
+              <input type="password" id="config-turso-token" placeholder="eyJhbGciOi...">
+              <span class="help-text">Dibuat via Turso Dashboard (Tokens) atau perintah: <code>turso db tokens create [nama-db]</code></span>
+            </div>
+
+            <div style="display:flex;gap:0.75rem;align-items:center;margin-top:0.75rem;">
+              <button type="submit" class="btn-save-admin" style="flex:1;">
+                💾 Simpan &amp; Aktifkan Turso
+              </button>
+              <button type="button" id="btn-test-turso" class="btn-admin-nav" style="border:1px solid #cbd5e1;background:#f8fafc;color:#1e293b;padding:0.6rem 0.9rem;border-radius:8px;font-weight:600;font-size:0.82rem;cursor:pointer;">
+                🔍 Tes Koneksi
+              </button>
+            </div>
+          </form>
+
+          <!-- Card Kredensial Supabase Project -->
           <form id="form-supabase-config" class="admin-card">
             <div class="admin-card-header">
               <div class="admin-card-title">
@@ -765,7 +809,7 @@
             </div>
 
             <button type="submit" class="btn-save-admin">
-              💾 Simpan &amp; Terapkan Koneksi
+              💾 Simpan &amp; Aktifkan Supabase
             </button>
           </form>
 
@@ -793,6 +837,7 @@
   <!-- Skrip JavaScript Admin -->
   <script src="assets/js/qrcode-gen.js"></script>
   <script src="assets/js/panorama-data.js"></script>
+  <script src="assets/js/turso-client.js"></script>
   <script src="assets/js/supabase-client.js"></script>
   <script src="assets/js/admin.js"></script>
 

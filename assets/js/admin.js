@@ -1607,8 +1607,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // =========================================================================
-    // TAB 5: KONFIGURASI SUPABASE CLOUD
     // =========================================================================
+    // TAB 5: KONFIGURASI BACKEND & DATABASE (TURSO / SUPABASE)
+    // =========================================================================
+    const providerTursoRadio = document.getElementById('provider-turso');
+    const providerSupabaseRadio = document.getElementById('provider-supabase');
+    const inputTursoUrl = document.getElementById('config-turso-url');
+    const inputTursoToken = document.getElementById('config-turso-token');
+    const formTursoConfig = document.getElementById('form-turso-config');
+    const btnTestTurso = document.getElementById('btn-test-turso');
+
     const inputSupabaseUrl = document.getElementById('config-supabase-url');
     const inputSupabaseKey = document.getElementById('config-supabase-key');
     const formSupabaseConfig = document.getElementById('form-supabase-config');
@@ -1616,9 +1624,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const elSupabaseStatus = document.getElementById('supabase-connection-status');
 
-    async function refreshSupabaseStatusBanner() {
+    async function refreshDatabaseStatusBanner() {
         if (!elSupabaseStatus || typeof DataService.getConnectionStatus !== 'function') return;
         const st = await DataService.getConnectionStatus();
+        if (st.provider === 'turso') {
+            if (!st.url || !st.hasKey) {
+                elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc;font-size:0.82rem;color:#475569;';
+                elSupabaseStatus.innerHTML = '⚡ <strong>Mode Turso Database:</strong> Database URL &amp; Auth Token belum dikonfigurasi. Masukkan kredensial Turso Anda di bawah untuk mengaktifkan sinkronisasi.';
+            } else if (!st.connected) {
+                elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;font-size:0.82rem;color:#991b1b;';
+                elSupabaseStatus.textContent = `🔴 Gagal terhubung ke Turso Database (${st.error || 'Periksa Database URL & Auth Token'}).`;
+            } else {
+                elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #a7f3d0;background:#ecfdf5;font-size:0.82rem;color:#065f46;';
+                elSupabaseStatus.innerHTML = `🟢 <strong>Terhubung penuh ke Turso Database (libSQL / SQLite):</strong> <code>${st.url}</code>. Seluruh data denah, ruangan, dan rak aktif tersinkronisasi.`;
+            }
+            return;
+        }
+
+        // Supabase status
         if (!st.url || !st.hasKey) {
             elSupabaseStatus.style.cssText = 'margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc;font-size:0.82rem;color:#475569;';
             elSupabaseStatus.innerHTML = '⚪ <strong>Mode Penyimpanan Lokal (Browser Cache):</strong> Project URL &amp; Anon Key belum disimpan. Perubahan/hapus data saat ini hanya tersimpan di browser ini dan belum masuk ke database Supabase.';
@@ -1634,13 +1657,83 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    const currentActiveProvider = typeof DataService.getProvider === 'function' ? DataService.getProvider() : 'supabase';
+    if (currentActiveProvider === 'turso' && providerTursoRadio) {
+        providerTursoRadio.checked = true;
+    } else if (providerSupabaseRadio) {
+        providerSupabaseRadio.checked = true;
+    }
+
+    providerTursoRadio?.addEventListener('change', () => {
+        if (providerTursoRadio.checked) {
+            DataService.setProvider('turso');
+            showAdminToast('Provider dialihkan ke Turso Database', 'info');
+            refreshDatabaseStatusBanner();
+        }
+    });
+
+    providerSupabaseRadio?.addEventListener('change', () => {
+        if (providerSupabaseRadio.checked) {
+            DataService.setProvider('supabase');
+            showAdminToast('Provider dialihkan ke Supabase Cloud', 'info');
+            refreshDatabaseStatusBanner();
+        }
+    });
+
+    if (inputTursoUrl && window.TursoClient) {
+        const tConf = window.TursoClient.getConfig();
+        inputTursoUrl.value = tConf.url || '';
+        inputTursoToken.value = tConf.token || '';
+    }
+
+    formTursoConfig?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const url = inputTursoUrl.value.trim();
+        const token = inputTursoToken.value.trim();
+        if (!url || !token) {
+            showAdminToast('Masukkan Database URL dan Auth Token Turso terlebih dahulu!', 'warning');
+            return;
+        }
+        window.TursoClient.saveConfig(url, token);
+        DataService.setProvider('turso');
+        if (providerTursoRadio) providerTursoRadio.checked = true;
+        showAdminToast('Koneksi Turso disimpan! Menguji koneksi...', 'info');
+        const test = await window.TursoClient.testConnection(url, token);
+        if (test.connected) {
+            showAdminToast('✅ Sukses terhubung ke Turso Database!', 'success');
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            showAdminToast('⚠️ ' + test.message, 'error');
+            refreshDatabaseStatusBanner();
+        }
+    });
+
+    btnTestTurso?.addEventListener('click', async () => {
+        const url = inputTursoUrl.value.trim();
+        const token = inputTursoToken.value.trim();
+        if (!url || !token) {
+            showAdminToast('Isi Database URL dan Token untuk menguji koneksi.', 'warning');
+            return;
+        }
+        btnTestTurso.textContent = '⏳ Menguji...';
+        btnTestTurso.disabled = true;
+        const test = await window.TursoClient.testConnection(url, token);
+        btnTestTurso.textContent = '🔍 Tes Koneksi';
+        btnTestTurso.disabled = false;
+        if (test.connected) {
+            alert('✅ Berhasil terhubung ke Turso Database!\nWaktu Server: ' + test.serverTime);
+        } else {
+            alert('❌ Gagal terhubung ke Turso Database:\n' + test.message);
+        }
+    });
+
     if (inputSupabaseUrl) {
         const cfg = typeof DataService.getActiveConfig === 'function'
             ? DataService.getActiveConfig()
             : { url: safeStorage.getItem('disarpus_supabase_url') || '', anonKey: safeStorage.getItem('disarpus_supabase_key') || '' };
         inputSupabaseUrl.value = cfg.url || '';
         inputSupabaseKey.value = cfg.anonKey || '';
-        refreshSupabaseStatusBanner();
+        refreshDatabaseStatusBanner();
     }
 
     formSupabaseConfig?.addEventListener('submit', (e) => {
@@ -1654,8 +1747,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         inputSupabaseUrl.value = url;
         safeStorage.setItem('disarpus_supabase_url', url);
         safeStorage.setItem('disarpus_supabase_key', key);
+        DataService.setProvider('supabase');
+        if (providerSupabaseRadio) providerSupabaseRadio.checked = true;
 
-        showAdminToast('Konfigurasi Supabase disimpan! Sistem dimuat ulang...', 'success');
+        showAdminToast('Konfigurasi Supabase disimpan & diaktifkan! Sistem dimuat ulang...', 'success');
         setTimeout(() => window.location.reload(), 1200);
     });
 
