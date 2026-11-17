@@ -1857,6 +1857,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    const btnSyncTursoUsers = document.getElementById('btn-sync-turso-users');
+    btnSyncTursoUsers?.addEventListener('click', async () => {
+        if (!window.TursoClient || !window.TursoClient.isConfigured()) {
+            showAdminToast('⚠️ Simpan dan aktifkan kredensial Turso terlebih dahulu!', 'warning');
+            return;
+        }
+
+        btnSyncTursoUsers.textContent = '⏳ Sedang membuat tabel di Turso...';
+        btnSyncTursoUsers.disabled = true;
+
+        try {
+            await window.TursoClient.execute(`
+                CREATE TABLE IF NOT EXISTS admin_users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    nama_petugas TEXT NOT NULL,
+                    role TEXT DEFAULT 'Admin',
+                    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                );
+            `);
+
+            await window.TursoClient.execute(`
+                INSERT OR IGNORE INTO admin_users (email, password, nama_petugas, role) 
+                VALUES ('admin@disarpus.cirebonkab.go.id', 'admin123', 'Camelia Nur Azizah', 'Admin');
+            `);
+
+            showAdminToast('✅ Sukses! Tabel admin_users dan akun Camelia Nur Azizah berhasil dibuat di Turso!', 'success');
+            alert('✅ Berhasil!\n\nTabel admin_users dan akun Admin (Camelia Nur Azizah) telah sukses dibuat langsung di database Turso!\n\nEmail: admin@disarpus.cirebonkab.go.id\nSandi: admin123\nRole: Admin');
+        } catch (err) {
+            console.error('Gagal membuat tabel admin_users:', err);
+            showAdminToast(`❌ Gagal: ${err.message}`, 'error');
+            alert(`❌ Gagal membuat tabel di Turso:\n${err.message}`);
+        } finally {
+            btnSyncTursoUsers.innerHTML = '<span>👤</span> Buat / Sinkronkan Tabel admin_users ke Turso Otomatis';
+            btnSyncTursoUsers.disabled = false;
+        }
+    });
+
     if (inputSupabaseUrl) {
         const cfg = typeof DataService.getActiveConfig === 'function'
             ? DataService.getActiveConfig()
