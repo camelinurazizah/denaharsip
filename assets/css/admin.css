@@ -608,7 +608,14 @@ body.admin-body {
   color: var(--text-dark);
 }
 
-/* Visual Hotspot Mapper Canvas (SRS-FR-13) */
+/* Visual Hotspot Mapper Canvas & Formulir (SRS-FR-13 & SRS-FR-14) */
+#form-rack,
+.mapper-canvas-card,
+#mapper-grid-container,
+.mapper-saved-racks-card {
+  scroll-margin-top: 1.5rem;
+}
+
 .hotspot-mapper-canvas-box {
   position: relative;
   height: 440px;

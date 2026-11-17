@@ -914,6 +914,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         resetRackForm(true);
         if (window.innerWidth <= 768) {
             setMapperMobileView('canvas');
+        } else {
+            const formEl = document.getElementById('form-rack');
+            if (formEl) {
+                formEl.classList.add('admin-card-highlight');
+                setTimeout(() => formEl.classList.remove('admin-card-highlight'), 1800);
+                formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            if (rackInputTitle) rackInputTitle.focus();
         }
     });
     btnFloatingGotoForm?.addEventListener('click', () => {
@@ -1231,6 +1239,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             setMapperMobileView('form');
         }
 
+        // Otomatis scroll layar dengan mulus ke arah formulir pengeditan rak & inventaris boks
+        setTimeout(() => {
+            const formEl = document.getElementById('form-rack');
+            if (formEl) {
+                formEl.classList.add('admin-card-highlight');
+                setTimeout(() => formEl.classList.remove('admin-card-highlight'), 1800);
+                formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            if (rackInputTitle) {
+                rackInputTitle.focus();
+                rackInputTitle.select?.();
+            }
+        }, 120);
+
         showAdminToast(`✏️ Memuat "${rack.title}" untuk disunting.`, 'info');
     }
 
@@ -1309,6 +1331,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnViewPano.addEventListener('click', () => {
                 if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
                     setMapperMobileView('canvas');
+                }
+                const viewerBox = document.querySelector('.mapper-canvas-card') || document.getElementById('admin-mapper-viewer');
+                if (viewerBox) {
+                    viewerBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
                 if (adminPanoViewer && !isMapperFallbackMode) {
                     try {
