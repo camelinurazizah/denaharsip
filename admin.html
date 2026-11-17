@@ -423,7 +423,7 @@
       <!-- ================================================================
            TAB 3 (LANGKAH 3): VISUAL HOTSPOT MAPPER & INVENTARIS BOKS ARSIP
            ================================================================ -->
-      <section class="tab-pane" id="tab-hotspot-mapper">
+      <section class="tab-pane mapper-mode-canvas" id="tab-hotspot-mapper">
         <div class="admin-page-header">
           <div>
             <h1>Visual Hotspot Mapper &amp; Lemari / Rak Depo Arsip</h1>
@@ -456,6 +456,9 @@
           <button type="button" class="mapper-tab-btn" id="btn-mapper-view-form">
             <span>📝</span> 2. Formulir Rak
             <span class="mapper-coord-pill-badge" id="mapper-coord-badge" style="display:none;">Terkunci</span>
+          </button>
+          <button type="button" class="mapper-tab-btn" id="btn-mapper-view-list">
+            <span>📋</span> 3. Daftar Rak (<span id="mapper-racks-count-badge">0</span>)
           </button>
         </div>
 
@@ -613,21 +616,24 @@
         </div>
 
         <!-- Daftar Titik Lemari / Rak yang Sudah Tersimpan di Ruangan Kerja Aktif -->
-        <div class="admin-card" style="margin-top: 1.25rem;">
-          <div class="admin-card-header">
+        <div class="admin-card mapper-saved-racks-card" id="mapper-saved-racks-card" style="margin-top: 1.25rem;">
+          <div class="admin-card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
             <div class="admin-card-title">
-              <span>🗄️</span> Titik Lemari / Rak Depo Arsip Tersimpan di Ruangan Ini
+              <span>🗄️</span> Titik Lemari / Rak Depo Arsip Tersimpan (<span id="mapper-racks-count-header">0</span>)
             </div>
+            <button type="button" class="btn-admin-primary btn-mobile-add-rack-shortcut" id="btn-mobile-add-rack-shortcut" style="margin-top:0;">
+              <span>➕</span> Tambah Titik Rak
+            </button>
           </div>
           <div class="data-table-container">
-            <table class="records-table">
+            <table class="records-table mapper-saved-racks-table">
               <thead>
                 <tr>
                   <th>Nama Lemari / Rak Depo Arsip</th>
                   <th>Kode Klasifikasi / Nomor Rak</th>
                   <th>Patokan Lorong &amp; Baris/Shaf Rak</th>
                   <th>Sudut (Pitch / Yaw)</th>
-                  <th style="width:140px; text-align:center;">Aksi</th>
+                  <th style="width:160px; text-align:center;">Aksi</th>
                 </tr>
               </thead>
               <tbody id="mapper-room-racks-tbody"></tbody>

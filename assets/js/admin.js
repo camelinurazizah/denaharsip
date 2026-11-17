@@ -57,6 +57,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     // Jika tab Hotspot Mapper diaktifkan, resize atau inisialisasi ulang kanvas pannellum
                     if (targetTab === 'tab-hotspot-mapper') {
+                        if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
+                            const tabEl = document.getElementById('tab-hotspot-mapper');
+                            if (!tabEl?.classList.contains('mapper-mode-form') && !tabEl?.classList.contains('mapper-mode-list')) {
+                                setMapperMobileView('canvas');
+                            }
+                        }
                         setTimeout(() => {
                             if (adminPanoViewer && !isMapperFallbackMode) {
                                 try { adminPanoViewer.resize(); } catch (e) {}
@@ -853,38 +859,63 @@ document.addEventListener('DOMContentLoaded', async () => {
     // =========================================================================
     const btnMapperViewCanvas = document.getElementById('btn-mapper-view-canvas');
     const btnMapperViewForm = document.getElementById('btn-mapper-view-form');
+    const btnMapperViewList = document.getElementById('btn-mapper-view-list');
+    const tabHotspotMapper = document.getElementById('tab-hotspot-mapper');
     const mapperGridContainer = document.getElementById('mapper-grid-container');
     const btnFloatingGotoForm = document.getElementById('btn-floating-goto-form');
     const btnBackToCanvas = document.getElementById('btn-back-to-canvas');
     const btnDismissMapperHelp = document.getElementById('btn-dismiss-mapper-help');
     const mapperInstructionBox = document.getElementById('mapper-instruction-box');
+    const btnMobileAddRackShortcut = document.getElementById('btn-mobile-add-rack-shortcut');
 
     function setMapperMobileView(mode) {
-        if (!mapperGridContainer) return;
+        if (!tabHotspotMapper && !mapperGridContainer) return;
+
+        // Atur class mode pada container tab mapper
+        if (tabHotspotMapper) {
+            tabHotspotMapper.classList.remove('mapper-mode-canvas', 'mapper-mode-form', 'mapper-mode-list');
+            tabHotspotMapper.classList.add(`mapper-mode-${mode}`);
+        }
+
+        // Kompatibilitas dengan class mapper-show-* pada grid container
+        if (mapperGridContainer) {
+            mapperGridContainer.classList.remove('mapper-show-canvas', 'mapper-show-form', 'mapper-show-list');
+            mapperGridContainer.classList.add(`mapper-show-${mode}`);
+        }
+
+        // Update active state pada tombol switcher tab segmented
+        btnMapperViewCanvas?.classList.toggle('active', mode === 'canvas');
+        btnMapperViewForm?.classList.toggle('active', mode === 'form');
+        btnMapperViewList?.classList.toggle('active', mode === 'list');
+
         if (mode === 'canvas') {
-            mapperGridContainer.classList.remove('mapper-show-form');
-            mapperGridContainer.classList.add('mapper-show-canvas');
-            btnMapperViewCanvas?.classList.add('active');
-            btnMapperViewForm?.classList.remove('active');
             setTimeout(() => {
                 if (adminPanoViewer && !isMapperFallbackMode) {
                     try { adminPanoViewer.resize(); } catch (e) {}
                 }
-            }, 100);
-        } else {
-            mapperGridContainer.classList.remove('mapper-show-canvas');
-            mapperGridContainer.classList.add('mapper-show-form');
-            btnMapperViewForm?.classList.add('active');
-            btnMapperViewCanvas?.classList.remove('active');
+            }, 120);
+        } else if (mode === 'form') {
             if (window.innerWidth <= 768) {
                 const formEl = document.getElementById('form-rack');
                 if (formEl) formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } else if (mode === 'list') {
+            if (window.innerWidth <= 768) {
+                const listCard = document.getElementById('mapper-saved-racks-card');
+                if (listCard) listCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
     }
 
     btnMapperViewCanvas?.addEventListener('click', () => setMapperMobileView('canvas'));
     btnMapperViewForm?.addEventListener('click', () => setMapperMobileView('form'));
+    btnMapperViewList?.addEventListener('click', () => setMapperMobileView('list'));
+    btnMobileAddRackShortcut?.addEventListener('click', () => {
+        resetRackForm(true);
+        if (window.innerWidth <= 768) {
+            setMapperMobileView('canvas');
+        }
+    });
     btnFloatingGotoForm?.addEventListener('click', () => {
         setMapperMobileView('form');
         setTimeout(() => {
@@ -1207,54 +1238,106 @@ document.addEventListener('DOMContentLoaded', async () => {
         const tbody = document.getElementById('mapper-room-racks-tbody');
         if (!tbody) return;
         tbody.innerHTML = '';
+
+        // Update badge jumlah rak di navigasi switcher mobile & header tabel
+        const count = racks ? racks.length : 0;
+        const countBadge = document.getElementById('mapper-racks-count-badge');
+        if (countBadge) countBadge.textContent = count;
+        const countHeader = document.getElementById('mapper-racks-count-header');
+        if (countHeader) countHeader.textContent = count;
+
         if (!racks || racks.length === 0) {
             const emptyTr = document.createElement('tr');
-            emptyTr.innerHTML = '<td colspan="5" style="text-align:center;color:#64748b;padding:1.25rem;">Belum ada titik lemari / rak depo arsip yang ditandai di ruangan ini. Klik objek pada panorama di atas lalu isi formulir di sebelah kanan untuk menambahkannya.</td>';
+            emptyTr.className = 'mapper-racks-empty-tr';
+            emptyTr.innerHTML = `
+                <td colspan="5" style="text-align:center;color:#64748b;padding:2rem 1rem;">
+                    <div style="font-size:2rem;margin-bottom:0.5rem;">🗄️</div>
+                    <strong style="color:#0f172a;display:block;margin-bottom:0.35rem;font-size:0.95rem;">Belum Ada Titik Rak di Ruangan Ini</strong>
+                    <span style="font-size:0.8rem;display:block;margin-bottom:1rem;color:#64748b;max-width:420px;margin-left:auto;margin-right:auto;">
+                        Silakan buka <strong>Kanvas 360°</strong> lalu tap pada lemari/rak arsip di foto panorama untuk menandai koordinatnya.
+                    </span>
+                    <button type="button" class="btn-admin-primary btn-empty-goto-canvas" style="font-size:0.78rem;padding:0.45rem 0.85rem;margin:0 auto;display:inline-flex;align-items:center;gap:0.35rem;">
+                        <span>🎯</span> Buka Kanvas 360° Sekarang
+                    </button>
+                </td>
+            `;
+            emptyTr.querySelector('.btn-empty-goto-canvas')?.addEventListener('click', () => {
+                if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
+                    setMapperMobileView('canvas');
+                }
+            });
             tbody.appendChild(emptyTr);
             return;
         }
+
         racks.forEach(rk => {
             const tr = document.createElement('tr');
+            tr.className = 'mapper-rack-item-row';
 
             const tdTitle = document.createElement('td');
-            tdTitle.style.fontWeight = '700';
+            tdTitle.className = 'td-rack-title';
             tdTitle.textContent = rk.title;
 
             const tdDdc = document.createElement('td');
+            tdDdc.className = 'td-rack-ddc';
             const badge = document.createElement('span');
             badge.className = 'badge-instansi';
-            badge.style.cssText = 'background:#e0f2fe;color:#0369a1;padding:2px 6px;border-radius:4px;';
-            badge.textContent = rk.category_code || '-';
+            badge.style.cssText = 'background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:6px;font-weight:700;font-size:0.75rem;display:inline-block;';
+            badge.textContent = rk.category_code || 'Klasifikasi: -';
             tdDdc.appendChild(badge);
 
             const tdLoc = document.createElement('td');
-            tdLoc.style.cssText = 'color:#64748b;font-size:0.78rem;';
-            tdLoc.textContent = rk.location_notes || '-';
+            tdLoc.className = 'td-rack-loc';
+            tdLoc.textContent = rk.location_notes ? `📍 ${rk.location_notes}` : '📍 Patokan lokasi belum diisi';
 
             const tdCoord = document.createElement('td');
-            tdCoord.textContent = `Pitch: ${rk.pitch}° | Yaw: ${rk.yaw}°`;
+            tdCoord.className = 'td-rack-coord';
+            tdCoord.innerHTML = `<span>📐 Sudut:</span> Pitch <strong>${rk.pitch}°</strong> | Yaw <strong>${rk.yaw}°</strong>`;
 
             const tdAction = document.createElement('td');
+            tdAction.className = 'td-rack-action';
             tdAction.style.textAlign = 'center';
             const actBox = document.createElement('div');
             actBox.className = 'action-buttons-cell';
-            actBox.style.justifyContent = 'center';
 
+            // Tombol 1: Buka & Arahkan Kanvas 360° ke Rak Ini (Sangat Interaktif di HP & Desktop!)
+            const btnViewPano = document.createElement('button');
+            btnViewPano.type = 'button';
+            btnViewPano.className = 'btn-table-view-pano';
+            btnViewPano.innerHTML = '<span>🎯</span> 360°';
+            btnViewPano.title = 'Arahkan Kanvas 360° ke Posisi Rak Ini';
+            btnViewPano.addEventListener('click', () => {
+                if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
+                    setMapperMobileView('canvas');
+                }
+                if (adminPanoViewer && !isMapperFallbackMode) {
+                    try {
+                        adminPanoViewer.lookAt(Number(rk.pitch) || 0, Number(rk.yaw) || 0, 100, 700);
+                    } catch (e) {}
+                }
+                updateTemporaryHotspotMarker(rk.pitch, rk.yaw);
+                showAdminToast(`🎯 Kamera 360 diarahkan ke "${rk.title}" (Pitch: ${rk.pitch}°, Yaw: ${rk.yaw}°)`, 'info');
+            });
+
+            // Tombol 2: Edit Formulir Rak
             const btnEdit = document.createElement('button');
             btnEdit.type = 'button';
             btnEdit.className = 'btn-table-edit';
-            btnEdit.textContent = '✏️ Edit';
+            btnEdit.innerHTML = '<span>✏️</span> Edit';
+            btnEdit.title = 'Sunting Data Lemari / Rak & Boks Arsip';
             btnEdit.addEventListener('click', () => loadRackIntoMapperForm(rk.id));
 
+            // Tombol 3: Hapus
             const btnDel = document.createElement('button');
             btnDel.type = 'button';
             btnDel.className = 'btn-table-delete';
-            btnDel.textContent = '🗑️ Hapus';
+            btnDel.innerHTML = '<span>🗑️</span> Hapus';
+            btnDel.title = 'Hapus Titik Lemari / Rak Ini';
             btnDel.addEventListener('click', async () => {
-                if (confirm(`Apakah Anda yakin ingin menghapus "${rk.title}" beserta daftar inventaris boks & surat arsipnya?`)) {
+                if (confirm(`Apakah Anda yakin ingin menghapus "${rk.title}" beserta seluruh inventaris boks arsipnya?`)) {
                     try {
                         await DataService.deleteRack(rk.id);
-                        showAdminToast('Titik lemari / rak depo arsip berhasil dihapus.', 'info');
+                        showAdminToast(`Titik lemari / rak "${rk.title}" berhasil dihapus.`, 'info');
                         await initHotspotMapperRoom();
                         refreshRecordsTable();
                     } catch (err) {
@@ -1264,6 +1347,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
 
+            actBox.appendChild(btnViewPano);
             actBox.appendChild(btnEdit);
             actBox.appendChild(btnDel);
             tdAction.appendChild(actBox);
@@ -1290,19 +1374,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             : (status === 'Baca di Tempat' ? 'Akses Terbatas' : 'Arsip Terbuka');
 
         const tr = document.createElement('tr');
+        tr.className = 'admin-book-tr-item';
         tr.innerHTML = `
-            <td><input type="text" class="book-row-title" placeholder="cth: Boks B-04: SK Bupati & Kepegawaian"></td>
-            <td><input type="text" class="book-row-author" placeholder="cth: Sekretariat Daerah / Bidang Umum"></td>
-            <td style="width:110px;"><input type="text" class="book-row-year" placeholder="2019 - 2021"></td>
-            <td style="width:76px;"><input type="number" class="book-row-copies" min="1" title="Jumlah Boks / Sampul"></td>
-            <td style="width:150px;">
+            <td class="col-book-title" data-label="Nomor Boks & Nama Berkas / Jenis Surat">
+                <span class="book-row-label-mobile">📦 Nomor Boks &amp; Berkas:</span>
+                <input type="text" class="book-row-title" placeholder="cth: Boks B-04: SK Bupati & Kepegawaian">
+            </td>
+            <td class="col-book-author" data-label="Unit Pencipta / Asal Instansi">
+                <span class="book-row-label-mobile">🏛️ Unit Pencipta / Instansi:</span>
+                <input type="text" class="book-row-author" placeholder="cth: Sekretariat Daerah / Bidang Umum">
+            </td>
+            <td class="col-book-year" data-label="Kurun Waktu / Tahun Arsip" style="width:110px;">
+                <span class="book-row-label-mobile">📅 Kurun Waktu / Tahun:</span>
+                <input type="text" class="book-row-year" placeholder="2019 - 2021">
+            </td>
+            <td class="col-book-copies" data-label="Jumlah Boks / Sampul" style="width:76px;">
+                <span class="book-row-label-mobile">🔢 Jumlah Boks / Sampul:</span>
+                <input type="number" class="book-row-copies" min="1" title="Jumlah Boks / Sampul">
+            </td>
+            <td class="col-book-status" data-label="Status Akses Arsip" style="width:150px;">
+                <span class="book-row-label-mobile">🔒 Status Akses Arsip:</span>
                 <select class="book-row-status">
                     <option value="Arsip Terbuka">Arsip Terbuka</option>
                     <option value="Akses Terbatas">Akses Terbatas</option>
                     <option value="Sedang Dipinjam">Sedang Dipinjam</option>
                 </select>
             </td>
-            <td style="width:38px;text-align:center;">
+            <td class="col-book-action" style="width:38px;text-align:center;">
                 <button type="button" class="btn-remove-row" title="Hapus Baris">✕</button>
             </td>
         `;
@@ -1368,6 +1466,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             resetRackForm();
             await initHotspotMapperRoom();
             refreshRecordsTable();
+            if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
+                setMapperMobileView('list');
+            }
         } catch (err) {
             console.error('Gagal menyimpan titik lemari / rak:', err);
             showAdminToast(`❌ Gagal menyimpan rak: ${err.message || 'Periksa ukuran foto atau koneksi.'}`, 'error');

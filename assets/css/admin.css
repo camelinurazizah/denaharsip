@@ -652,6 +652,12 @@ body.admin-body {
 .btn-instruction-dismiss {
   display: none;
 }
+.book-row-label-mobile {
+  display: none;
+}
+.btn-mobile-add-rack-shortcut {
+  display: none;
+}
 
 /* Pin Indikator Hotspot Target Sementara di Kanvas Mapper */
 .pnlm-temp-target-hotspot {
@@ -875,6 +881,26 @@ body.admin-body {
 .action-buttons-cell {
   display: flex;
   gap: 0.4rem;
+}
+
+.btn-table-view-pano {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.15s ease;
+}
+
+.btn-table-view-pano:hover {
+  background: #16a34a;
+  color: #ffffff;
 }
 
 .btn-table-edit {
@@ -1193,31 +1219,35 @@ body.admin-body {
     gap: 1rem !important;
   }
 
-  /* Switcher Tampilan Mapper di Layar HP (Kanvas vs Formulir) */
+  /* Switcher Tampilan Mapper di Layar HP (1. Kanvas vs 2. Formulir vs 3. Daftar Rak) */
   .mapper-mobile-nav {
     display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 6px !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 4px !important;
     margin-bottom: 0.85rem !important;
-    background: #e2e8f0 !important;
+    background: #f1f5f9 !important;
     padding: 4px !important;
     border-radius: 12px !important;
+    border: 1px solid #e2e8f0 !important;
   }
 
   .mapper-tab-btn {
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 0.35rem !important;
-    padding: 0.55rem 0.5rem !important;
-    font-size: 0.78rem !important;
+    gap: 2px !important;
+    padding: 0.55rem 0.25rem !important;
+    font-size: 0.72rem !important;
     font-weight: 700 !important;
     border: none !important;
-    border-radius: 9px !important;
+    border-radius: 8px !important;
     background: transparent !important;
     color: #475569 !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
+    text-align: center !important;
+    line-height: 1.15 !important;
   }
 
   .mapper-tab-btn.active {
@@ -1226,22 +1256,58 @@ body.admin-body {
     box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35) !important;
   }
 
+  .mapper-tab-btn.active .mapper-coord-pill-badge {
+    background: #ffffff !important;
+    color: #0284c7 !important;
+  }
+
   .mapper-coord-pill-badge {
     background: #f59e0b !important;
     color: #ffffff !important;
-    font-size: 0.62rem !important;
-    padding: 1px 6px !important;
+    font-size: 0.6rem !important;
+    padding: 1px 5px !important;
     border-radius: 9999px !important;
     font-weight: 800 !important;
   }
 
-  /* Di HP: Beralih penuh antara Kanvas 360° dan Formulir Rak */
+  /* Di HP: Beralih penuh antara 1. Kanvas 360°, 2. Formulir Rak, dan 3. Daftar Rak */
+  /* Mode 1: Kanvas 360° */
+  #tab-hotspot-mapper.mapper-mode-canvas #form-rack,
+  #tab-hotspot-mapper.mapper-mode-canvas #mapper-saved-racks-card,
   .admin-grid-2.mapper-show-canvas > form#form-rack {
     display: none !important;
   }
+  #tab-hotspot-mapper.mapper-mode-canvas .mapper-canvas-card {
+    display: block !important;
+  }
 
+  /* Mode 2: Formulir Rak */
+  #tab-hotspot-mapper.mapper-mode-form .mapper-canvas-card,
+  #tab-hotspot-mapper.mapper-mode-form #mapper-saved-racks-card,
   .admin-grid-2.mapper-show-form > .mapper-canvas-card {
     display: none !important;
+  }
+  #tab-hotspot-mapper.mapper-mode-form #form-rack {
+    display: block !important;
+  }
+
+  /* Mode 3: Daftar Rak */
+  #tab-hotspot-mapper.mapper-mode-list .mapper-canvas-card,
+  #tab-hotspot-mapper.mapper-mode-list #form-rack,
+  .admin-grid-2.mapper-show-list > .mapper-canvas-card,
+  .admin-grid-2.mapper-show-list > form#form-rack {
+    display: none !important;
+  }
+  #tab-hotspot-mapper.mapper-mode-list #mapper-saved-racks-card {
+    display: block !important;
+  }
+
+  .btn-mobile-add-rack-shortcut {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-size: 0.74rem !important;
+    padding: 0.35rem 0.75rem !important;
   }
 
   /* Kanvas Mapper di HP Tampil Lega */
@@ -1461,6 +1527,211 @@ body.admin-body {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     width: 100% !important;
+  }
+
+  /* Transformasi Tabel Inventaris Boks Arsip Menjadi Kartu Responsif di HP */
+  .admin-books-table,
+  .admin-books-table thead,
+  .admin-books-table tbody,
+  .admin-books-table tr,
+  .admin-books-table td {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-books-table thead {
+    display: none !important;
+  }
+
+  .admin-books-table tbody tr {
+    position: relative !important;
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    padding: 0.85rem !important;
+    margin-bottom: 0.85rem !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .admin-books-table td {
+    padding: 0.35rem 0 !important;
+    border: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .admin-books-table td.col-book-year,
+  .admin-books-table td.col-book-copies,
+  .admin-books-table td.col-book-status,
+  .admin-books-table td.col-book-action {
+    width: 100% !important;
+  }
+
+  .book-row-label-mobile {
+    display: block !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    margin-bottom: 3px !important;
+  }
+
+  .admin-books-table td input,
+  .admin-books-table td select {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    font-size: 0.82rem !important;
+    padding: 0.55rem 0.65rem !important;
+    border-radius: 8px !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  .admin-books-table td.col-book-action {
+    padding-top: 0.65rem !important;
+    margin-top: 0.35rem !important;
+    border-top: 1px dashed #e2e8f0 !important;
+    text-align: right !important;
+  }
+
+  .admin-books-table .btn-remove-row {
+    width: auto !important;
+    height: auto !important;
+    padding: 0.4rem 0.85rem !important;
+    font-size: 0.76rem !important;
+    border-radius: 8px !important;
+    background: #fef2f2 !important;
+    color: #ef4444 !important;
+    border: 1px solid #fecaca !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-weight: 700 !important;
+  }
+
+  .admin-books-table .btn-remove-row::after {
+    content: " Hapus Baris Boks Ini";
+  }
+
+  .btn-add-book-row {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 0.6rem 1rem !important;
+    font-size: 0.8rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  /* Transformasi Tabel Titik Rak Tersimpan Menjadi Kartu Interaktif di HP */
+  .mapper-saved-racks-table,
+  .mapper-saved-racks-table thead,
+  .mapper-saved-racks-table tbody,
+  .mapper-saved-racks-table tr,
+  .mapper-saved-racks-table td {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .mapper-saved-racks-table thead {
+    display: none !important;
+  }
+
+  .mapper-saved-racks-table tbody tr.mapper-rack-item-row {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    padding: 1rem !important;
+    margin-bottom: 0.85rem !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  }
+
+  .mapper-saved-racks-table td {
+    padding: 0.25rem 0 !important;
+    border: none !important;
+    width: 100% !important;
+  }
+
+  .mapper-saved-racks-table td.td-rack-title {
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    line-height: 1.35 !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  .mapper-saved-racks-table td.td-rack-ddc {
+    margin-bottom: 0.45rem !important;
+  }
+
+  .mapper-saved-racks-table td.td-rack-loc {
+    background: #f8fafc !important;
+    border-left: 3px solid #0284c7 !important;
+    border-radius: 0 8px 8px 0 !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.78rem !important;
+    color: #334155 !important;
+    margin-bottom: 0.45rem !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+  }
+
+  .mapper-saved-racks-table td.td-rack-coord {
+    font-size: 0.74rem !important;
+    color: #0369a1 !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.65rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+  }
+
+  .mapper-saved-racks-table td.td-rack-action {
+    border-top: 1px solid #f1f5f9 !important;
+    padding-top: 0.75rem !important;
+    margin-top: 0.5rem !important;
+  }
+
+  .mapper-saved-racks-table .action-buttons-cell {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .mapper-saved-racks-table .btn-table-view-pano,
+  .mapper-saved-racks-table .btn-table-edit,
+  .mapper-saved-racks-table .btn-table-delete {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 0.55rem 0.35rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+  }
+
+  .mapper-saved-racks-table .btn-table-view-pano {
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border: 1px solid #0284c7 !important;
+  }
+
+  .mapper-saved-racks-table .btn-table-edit {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  .mapper-saved-racks-table .btn-table-delete {
+    background: #fef2f2 !important;
+    color: #ef4444 !important;
+    border: 1px solid #fecaca !important;
   }
 
   /* Modal Admin di HP */
