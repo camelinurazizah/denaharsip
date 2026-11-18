@@ -8,6 +8,8 @@
  */
 
 const TursoClient = (() => {
+    const DEFAULT_TURSO_URL = 'libsql://denaharsip-camelinurazizah.aws-ap-southeast-1.turso.io';
+
     function getStoredConfig() {
         let url = '';
         let token = '';
@@ -18,7 +20,7 @@ const TursoClient = (() => {
             }
         } catch (e) { }
         return {
-            url: url.trim(),
+            url: (url || DEFAULT_TURSO_URL).trim(),
             token: token.trim()
         };
     }

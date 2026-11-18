@@ -143,155 +143,373 @@ const DEFAULT_FLOORS = [
 ];
 
 const DEFAULT_ROOMS = [
-    // Lantai 1 Gedung Kearsipan
     {
-        id: 1,
-        floor_id: 1,
-        name: 'Ruang Pelayanan Kearsipan & Tamu (PA)',
-        short_name: 'Pelayanan & Tamu (PA)',
-        nearby_notes: 'Terletak di Lantai 1 Gedung Kearsipan, tepat di area lobi utama setelah melewati Pintu Masuk Utama sisi selatan, berhadapan langsung dengan meja penerima tamu.',
-        services_info: 'Layanan yang tersedia:\n1. Konsultasi kearsipan daerah & pendampingan tata naskah dinas OPD.\n2. Layanan peminjaman, penelusuran, dan akses baca arsip dinamis/statis.\n3. Penerimaan surat masuk, registrasi tamu dinas, dan permohonan informasi arsip.\n\nJam Pelayanan Loket: Senin - Kamis 08.00 - 15.30 WIB, Jumat 08.00 - 14.30 WIB.',
-        room_photo_url: 'assets/images/ruang-pa-front.jpg',
-        panorama_image_url: getPanoAsset('ruang_pa', 'assets/images/ruang-pa-pano.jpg'),
-        map_x: 47.0,
-        map_y: 66.0
+        "id": 5,
+        "floor_id": 1,
+        "name": "Resepsionis",
+        "nearby_notes": "Tepat di depan pintu masuk kantor dinas Kearsipan",
+        "services_info": "- Menyambut dan Mengarahkan Tamu\n- Mengelola Komunikasi Telepon\n- Pengelola Administrasi dan Persuratan\n- Penjaga Keamanan dan Kontrol Akses\n- Mendukung Koordinasi dan Penjadwalan\n- Membangun Citra Perusahaan",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794487534623_totvph.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794487655366_kr763l.jpg",
+        "map_x": 48.2,
+        "map_y": 62.6
     },
     {
-        id: 2,
-        floor_id: 1,
-        name: 'Ruang Pengolahan & Alih Media Arsip',
-        short_name: 'Pengolahan & Alih Media',
-        nearby_notes: 'Terletak di Lantai 1 Gedung Kearsipan sayap utara-tengah, tepat di belakang tangga sentral menuju Lantai 2.',
-        services_info: 'Kegiatan & layanan teknis pengolahan arsip:\n1. Pemilahan, deskripsi berkas, dan pemberkasan arsip dinamis inaktif.\n2. Penomoran, pelabelan kode klasifikasi, dan pengemasan ke dalam boks arsip standar ANRI.\n3. Alih media & digitalisasi (scanning) dokumen/surat arsip bersejarah maupun berkas OPD.\n\nAkses Ruang: Area kerja teknis arsiparis & koordinasi alih media.',
-        room_photo_url: 'assets/images/depo-arsip-front.jpg',
-        panorama_image_url: getPanoAsset('ruang_pa', 'assets/images/ruang-pa-pano.jpg'),
-        map_x: 44.5,
-        map_y: 25.0
-    },
-
-    // Lantai 2 Gedung Kearsipan
-    {
-        id: 3,
-        floor_id: 2,
-        name: 'Ruang Depo Arsip Dinamis & Statis',
-        short_name: 'Depo Arsip Dinamis & Statis',
-        nearby_notes: 'Terletak di Lantai 2 Gedung Kearsipan sepanjang sayap utara, diakses dari selasar penghubung setelah menaiki tangga dari Lantai 1.',
-        services_info: 'Pusat penyimpanan fisik boks arsip dinamis inaktif dan arsip statis Kabupaten Cirebon menggunakan lemari gerak (Roll O\'Pack) dan rak besi standar ANRI.\n\nFasilitas & Standar Penyimpanan:\n1. Pengatur suhu ruangan terkontrol (18-20°C) dan kelembaban (50-60% RH).\n2. Penataan boks arsip terindeks berdasarkan Kode Klasifikasi, Unit Pencipta, dan Kurun Waktu.\n3. Penelusuran fisik boks & surat arsip didampingi oleh petugas arsiparis.',
-        room_photo_url: 'assets/images/depo-arsip-front.jpg',
-        panorama_image_url: getPanoAsset('depo_arsip', 'assets/images/depo-arsip-pano.jpg'),
-        map_x: 49.0,
-        map_y: 47.0
+        "id": 6,
+        "floor_id": 1,
+        "name": "Ruang Pamer",
+        "nearby_notes": "Dari Pintu masuk kantor dinas arsip belok ke kiri",
+        "services_info": "ruang display/galeri:\n- Sarana Penyebarluasan Informasi dan Edukasi\n- Media Pemanfaatan Memori Kolektif Daerah\n- Sarana Apresiasi dan Rekreasi Publik\n- Mendukung Budaya Literasi",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794489252100_h63oto.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794489280866_dsk98j.jpg",
+        "map_x": 41.8,
+        "map_y": 73.6
     },
     {
-        id: 4,
-        floor_id: 2,
-        name: 'Ruang Restorasi & Preservasi Arsip',
-        short_name: 'Restorasi & Preservasi',
-        nearby_notes: 'Terletak di Lantai 2 Gedung Kearsipan sayap tenggara (kanan bawah), tepat di samping tangga timur menuju Lantai 1.',
-        services_info: 'Laboratorium perawatan, restorasi, dan preservasi fisik dokumen arsip kertas kuno yang rusak, rapuh, sobek, atau bernoda asam.\n\nLayanan & Proses Konservasi:\n1. Pembersihan fisik dokumen & netralisasi keasaman kertas (deasidifikasi).\n2. Penambalan serat kertas Jepang (tissue mending) dan laminasi arsip.\n3. Enkapsulasi pelindung film poliester serta penjilidan ulang bundel arsip kuno.',
-        room_photo_url: 'assets/images/ruang-restorasi-front.jpg',
-        panorama_image_url: getPanoAsset('ruang_restorasi', 'assets/images/ruang-restorasi-pano.jpg'),
-        map_x: 72.8,
-        map_y: 80.1
+        "id": 7,
+        "floor_id": 1,
+        "name": "Ruang Tunggu Tamu",
+        "nearby_notes": "Dari pintu masuk kantor dinas kearsipan  belok ke arah kanan",
+        "services_info": "- Menjaga ketertiban alur keluar-masuk tamu serta menciptakan kesan pertama yang profesional dan ramah dari instansi pemerintah.\n- Tempat transit sementara bagi tamu yang memiliki janji temu dengan pejabat atau pegawai dinas.\n-  Sebagai pusat interaksi literasi tempat masyarakat membaca, mencari referensi, dan memanfaatkan koleksi bahan pustaka secara langsung di lokasi.",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794489757387_a299qc.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794489674686_nwtod5.jpg",
+        "map_x": 56,
+        "map_y": 74.1
+    },
+    {
+        "id": 8,
+        "floor_id": 1,
+        "name": "WC",
+        "nearby_notes": "Dari resepsionis  belok ke arah kanan sedikit tepat di bawah tangga",
+        "services_info": "Kamar Mandi Umum",
+        "room_photo_url": "assets/images/ruang-pa-front.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 66,
+        "map_y": 67.2
+    },
+    {
+        "id": 10,
+        "floor_id": 1,
+        "name": "Ruang Depo C",
+        "nearby_notes": "Dari area lobi resepsionis lurus ke belakang sampai menemukan  pintu, setelah itu belok ke arah kanan",
+        "services_info": "Ruang penyimpanan arsip statis seperti SKPD yang sudah dibubarkan/diganti nama, dan pemekaran daerah kecamatan,desa atau kelurahan",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794508225811_g2ics0.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794508234087_jxsoub.jpg",
+        "map_x": 80.4,
+        "map_y": 51.2
+    },
+    {
+        "id": 11,
+        "floor_id": 1,
+        "name": "Ruang Pelayanan",
+        "nearby_notes": "Dari area pintu masuk  kantor dinas arsip maju terus sampai melewati resepsionis dan  menemukan pintu , kemudian belok ke arah kiri ruangan pertama",
+        "services_info": "Ruang Pelayanan izin Pengguna arsip yang bersifat tertutup",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794529255499_hrrdrk.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 47.9,
+        "map_y": 54.5
+    },
+    {
+        "id": 12,
+        "floor_id": 1,
+        "name": "Ruang P2A",
+        "nearby_notes": "Dari area pintu masuk  kantor dinas arsip maju terus melewati resepsionis dan  menemukan pintu , kemudian belok ke arah kiri ruangan paling pojok/terakhir",
+        "services_info": "- perumusan bahan perencanaan pada bidang perlindungan, penyelamatan, autentikasi dan perizinan pengguna arsip.\n- perumusan kebijakan teknis di bidang perlindungan, penyelamatan, autentikasi dan perizinan penggunaan arsip.\n- pemusnahan arsip di lingkungan pemerintah daerah yang memiliki  retensi di bawah 10 (sepuluh) tahun.\n- perlindungan dan penyelamatan arsip akibat bencana yang berskala kabupaten.\n- penyelamatan arsip perangkat daerah kabupaten yang digabung dan / atau dibubarkan, dan pemekaran daerah kecamaan dan desa / kelurahan.\n- pencarian arsip statis kabupaten yang dinyatakan hilang.\n- Pelayanan izin penggunaan arsip yang besifat tertutup di kabupaten",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794529440504_8sufo2.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794529450611_pc8s5s.jpg",
+        "map_x": 29.6,
+        "map_y": 54.5
+    },
+    {
+        "id": 13,
+        "floor_id": 1,
+        "name": "Ruang Record Center",
+        "nearby_notes": "Dari area pintu masuk  kantor dinas arsip maju terus sampai melewati resepsionis dan  menemukan pintu , kemudian belok ke arah kiri ruangan Kedua (tengah)",
+        "services_info": "Tempat Penyimpanan arsip in aktif yang di bawah 10 tahun",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794529677095_bqx39z.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794529743774_1t6fbl.jpg",
+        "map_x": 42.5,
+        "map_y": 55.8
+    },
+    {
+        "id": 14,
+        "floor_id": 1,
+        "name": "Mushola",
+        "nearby_notes": "Dari Pintu yang ada di belakang Resepsionis lurus mewati tangga belakang sampai ketemu ruang Depo B belok ke arah kanan",
+        "services_info": "Tempat Beribadah",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794545618901_th271a.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 82.8,
+        "map_y": 25.5
+    },
+    {
+        "id": 15,
+        "floor_id": 1,
+        "name": "Ruang Depo D",
+        "nearby_notes": "Dari Pintu yang ada di belakang resepsionis lurus saja ruangan nya tepat di sebelah Ruang Depo B",
+        "services_info": "Penyimpanan arsip sertifikat tanah, dan BPKB kendaraan dinas plat merah",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794546157581_5wz3sl.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794813269691_2gsvsb.jpg",
+        "map_x": 74.5,
+        "map_y": 25.2
+    },
+    {
+        "id": 16,
+        "floor_id": 1,
+        "name": "Ruang Arsip Depo B",
+        "nearby_notes": "Dari Pintu yang ada di belakang resepsionis lurus sampai melewati tangga",
+        "services_info": "Penyimpanan arsip IMB (izin mendirikan bangunan) dari nilai perseorangan sampai dengan perusahaan dari tahun 2010 kebawah",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794546981417_dbuocp.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 65.7,
+        "map_y": 23.9
+    },
+    {
+        "id": 17,
+        "floor_id": 1,
+        "name": "Dapur",
+        "nearby_notes": "Dari pintu belakang yang ada di resepsionis lurus sampai melewati tangga kemudian belok ke kiri",
+        "services_info": "Tempat Memasak Pegawai kantor dinas kearsipan dan perpustakaan",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794547594976_4zfrhr.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 35.5,
+        "map_y": 22.6
+    },
+    {
+        "id": 18,
+        "floor_id": 1,
+        "name": "Kamar Mandi",
+        "nearby_notes": "Dari  pintu belakang yang ada di resepsionis belok ke arah kiri,  letaknya ada pada pinggir dapur dan depan ruang P2A",
+        "services_info": "Sarana Kebersihan Diri",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794547894506_m99xsn.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 28.6,
+        "map_y": 24.2
+    },
+    {
+        "id": 19,
+        "floor_id": 1,
+        "name": "Gudang",
+        "nearby_notes": "Dari pintu belakang resepsionis belok kiri letak gudang tapt di depan ruang P2A dan juga WC",
+        "services_info": "tempat penyimpanan barang operasional logistik serta manajemen rantai pasokan",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794564152442_rufyj3.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 16.9,
+        "map_y": 22.6
+    },
+    {
+        "id": 20,
+        "floor_id": 2,
+        "name": "Ruang Sekretariat",
+        "nearby_notes": "Dari  pintu atas lantai 2 belok ke arah kanan",
+        "services_info": "- koordinasi kegiatan\n- koordinasi dan penyusunan rencana program dan\nanggaran;\n-  pengumpulan dan data serta\npemantauan, evaluasi, dan pelaporan;\n-  pembinaan dan pemberian dukungan administrasi\nyang meliputi ketatausahaan, kepegawaian,\nkeuangan, kerumahtanggaan, kerja sama, hukum,\norganisasi, hubungan masyarakat, serta kearsipan\ndan dokumentasi;\n- penyelenggaraan pengelolaan barang milik negara\ndan pengadaan barang/ jasa; dan",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794567407382_6qsgww.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794567416546_09v40l.jpg",
+        "map_x": 73.6,
+        "map_y": 79.2
+    },
+    {
+        "id": 21,
+        "floor_id": 2,
+        "name": "Ruang PA",
+        "nearby_notes": "Dari tangga dalam  lurus sedikit tepat di depan tangga dalam ruangan",
+        "services_info": "- perumusan bahan perencanaan pada Bidang\nPengelolaan Arsip\n- pembinaan dan pengendalian penyelenggaraan\nkegiatan pengelolaan arsip dinamis\n- Pembinaan dan pengendalian  penyelenggaraan kegiatan mengelolaan  arsip statis\n- pelayanan informasi publik di daerah bidang pengelolaan arsip\n-  pengolahan data analisis bidang arsip\n- pengevaluasian dan pelaporan pelaksanaan kegiatan Bidang Pengelolaan Arsip",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794583757171_pn3usc.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794583765271_wf77nc.jpg",
+        "map_x": 36.9,
+        "map_y": 81.5
+    },
+    {
+        "id": 22,
+        "floor_id": 2,
+        "name": "WC",
+        "nearby_notes": "Dari Pintu  lantai 2 belok ke arah kanan lurus terus sampai mentok tepat dekat ruang sekretariat",
+        "services_info": "Kamar mandi Umum (Pegawai)",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794568540167_ns37xb.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 82.3,
+        "map_y": 68.8
+    },
+    {
+        "id": 23,
+        "floor_id": 2,
+        "name": "Ruang Aula",
+        "nearby_notes": "Dari area pintu lantai 2 di atas  belok ke arah kiri lurus ruangan ke 3 dari sebelah kiri paling pojok",
+        "services_info": "Ruang Rapat Eksternal",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794570529162_muggtw.jpg",
+        "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794575822833_8f7wzf.jpg",
+        "map_x": 19.6,
+        "map_y": 80.2
+    },
+    {
+        "id": 24,
+        "floor_id": 2,
+        "name": "Ruang Kerja Sekretaris Dinas",
+        "nearby_notes": "Dari pintu lntai 2 belok ke kiri ruangan nya sebelah ruang PA",
+        "services_info": "menyelenggarakan pelaksanaan tugas,\npembinaan, dan pemberian dukungan administrasi\nkepada seluruh unit organisasi.",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794582452623_aklopf.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 28.1,
+        "map_y": 78.6
+    },
+    {
+        "id": 25,
+        "floor_id": 2,
+        "name": "Ruang Rapat Internal Dinas",
+        "nearby_notes": "Dari ujung Tangga lantai 2 belok ke arah kiri ,terletak dekat ruang PA dan RUang Server",
+        "services_info": "Ruang Khusus Rapat Atasan  atau Pimpinan Dengan Bawahan",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794582860301_vy7irf.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 49.9,
+        "map_y": 91
+    },
+    {
+        "id": 26,
+        "floor_id": 2,
+        "name": "Ruang Kerja Kepala Dinas",
+        "nearby_notes": "Dari arah tangga belok ke kiri, titik ruangan nya terletak pada dalam ruangan  rapat internal.",
+        "services_info": "membantu Bupati\ndalam melaksanakan urusan pemerintahan bidang kearsipan dan bidang yang menjadi\nkewenangan Daerah dan tugas pembantuan yang\ndiberikan kepada Daerah.",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794583067398_46pqrz.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 43.3,
+        "map_y": 92.7
+    },
+    {
+        "id": 27,
+        "floor_id": 2,
+        "name": "Ruang Server",
+        "nearby_notes": "Dari  Tangga atas lantai 2 tepat di samping tangga letak ruangan nya",
+        "services_info": "menempatkan, mengelola, dan mengamankan infrastruktur teknologi informasi (TI)",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794583702558_orz920.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 57.7,
+        "map_y": 85.8
+    },
+    {
+        "id": 28,
+        "floor_id": 2,
+        "name": "Ruang Arsip Depo A",
+        "nearby_notes": "Dari pintu dalam Lantai 2 lurus sampai melewati tangga luar",
+        "services_info": "Arsip  in aktif dengan referensi diatas 10 tahun (arsip dinasmis)",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794584053329_yhmst4.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 45.7,
+        "map_y": 34.1
+    },
+    {
+        "id": 29,
+        "floor_id": 2,
+        "name": "WC",
+        "nearby_notes": "Dari pintu dalam lantai 2 lurus sedikit kemudian belok ke kiri , wc ny terletak di sebelah ruangan aula",
+        "services_info": "Kamar Mandi Umum",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794584244896_5dep4n.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 12.7,
+        "map_y": 69.7
     }
 ];
 
 const DEFAULT_RACKS = [
-    // Hotspots di Ruang Depo Arsip Dinamis & Statis (Room 3)
     {
-        id: 1,
-        room_id: 3,
-        title: "Rak Roll O'Pack 01 - Arsip Sejarah & Naskah Daerah",
-        short_title: "Roll O'Pack 01",
-        category_code: "ARS-000 / Roll O'Pack 01",
-        location_notes: "Lorong 1 sebelah kanan, Rak Roll O'Pack 01, Baris/Shaf ke-2 dari atas",
-        rack_photo_url: 'assets/images/depo-arsip-front.jpg',
-        pitch: -2.0,
-        yaw: -38.0,
-        map_x: 27.5,
-        map_y: 34.5,
-        search_tags: "roll opack 01, arsip sejarah, naskah daerah, boks a-01, peta kadaster, statis, cirebon"
+        "id": 6,
+        "room_id": 15,
+        "title": "Roll Opack 01 - Arsip BPKB Plat Merah Se-Kabupaten Cirebon",
+        "category_code": "Roll-O'pack 1 &2",
+        "location_notes": "Dari Pintu Masuk Ruang Depo D, belok ke arah kiri paling pojok letak roll opack arsip nya paling pojok yang pertama",
+        "rack_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794813607494_kmnbfh.jpg",
+        "pitch": 11.28,
+        "yaw": -99.69,
+        "map_x": null,
+        "map_y": null,
+        "search_tags": "BPKB"
     },
     {
-        id: 2,
-        room_id: 3,
-        title: 'Rak Besi 02 - Arsip SK Bupati & Peraturan Daerah',
-        short_title: 'Rak Besi 02',
-        category_code: 'ARS-900 / Rak Besi 02',
-        location_notes: 'Lorong 2 sebelah kiri, Rak Besi 02, Baris/Shaf ke-3 dari atas',
-        rack_photo_url: 'assets/images/depo-arsip-front.jpg',
-        pitch: 0.0,
-        yaw: 12.0,
-        map_x: 48.5,
-        map_y: 34.5,
-        search_tags: 'rak besi 02, boks b-04, sk bupati, kepegawaian, peraturan daerah, perda, surat keputusan'
+        "id": 7,
+        "room_id": 15,
+        "title": "Roll opack 02 - Sertifikat Antar Desa Se-Kabupaten Cirebon",
+        "category_code": "Roll O'pack 2&3",
+        "location_notes": "Dari Pintu Masuk Ruang Depo D, belok ke arah kiri paling pojok letak roll opack arsip nya berasa paling pojok yang kedua dari roll opack",
+        "rack_photo_url": "assets/images/depo-arsip-front.jpg",
+        "pitch": 4.38,
+        "yaw": -93.49,
+        "map_x": null,
+        "map_y": null,
+        "search_tags": "Sertifikat antar desa"
     },
     {
-        id: 3,
-        room_id: 3,
-        title: "Rak Roll O'Pack 03 - Arsip Perizinan & Pertanahan",
-        short_title: "Roll O'Pack 03",
-        category_code: "ARS-500 / Roll O'Pack 03",
-        location_notes: "Lorong 3 bagian tengah, Rak Roll O'Pack 03, Baris/Shaf ke-1 dari atas",
-        rack_photo_url: 'assets/images/depo-arsip-front.jpg',
-        pitch: -1.5,
-        yaw: 50.0,
-        map_x: 68.5,
-        map_y: 34.5,
-        search_tags: "roll opack 03, boks c-12, perizinan, pertanahan, imb, pbg, aset daerah"
-    },
-    // Hotspot di Ruang Restorasi & Preservasi Arsip (Room 4)
-    {
-        id: 4,
-        room_id: 4,
-        title: 'Meja Restorasi 01 - Laminasi & Deasidifikasi Dokumen',
-        short_title: 'Meja Restorasi 01',
-        category_code: 'ARS-RST-01',
-        location_notes: 'Area laboratorium konservasi sisi tengah Ruang Restorasi & Preservasi Arsip',
-        rack_photo_url: 'assets/images/ruang-restorasi-front.jpg',
-        pitch: -2.0,
-        yaw: 0.0,
-        map_x: null,
-        map_y: null,
-        search_tags: 'restorasi, laminasi, deasidifikasi, preservasi, kertas kuno, tissue mending'
-    },
-    // Hotspot di Ruang Pelayanan Kearsipan & Tamu (Room 1)
-    {
-        id: 5,
-        room_id: 1,
-        title: 'Loket Layanan Kearsipan, Peminjaman & Penerimaan Surat',
-        short_title: 'Loket Layanan Arsip',
-        category_code: 'ARS-LAY-01',
-        location_notes: 'Meja loket pelayanan utama tepat di depan pintu masuk Ruang Pelayanan Kearsipan & Tamu (PA)',
-        rack_photo_url: 'assets/images/ruang-pa-front.jpg',
-        pitch: -3.5,
-        yaw: 0.0,
-        map_x: null,
-        map_y: null,
-        search_tags: 'loket, konsultasi kearsipan, peminjaman arsip, penerimaan surat, tamu'
+        "id": 8,
+        "room_id": 15,
+        "title": "Roll Opack 03 - Arsip Peraturan - Peraturan Bupati",
+        "category_code": "Roll O'pack 3&4",
+        "location_notes": "Dari Pintu Masuk Ruang Depo D, belok ke arah kiri paling pojok letak roll opack arsip nya paling pojok yang  ke tiga",
+        "rack_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794815321798_4r3k7c.jpg",
+        "pitch": -4.52,
+        "yaw": -85.33,
+        "map_x": null,
+        "map_y": null,
+        "search_tags": "Peraturan bupati"
     }
 ];
 
 const DEFAULT_BOOKS = [
-    // Boks & Surat Arsip di Rak Roll O'Pack 01 (rack_id: 1)
-    { id: 1, rack_id: 1, title: 'Boks A-01: Arsip Sejarah & Naskah Daerah', author: 'Bagian Umum & Kearsipan Daerah Kab. Cirebon', publish_year: '1975 - 1998', copies: 2, status: 'Akses Terbatas' },
-    { id: 2, rack_id: 1, title: 'Boks A-02: Peta Kadaster & Dokumen Batas Wilayah Kabupaten', author: 'Dinas Tata Ruang & Agraria Kab. Cirebon', publish_year: '1980 - 2005', copies: 3, status: 'Arsip Terbuka' },
-    { id: 3, rack_id: 1, title: 'Boks A-03: Album Dokumentasi Pembangunan Daerah Cirebon', author: 'Humas & Protokol Setda Kab. Cirebon', publish_year: '1990 - 2010', copies: 2, status: 'Arsip Terbuka' },
-
-    // Boks & Surat Arsip di Rak Besi 02 (rack_id: 2)
-    { id: 4, rack_id: 2, title: 'Boks B-04: SK Bupati & Arsip Kepegawaian', author: 'Sekretariat Daerah / Bidang Umum', publish_year: '2019 - 2021', copies: 3, status: 'Arsip Terbuka' },
-    { id: 5, rack_id: 2, title: 'Boks B-05: Surat Keputusan & Peraturan Daerah (Perda)', author: 'Bagian Hukum Setda & DPRD Kab. Cirebon', publish_year: '2015 - 2020', copies: 4, status: 'Arsip Terbuka' },
-    { id: 6, rack_id: 2, title: 'Boks B-06: Berkas Mutasi & Kenaikan Pangkat ASN Daerah', author: 'BKPSDM Kabupaten Cirebon', publish_year: '2018 - 2022', copies: 2, status: 'Akses Terbatas' },
-    { id: 7, rack_id: 2, title: 'Boks B-07: Bundel Nota Dinas & Surat Perintah Tugas', author: 'Disarpus / Tata Usaha Kepegawaian', publish_year: '2020 - 2023', copies: 3, status: 'Sedang Dipinjam' },
-
-    // Boks & Surat Arsip di Rak Roll O'Pack 03 (rack_id: 3)
-    { id: 8, rack_id: 3, title: 'Boks C-12: Berkas Perizinan & Pertanahan', author: 'DPMPTSP & Dinas Pertanahan Kab. Cirebon', publish_year: '2016 - 2021', copies: 5, status: 'Akses Terbatas' },
-    { id: 9, rack_id: 3, title: 'Boks C-14: Surat Izin Mendirikan Bangunan (IMB) & PBG', author: 'Dinas Pekerjaan Umum & Penataan Ruang', publish_year: '2018 - 2022', copies: 4, status: 'Arsip Terbuka' },
-    { id: 10, rack_id: 3, title: 'Boks C-15: Dokumen Sertifikat Aset Tanah Pemerintah Daerah', author: 'BKAD Bidang Aset Kab. Cirebon', publish_year: '2010 - 2020', copies: 2, status: 'Sedang Dipinjam' }
+    {
+        "id": 1,
+        "rack_id": 6,
+        "title": "Boks BPKB-01: Arsip BPKB Plat Merah Kecamatan",
+        "author": "Bagian Aset & Perlengkapan Daerah",
+        "publish_year": "2015 - 2020",
+        "copies": 4,
+        "status": "Arsip Terbuka"
+    },
+    {
+        "id": 2,
+        "rack_id": 6,
+        "title": "Boks BPKB-02: BPKB Kendaraan Operasional Dinas",
+        "author": "Setda & Dinas Teknis Kab. Cirebon",
+        "publish_year": "2010 - 2022",
+        "copies": 6,
+        "status": "Akses Terbatas"
+    },
+    {
+        "id": 3,
+        "rack_id": 7,
+        "title": "Boks SD-01: Dokumen Sertifikat Antar Desa Wilayah Timur",
+        "author": "Dinas Pemberdayaan Masyarakat & Desa",
+        "publish_year": "2005 - 2018",
+        "copies": 3,
+        "status": "Arsip Terbuka"
+    },
+    {
+        "id": 4,
+        "rack_id": 7,
+        "title": "Boks SD-02: Sertifikat Aset Tanah Kas Desa",
+        "author": "DPMD & Badan Keuangan Aset Daerah",
+        "publish_year": "2012 - 2021",
+        "copies": 5,
+        "status": "Akses Terbatas"
+    },
+    {
+        "id": 5,
+        "rack_id": 8,
+        "title": "Boks PB-01: Peraturan Bupati Cirebon Bidang Tata Kelola",
+        "author": "Bagian Hukum Setda Kab. Cirebon",
+        "publish_year": "2018 - 2022",
+        "copies": 4,
+        "status": "Arsip Terbuka"
+    },
+    {
+        "id": 6,
+        "rack_id": 8,
+        "title": "Boks PB-02: Peraturan Bupati Cirebon Bidang Pengelolaan Arsip",
+        "author": "Disarpus Kabupaten Cirebon",
+        "publish_year": "2020 - 2024",
+        "copies": 2,
+        "status": "Arsip Terbuka"
+    }
 ];
 
 // Versi cache seed data khusus Gedung Kearsipan (Visual Archive Locator)
-const DISARPUS_DATA_VERSION = 'v2026_kearsipan_locator_v3';
+const DISARPUS_DATA_VERSION = 'v2026_kearsipan_24ruangan_v4';
 
 function checkDataVersion() {
     const curVer = safeStorage.getItem('disarpus_data_ver');
@@ -420,7 +638,7 @@ const DataService = {
     },
 
     isLiveSupabase() {
-        return false;
+        return !this.isTursoActive() && Boolean(supabaseClient && isSupabaseActive);
     },
 
     async getConnectionStatus() {
