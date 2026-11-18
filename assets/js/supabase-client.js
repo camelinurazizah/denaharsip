@@ -883,6 +883,17 @@ const DataService = {
 
     // 2. DATA RUANGAN (ROOMS)
     async getRoomsByFloor(floorId) {
+        if (this.isTursoActive()) {
+            try {
+                const sql = 'SELECT * FROM rooms WHERE floor_id = ? ORDER BY id ASC';
+                const res = await window.TursoClient.execute(sql, [floorId]);
+                if (res.rows && res.rows.length > 0) {
+                    return res.rows;
+                }
+            } catch (err) {
+                console.warn('Fallback getRoomsByFloor dari Turso:', err);
+            }
+        }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('rooms').select('*').eq('floor_id', floorId).order('id');
