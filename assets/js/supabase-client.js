@@ -400,19 +400,19 @@ const DataService = {
     normalizeSupabaseUrl,
 
     getProvider() {
-        return safeStorage.getItem('disarpus_db_provider') || 'supabase';
+        return safeStorage.getItem('disarpus_db_provider') || 'turso';
     },
 
     getActiveBackend() {
-        return this.getProvider();
+        return 'turso';
     },
 
     setProvider(provider) {
-        safeStorage.setItem('disarpus_db_provider', provider);
+        safeStorage.setItem('disarpus_db_provider', 'turso');
     },
 
     isTursoActive() {
-        return this.getProvider() === 'turso' && typeof window !== 'undefined' && Boolean(window.TursoClient?.isConfigured?.());
+        return typeof window !== 'undefined' && Boolean(window.TursoClient?.isConfigured?.());
     },
 
     getActiveConfig() {
@@ -420,47 +420,23 @@ const DataService = {
     },
 
     isLiveSupabase() {
-        return isSupabaseActive && supabaseClient !== null;
+        return false;
     },
 
     async getConnectionStatus() {
-        const provider = this.getProvider();
-        if (provider === 'turso') {
-            if (typeof window !== 'undefined' && window.TursoClient) {
-                const conf = window.TursoClient.getConfig();
-                const test = await window.TursoClient.testConnection();
-                return {
-                    provider: 'turso',
-                    connected: test.connected,
-                    url: conf.url,
-                    hasKey: Boolean(conf.token),
-                    authEmail: test.connected ? 'Turso libSQL Database' : null,
-                    error: test.connected ? null : test.message
-                };
-            }
-            return { provider: 'turso', connected: false, url: '', hasKey: false, authEmail: null, error: 'Turso client belum dimuat.' };
-        }
-
-        const { url, anonKey: key } = getEffectiveSupabaseConfig();
-        if (!this.isLiveSupabase()) {
-            return { provider: 'supabase', connected: false, hasAuthSession: false, url, hasKey: Boolean(key), authEmail: null, error: null };
-        }
-        try {
-            const { data: sessionData } = await supabaseClient.auth.getSession();
-            const session = sessionData?.session || null;
-            const { error: pingErr } = await supabaseClient.from('floors').select('id').limit(1);
+        if (typeof window !== 'undefined' && window.TursoClient) {
+            const conf = window.TursoClient.getConfig();
+            const test = await window.TursoClient.testConnection();
             return {
-                provider: 'supabase',
-                connected: !pingErr,
-                hasAuthSession: Boolean(session),
-                authEmail: session?.user?.email || null,
-                url,
-                hasKey: Boolean(key),
-                error: pingErr ? pingErr.message : null
+                provider: 'turso',
+                connected: test.connected,
+                url: conf.url,
+                hasKey: Boolean(conf.token),
+                authEmail: test.connected ? 'Turso libSQL Database' : null,
+                error: test.connected ? null : test.message
             };
-        } catch (err) {
-            return { provider: 'supabase', connected: false, hasAuthSession: false, authEmail: null, url, hasKey: Boolean(key), error: err.message };
         }
+        return { provider: 'turso', connected: false, url: '', hasKey: false, authEmail: null, error: 'Turso client belum dimuat.' };
     },
 
     async ensureSupabaseWriteSession() {

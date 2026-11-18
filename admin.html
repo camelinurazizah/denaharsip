@@ -183,9 +183,9 @@
             </svg>
           </span>
           <div class="nav-item-text">
-            <span class="nav-label-desktop">Koneksi Supabase</span>
-            <span class="nav-label-mobile">Supabase</span>
-            <small>Sinkronisasi &amp; Seed Data</small>
+            <span class="nav-label-desktop">Database Turso</span>
+            <span class="nav-label-mobile">Turso DB</span>
+            <small>Koneksi Cloud &amp; Sinkronisasi</small>
           </div>
           <span class="nav-chevron" aria-hidden="true">›</span>
         </div>
@@ -762,32 +762,19 @@
       </section>
 
       <!-- ================================================================
-           TAB 5: KONEKSI SUPABASE & RESET SEED DATA
+           TAB 5: KONEKSI DATABASE CLOUD (TURSO LIBSQL / SQLITE)
            ================================================================ -->
       <section class="tab-pane" id="tab-pengaturan">
         <div class="admin-page-header">
           <div>
-            <h1>Konfigurasi Cloud Backend &amp; Database (Turso / Supabase)</h1>
-            <p>Hubungkan aplikasi ke database Turso (libSQL/SQLite) atau Supabase (PostgreSQL), serta kelola sumber data aktif Gedung Kearsipan.</p>
+            <h1>Konfigurasi Cloud Database (Turso libSQL / SQLite)</h1>
+            <p>Kelola kredensial dan status koneksi database cloud resmi Gedung Kearsipan Disarpus Kabupaten Cirebon.</p>
           </div>
-        </div>
-
-        <!-- Pemilih Database Aktif -->
-        <div style="margin-bottom:1.15rem;display:flex;flex-wrap:wrap;align-items:center;gap:1.5rem;background:#ffffff;padding:0.85rem 1.25rem;border-radius:10px;border:1px solid #cbd5e1;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-          <span style="font-weight:700;font-size:0.875rem;color:#1e293b;">Pilih Database Aktif:</span>
-          <label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.875rem;cursor:pointer;color:#0f172a;">
-            <input type="radio" name="db_provider" value="turso" id="provider-turso">
-            <span>⚡ <strong>Turso Database (libSQL / SQLite)</strong></span>
-          </label>
-          <label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.875rem;cursor:pointer;color:#0f172a;">
-            <input type="radio" name="db_provider" value="supabase" id="provider-supabase">
-            <span>☁️ <strong>Supabase (PostgreSQL)</strong></span>
-          </label>
         </div>
 
         <div id="supabase-connection-status"
           style="margin-bottom:1.15rem;padding:0.85rem 1rem;border-radius:10px;border:1px solid #cbd5e1;background:#f8fafc;font-size:0.82rem;color:#334155;">
-          Memeriksa status koneksi database...
+          Memeriksa status koneksi database Turso...
         </div>
 
         <div class="admin-grid-2">
@@ -827,33 +814,6 @@
               </button>
               <span class="help-text" style="display:block; text-align:center; margin-top:4px;">Klik untuk membuat tabel admin_users langsung dari website tanpa perlu membuka Turso Console.</span>
             </div>
-          </form>
-
-          <!-- Card Kredensial Supabase Project -->
-          <form id="form-supabase-config" class="admin-card">
-            <div class="admin-card-header">
-              <div class="admin-card-title">
-                <span>☁️</span> Kredensial Supabase Project
-              </div>
-            </div>
-
-            <div class="form-group-admin">
-              <label for="config-supabase-url">Project URL</label>
-              <input type="url" id="config-supabase-url"
-                placeholder="https://gydqaikvdftwemsnkdrv.supabase.co/rest/v1/">
-              <span class="help-text">Dapat ditemukan di Supabase Dashboard -> Settings -> API -> Project URL</span>
-            </div>
-
-            <div class="form-group-admin">
-              <label for="config-supabase-key">Anon / Public API Key</label>
-              <input type="text" id="config-supabase-key" placeholder="sb_publishable_xG9GCtxElFIfto87xP1DvQ_zdtvq1MU">
-              <span class="help-text">Dapat ditemukan di Supabase Dashboard -> Settings -> API -> Project API Keys (anon
-                public)</span>
-            </div>
-
-            <button type="submit" class="btn-save-admin">
-              💾 Simpan &amp; Aktifkan Supabase
-            </button>
           </form>
 
           <div class="admin-card">
