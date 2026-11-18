@@ -1016,6 +1016,17 @@ const DataService = {
 
     // 3. DATA LEMARI / RAK DEPO ARSIP (HOTSPOTS)
     async getRacksByRoom(roomId) {
+        if (this.isTursoActive()) {
+            try {
+                const sql = 'SELECT * FROM racks WHERE room_id = ? ORDER BY id ASC';
+                const res = await window.TursoClient.execute(sql, [roomId]);
+                if (res.rows && res.rows.length > 0) {
+                    return res.rows;
+                }
+            } catch (err) {
+                console.warn('Fallback getRacksByRoom dari Turso:', err);
+            }
+        }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('racks').select('*').eq('room_id', roomId).order('id');
