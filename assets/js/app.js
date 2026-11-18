@@ -1023,15 +1023,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         const password = document.getElementById('login-password').value;
 
         loginError.style.display = 'none';
-        const result = await DataService.signIn(email, password);
-        if (result.success) {
-            closeModal(modalLogin);
-            showToast('Login Petugas Berhasil! Mengalihkan ke Panel Admin...', 'success');
-            setTimeout(() => {
-                window.location.href = 'admin.html';
-            }, 1000);
-        } else {
-            loginError.textContent = result.error || 'Autentikasi gagal. Periksa kembali surel dan sandi.';
+        try {
+            const result = await DataService.signIn(email, password);
+            if (result.success) {
+                closeModal(modalLogin);
+                showToast('Login Petugas Berhasil! Mengalihkan ke Panel Admin...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+            } else {
+                loginError.textContent = result.error || 'Autentikasi gagal. Periksa kembali surel dan sandi.';
+                loginError.style.display = 'block';
+            }
+        } catch (err) {
+            console.error('Error saat login:', err);
+            loginError.textContent = 'Terjadi kesalahan sistem: ' + (err.message || 'Silakan coba lagi');
             loginError.style.display = 'block';
         }
     });
