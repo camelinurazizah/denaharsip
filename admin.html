@@ -736,7 +736,12 @@
             <div class="admin-card-title">
               <span>👤</span> Daftar Akun Petugas &amp; Admin Dinas (Tabel <code>admin_users</code>)
             </div>
-            <span class="help-text" style="font-weight:600;color:#0284c7;">Data Akun Tersinkron Langsung ke Database</span>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+              <span class="help-text" style="font-weight:600;color:#0284c7;">Data Akun Tersinkron Langsung ke Database</span>
+              <button type="button" class="btn-action edit" id="btn-open-edit-user-modal" style="background:#0284c7;color:#fff;border:none;padding:7px 14px;border-radius:8px;font-weight:700;font-size:0.82rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 4px rgba(2,132,199,0.25);">
+                <span>✏️</span> Ubah Nama &amp; Kata Sandi
+              </button>
+            </div>
           </div>
           <div class="data-table-container">
             <table class="records-table">
@@ -744,9 +749,10 @@
                 <tr>
                   <th>Nama Lengkap Petugas</th>
                   <th>Alamat Surel (Email Login)</th>
+                  <th>Kata Sandi</th>
                   <th>Peran / Role</th>
                   <th>Waktu Dibuat</th>
-                  <th style="width:120px;text-align:center;">Status</th>
+                  <th style="width:120px;text-align:center;">Aksi</th>
                 </tr>
               </thead>
               <tbody id="table-users-tbody"></tbody>
@@ -1033,6 +1039,67 @@
         <button type="submit" form="form-room" class="btn-save-admin" id="btn-room-submit">
           <span>💾</span> Simpan Data Ruangan
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL POPUP: EDIT NAMA PETUGAS & GANTI KATA SANDI (admin_users)
+       ==================================================================== -->
+  <div class="admin-modal-overlay" id="modal-admin-user">
+    <div class="admin-modal-card" style="max-width: 520px;">
+      <div class="admin-modal-header">
+        <div class="admin-modal-title">
+          <span>✏️</span>
+          <span>Ubah Profil Petugas &amp; Kata Sandi</span>
+        </div>
+        <button type="button" class="admin-modal-close" id="btn-close-user-modal" title="Tutup Modal">&times;</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <form id="form-edit-user">
+          <input type="hidden" id="edit-user-id" value="">
+          <div class="form-group-admin">
+            <label for="edit-user-name">Nama Lengkap Petugas Dinas</label>
+            <input type="text" id="edit-user-name" placeholder="Masukkan nama lengkap petugas" required>
+            <span class="help-text">Nama ini ditampilkan pada navigasi header dan status identitas sistem.</span>
+          </div>
+
+          <div class="form-group-admin">
+            <label for="edit-user-email">Alamat Surel Dinas (Email Login)</label>
+            <input type="email" id="edit-user-email" placeholder="admin@disarpus.cirebonkab.go.id" required>
+            <span class="help-text">Surel resmi kedinasan yang digunakan untuk login ke sistem.</span>
+          </div>
+
+          <div class="form-group-admin">
+            <label for="edit-user-password">Kata Sandi Baru</label>
+            <div style="position:relative;display:flex;align-items:center;">
+              <input type="password" id="edit-user-password" placeholder="Masukkan kata sandi baru" required style="padding-right: 40px; width: 100%;">
+              <button type="button" id="btn-toggle-user-password" style="position:absolute;right:8px;background:none;border:none;cursor:pointer;font-size:1.1rem;color:#64748b;" title="Tampilkan Sandi">👁️</button>
+            </div>
+            <span class="help-text">Minimal 4 karakter. Pastikan Anda mengingat kata sandi yang baru.</span>
+          </div>
+
+          <div class="form-group-admin">
+            <label for="edit-user-role">Peran / Hak Akses</label>
+            <select id="edit-user-role">
+              <option value="Admin">Admin</option>
+              <option value="Staff Admin">Staff Admin</option>
+              <option value="Petugas Kearsipan">Petugas Kearsipan</option>
+            </select>
+          </div>
+
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:10px 14px;border-radius:8px;margin-bottom:1rem;font-size:0.83rem;color:#166534;line-height:1.4;">
+            💾 <strong>Tersimpan Otomatis:</strong> Perubahan akan langsung disimpan ke database Turso dan sinkron dengan sesi login Anda.
+          </div>
+
+          <div class="admin-modal-footer" style="padding-top:0.5rem;display:flex;justify-content:flex-end;gap:0.75rem;">
+            <button type="button" class="btn-admin-nav" id="btn-cancel-user-modal" style="color:var(--admin-navy);border-color:#cbd5e1;background:#fff;padding:0.6rem 1.25rem;">Batal</button>
+            <button type="submit" class="btn-save-admin" id="btn-save-user-profile" style="background:#0284c7;color:#fff;border:none;padding:8px 18px;border-radius:8px;font-weight:700;cursor:pointer;">
+              <span>💾</span> Simpan ke Database Turso
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

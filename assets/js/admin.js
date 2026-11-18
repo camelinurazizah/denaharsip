@@ -1672,16 +1672,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             usersTbody.innerHTML = '';
             try {
                 let usersList = [];
-                if (DataService.getActiveBackend() === 'turso' && window.TursoClient && window.TursoClient.isConfigured()) {
-                    const res = await window.TursoClient.execute('SELECT id, email, nama_petugas, role, created_at FROM admin_users ORDER BY id ASC;');
+                if (window.TursoClient && window.TursoClient.isConfigured()) {
+                    const res = await window.TursoClient.execute('SELECT id, email, password, nama_petugas, role, created_at FROM admin_users ORDER BY id ASC;');
                     usersList = res.rows || [];
                 }
 
                 if (!usersList || usersList.length === 0) {
                     usersList = [
                         {
+                            id: 1,
                             nama_petugas: DataService.getAdminName ? DataService.getAdminName() : 'Camelia Nur Azizah',
                             email: DataService.getAdminEmail(),
+                            password: 'admin123',
                             role: 'Admin',
                             created_at: '2026-11-18 06:45:00'
                         }
@@ -1689,13 +1691,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 usersList.forEach(u => {
+                    const rowId = u.id || 1;
+                    const uPass = u.password || 'admin123';
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td style="font-weight:700;color:#0f172a;">👤 ${u.nama_petugas || 'Petugas Dinas'}</td>
                         <td><code>${u.email}</code></td>
+                        <td>
+                            <span class="user-pass-display" id="user-pass-text-${rowId}" style="font-family:monospace;letter-spacing:1px;color:#475569;">••••••••</span>
+                            <button type="button" class="btn-toggle-peek-pass" data-target="user-pass-text-${rowId}" data-pass="${uPass}" title="Lihat Sandi" style="background:none;border:none;cursor:pointer;font-size:0.88rem;color:#0284c7;margin-left:6px;">👁️</button>
+                        </td>
                         <td><span class="badge-instansi" style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:6px;font-weight:700;font-size:0.75rem;">${u.role || 'Admin'}</span></td>
                         <td style="color:#64748b;font-size:0.8rem;">${u.created_at ? String(u.created_at).slice(0, 19).replace('T', ' ') : '-'}</td>
-                        <td style="text-align:center;"><span style="color:#16a34a;font-weight:700;font-size:0.8rem;">● Aktif</span></td>
+                        <td style="text-align:center;">
+                            <button type="button" class="btn-action edit btn-edit-user-row" 
+                                data-id="${rowId}" 
+                                data-name="${u.nama_petugas || 'Camelia Nur Azizah'}" 
+                                data-email="${u.email}" 
+                                data-pass="${uPass}" 
+                                data-role="${u.role || 'Admin'}"
+                                style="background:#0284c7;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:0.8rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                                <span>✏️</span> Ubah
+                            </button>
+                        </td>
                     `;
                     usersTbody.appendChild(tr);
                 });
@@ -1705,9 +1723,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tr.innerHTML = `
                     <td style="font-weight:700;color:#0f172a;">👤 Camelia Nur Azizah</td>
                     <td><code>${DataService.getAdminEmail()}</code></td>
+                    <td><code>admin123</code></td>
                     <td><span class="badge-instansi" style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:6px;font-weight:700;font-size:0.75rem;">Admin</span></td>
                     <td style="color:#64748b;font-size:0.8rem;">Aktif</td>
-                    <td style="text-align:center;"><span style="color:#16a34a;font-weight:700;font-size:0.8rem;">● Aktif</span></td>
+                    <td style="text-align:center;">
+                        <button type="button" class="btn-action edit btn-edit-user-row" 
+                            data-id="1" 
+                            data-name="Camelia Nur Azizah" 
+                            data-email="${DataService.getAdminEmail()}" 
+                            data-pass="admin123" 
+                            data-role="Admin"
+                            style="background:#0284c7;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:0.8rem;font-weight:700;cursor:pointer;">
+                            ✏️ Ubah
+                        </button>
+                    </td>
                 `;
                 usersTbody.appendChild(tr);
             }
@@ -1781,7 +1810,165 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
         });
+
+        // Peek Password Akun Petugas
+        document.querySelectorAll('.btn-toggle-peek-pass').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                const pass = btn.getAttribute('data-pass');
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    if (targetEl.textContent === '••••••••') {
+                        targetEl.textContent = pass;
+                        targetEl.style.color = '#0284c7';
+                        targetEl.style.fontWeight = 'bold';
+                        btn.textContent = '🙈';
+                        btn.title = 'Sembunyikan Sandi';
+                    } else {
+                        targetEl.textContent = '••••••••';
+                        targetEl.style.color = '#475569';
+                        targetEl.style.fontWeight = 'normal';
+                        btn.textContent = '👁️';
+                        btn.title = 'Lihat Sandi';
+                    }
+                }
+            });
+        });
+
+        // Edit Akun Petugas dari Baris Tabel
+        document.querySelectorAll('.btn-edit-user-row').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const name = btn.getAttribute('data-name');
+                const email = btn.getAttribute('data-email');
+                const pass = btn.getAttribute('data-pass');
+                const role = btn.getAttribute('data-role');
+                openEditUserModal({ id, name, email, pass, role });
+            });
+        });
     }
+
+    // =========================================================================
+    // MODAL EDIT NAMA PETUGAS & GANTI KATA SANDI (admin_users)
+    // =========================================================================
+    const modalAdminUser = document.getElementById('modal-admin-user');
+    const btnOpenEditUserModal = document.getElementById('btn-open-edit-user-modal');
+    const btnCloseUserModal = document.getElementById('btn-close-user-modal');
+    const btnCancelUserModal = document.getElementById('btn-cancel-user-modal');
+    const formEditUser = document.getElementById('form-edit-user');
+    const btnToggleUserPassword = document.getElementById('btn-toggle-user-password');
+    const editUserPassInput = document.getElementById('edit-user-password');
+
+    function openEditUserModal(user = null) {
+        if (!modalAdminUser) return;
+        const currentName = user?.name || (DataService.getAdminName ? DataService.getAdminName() : 'Camelia Nur Azizah');
+        const currentEmail = user?.email || DataService.getAdminEmail();
+        const currentPass = user?.pass || 'admin123';
+        const currentRole = user?.role || (DataService.getAdminRole ? DataService.getAdminRole() : 'Admin');
+
+        document.getElementById('edit-user-id').value = user?.id || '1';
+        document.getElementById('edit-user-name').value = currentName;
+        document.getElementById('edit-user-email').value = currentEmail;
+        document.getElementById('edit-user-password').value = currentPass;
+        document.getElementById('edit-user-role').value = currentRole;
+
+        modalAdminUser.classList.add('active');
+    }
+
+    function closeEditUserModal() {
+        if (modalAdminUser) modalAdminUser.classList.remove('active');
+    }
+
+    btnOpenEditUserModal?.addEventListener('click', () => openEditUserModal());
+    btnCloseUserModal?.addEventListener('click', closeEditUserModal);
+    btnCancelUserModal?.addEventListener('click', closeEditUserModal);
+    modalAdminUser?.addEventListener('click', (e) => {
+        if (e.target === modalAdminUser) closeEditUserModal();
+    });
+
+    btnToggleUserPassword?.addEventListener('click', () => {
+        if (!editUserPassInput) return;
+        const show = editUserPassInput.type === 'password';
+        editUserPassInput.type = show ? 'text' : 'password';
+        btnToggleUserPassword.textContent = show ? '🙈' : '👁️';
+    });
+
+    formEditUser?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-user-id').value;
+        const name = document.getElementById('edit-user-name').value.trim();
+        const email = document.getElementById('edit-user-email').value.trim();
+        const pass = document.getElementById('edit-user-password').value.trim();
+        const role = document.getElementById('edit-user-role').value;
+
+        if (!name || !email || !pass) {
+            alert('Silakan lengkapi nama, email, dan kata sandi!');
+            return;
+        }
+
+        const btnSave = document.getElementById('btn-save-user-profile');
+        if (btnSave) {
+            btnSave.disabled = true;
+            btnSave.innerHTML = '<span>⏳</span> Menyimpan ke Turso...';
+        }
+
+        try {
+            // Update ke Turso Database jika terhubung
+            if (window.TursoClient && window.TursoClient.isConfigured()) {
+                await window.TursoClient.execute(`
+                    CREATE TABLE IF NOT EXISTS admin_users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        email TEXT UNIQUE NOT NULL,
+                        password TEXT NOT NULL,
+                        nama_petugas TEXT NOT NULL,
+                        role TEXT DEFAULT 'Admin',
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+                    );
+                `);
+
+                const checkRes = await window.TursoClient.execute(
+                    'SELECT id FROM admin_users WHERE LOWER(email) = ? OR id = ? LIMIT 1;',
+                    [email.toLowerCase(), id]
+                );
+
+                if (checkRes.rows && checkRes.rows.length > 0) {
+                    await window.TursoClient.execute(
+                        'UPDATE admin_users SET nama_petugas = ?, password = ?, role = ?, email = ? WHERE id = ? OR LOWER(email) = ?;',
+                        [name, pass, role, email, id, email.toLowerCase()]
+                    );
+                } else {
+                    await window.TursoClient.execute(
+                        'INSERT INTO admin_users (email, password, nama_petugas, role) VALUES (?, ?, ?, ?);',
+                        [email, pass, name, role]
+                    );
+                }
+            }
+
+            // Update sesi lokal
+            localStorage.setItem('disarpus_admin_name', name);
+            localStorage.setItem('disarpus_admin_email', email);
+            localStorage.setItem('disarpus_admin_role', role);
+
+            // Update tampilan header navigasi
+            const headerEmail = document.getElementById('admin-logged-email');
+            if (headerEmail) {
+                headerEmail.textContent = `${name} • ${email}`;
+            }
+
+            closeEditUserModal();
+            showAdminToast('✅ Sukses! Nama petugas & kata sandi berhasil diperbarui di Turso Database!', 'success');
+            await refreshRecordsTable();
+        } catch (err) {
+            console.error('Gagal memperbarui profil petugas:', err);
+            showAdminToast(`❌ Gagal menyimpan ke database: ${err.message}`, 'error');
+            alert(`Gagal memperbarui akun:\n${err.message}`);
+        } finally {
+            if (btnSave) {
+                btnSave.disabled = false;
+                btnSave.innerHTML = '<span>💾</span> Simpan ke Database Turso';
+            }
+        }
+    });
 
     // =========================================================================
     // =========================================================================
