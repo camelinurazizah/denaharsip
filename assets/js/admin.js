@@ -2180,7 +2180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             if (!window.QRCodeGenerator) throw new Error('Generator QR belum dimuat.');
             adminQrRenderEl.innerHTML = window.QRCodeGenerator.toSvgString(cleanUrl, {
-                displaySize: 196,
+                displaySize: 148,
                 quietZone: 4,
                 darkColor: '#0f172a',
                 lightColor: '#ffffff'
