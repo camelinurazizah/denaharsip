@@ -264,22 +264,52 @@
 
   function drawFormatBits(state, mask) {
     const { size, setFunc } = state;
-    // ECC Level M indicator = 00
-    const data = (0b00 << 3) | mask;
-    let rem = data;
-    for (let i = 0; i < 10; i++) {
-      rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+    const G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    const G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    const bchDigit = (data) => {
+      let digit = 0;
+      while (data !== 0) {
+        digit++;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    const bchTypeInfo = (data) => {
+      let d = data << 10;
+      while (bchDigit(d) - bchDigit(G15) >= 0) {
+        d ^= G15 << (bchDigit(d) - bchDigit(G15));
+      }
+      return ((data << 10) | d) ^ G15_MASK;
+    };
+
+    // ECC Level M = 0
+    const bits = bchTypeInfo((0 << 3) | mask);
+
+    // Vertical
+    for (let i = 0; i < 15; i++) {
+      const bit = ((bits >>> i) & 1) === 1;
+      if (i < 6) {
+        setFunc(i, 8, bit);
+      } else if (i < 8) {
+        setFunc(i + 1, 8, bit);
+      } else {
+        setFunc(size - 15 + i, 8, bit);
+      }
     }
-    const bits = ((data << 10) | rem) ^ 0x5412;
 
-    for (let i = 0; i <= 5; i++) setFunc(8, i, ((bits >>> i) & 1) !== 0);
-    setFunc(8, 7, ((bits >>> 6) & 1) !== 0);
-    setFunc(8, 8, ((bits >>> 7) & 1) !== 0);
-    setFunc(7, 8, ((bits >>> 8) & 1) !== 0);
-    for (let i = 9; i < 15; i++) setFunc(14 - i, 8, ((bits >>> i) & 1) !== 0);
-
-    for (let i = 0; i < 7; i++) setFunc(size - 1 - i, 8, ((bits >>> i) & 1) !== 0);
-    for (let i = 7; i < 15; i++) setFunc(8, size - 15 + i, ((bits >>> i) & 1) !== 0);
+    // Horizontal
+    for (let i = 0; i < 15; i++) {
+      const bit = ((bits >>> i) & 1) === 1;
+      if (i < 8) {
+        setFunc(8, size - i - 1, bit);
+      } else if (i < 9) {
+        setFunc(8, 15 - i - 1 + 1, bit);
+      } else {
+        setFunc(8, 15 - i - 1, bit);
+      }
+    }
   }
 
   function applyMask(state, mask) {

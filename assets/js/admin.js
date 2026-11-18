@@ -2213,8 +2213,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (proto === 'file:') {
-            setAdminQrHint('Aplikasi dibuka lewat file://. Agar pengunjung bisa scan lewat HP, jalankan lewat server lokal atau masukkan domain hosting resmi Anda di bawah.', 'warning');
-            return 'https://disarpus.cirebonkab.go.id/index.html';
+            setAdminQrHint('Aplikasi dibuka lewat file://. Tautan QR diarahkan ke domain Vercel publik agar HP pengunjung bisa langsung scan.', 'ready');
+            return 'https://denaharsip.vercel.app/index.html';
         }
 
         const isLoopback = host === 'localhost' || host === '127.0.0.1' || host === '::1';
@@ -2236,8 +2236,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (err) {
                 // Abaikan bila server.js tidak menyediakan /api/network-info
             }
-            setAdminQrHint('Sedang berjalan di localhost. Ganti localhost dengan IP Wi-Fi laptop (contoh: 192.168.1.xxx) atau domain hosting Anda agar HP pengunjung bisa membuka.', 'warning');
-            return window.location.origin + pathname;
+            setAdminQrHint('Sedang berjalan di localhost. Tautan QR otomatis diarahkan ke domain online Vercel agar HP pengunjung dapat langsung scan.', 'ready');
+            return 'https://denaharsip.vercel.app/index.html';
         }
 
         setAdminQrHint('QR siap dicetak! Mengarah langsung ke halaman publik peta Gedung Kearsipan.', 'ready');
@@ -2281,6 +2281,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!urlToCopy) return;
         try {
             await navigator.clipboard.writeText(urlToCopy);
+            const orig = btnAdminQrCopy.innerHTML;
+            btnAdminQrCopy.innerHTML = '<span>✅</span> Tersalin!';
+            btnAdminQrCopy.style.background = '#ecfdf5';
+            btnAdminQrCopy.style.color = '#166534';
+            setTimeout(() => {
+                btnAdminQrCopy.innerHTML = orig;
+                btnAdminQrCopy.style.background = '';
+                btnAdminQrCopy.style.color = '';
+            }, 2000);
             showAdminToast('Tautan QR berhasil disalin ke clipboard!', 'success');
         } catch (err) {
             adminQrUrlInput?.select?.();
@@ -2295,7 +2304,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const canvas = document.createElement('canvas');
             window.QRCodeGenerator.renderToCanvas(canvas, urlToEncode, {
-                pixelSize: 640,
+                pixelSize: 800,
                 quietZone: 4,
                 darkColor: '#0f172a',
                 lightColor: '#ffffff'
@@ -2304,7 +2313,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             link.download = 'QR-Akses-Gedung-Kearsipan-Disarpus.png';
             link.href = canvas.toDataURL('image/png');
             link.click();
-            showAdminToast('Gambar QR (PNG Resolusi Tinggi) berhasil diunduh.', 'success');
+            const orig = btnAdminQrDownload.innerHTML;
+            btnAdminQrDownload.innerHTML = '<span>✅</span> Terunduh!';
+            setTimeout(() => {
+                btnAdminQrDownload.innerHTML = orig;
+            }, 2000);
+            showAdminToast('Gambar QR (PNG Resolusi Tinggi HD) berhasil diunduh.', 'success');
         } catch (err) {
             showAdminToast(err.message || 'Gagal mengunduh gambar QR.', 'error');
         }
