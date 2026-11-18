@@ -173,6 +173,23 @@
           <span class="nav-chevron" aria-hidden="true">›</span>
         </div>
 
+        <div class="admin-nav-item" data-tab="tab-kelola-users" role="button" tabindex="0"
+          title="Kelola data profil, email, dan kata sandi akun petugas & admin dinas">
+          <span class="nav-icon-chip chip-purple" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </span>
+          <div class="nav-item-text">
+            <span class="nav-label-desktop">Akun Petugas Dinas</span>
+            <span class="nav-label-mobile">Petugas</span>
+            <small>Profil &amp; Sandi Petugas</small>
+          </div>
+          <span class="nav-chevron" aria-hidden="true">›</span>
+        </div>
+
         <div class="admin-nav-item" data-tab="tab-pengaturan" role="button" tabindex="0">
           <span class="nav-icon-chip chip-slate" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -730,8 +747,20 @@
           </div>
         </div>
 
-        <!-- Tabel Akun Petugas & Admin Dinas (admin_users) -->
-        <div class="admin-card" style="margin-top: 1.25rem;">
+      </section>
+
+      <!-- ================================================================
+           TAB 5: MANAJEMEN AKUN PETUGAS & ADMIN DINAS (admin_users)
+           ================================================================ -->
+      <section class="tab-pane" id="tab-kelola-users">
+        <div class="admin-page-header">
+          <div>
+            <h1>Manajemen Akun Petugas &amp; Admin Dinas</h1>
+            <p>Kelola data profil, alamat email login, kata sandi, dan hak akses petugas pengelola Sistem Informasi Denah Kearsipan DISARPUS Kabupaten Cirebon.</p>
+          </div>
+        </div>
+
+        <div class="admin-card">
           <div class="admin-card-header" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;">
             <div class="admin-card-title">
               <span>👤</span> Daftar Akun Petugas &amp; Admin Dinas (Tabel <code>admin_users</code>)
@@ -759,10 +788,29 @@
             </table>
           </div>
         </div>
+
+        <!-- Kartu Kebijakan Akses & Keamanan Akun Dinas -->
+        <div class="admin-card" style="margin-top: 1.25rem; border-left: 4px solid #0284c7;">
+          <div class="admin-card-header">
+            <div class="admin-card-title" style="font-size:0.95rem;">
+              <span>🛡️</span> Kebijakan Hak Akses &amp; Keamanan Akun Dinas
+            </div>
+          </div>
+          <div style="padding: 0.5rem 0.25rem; font-size: 0.85rem; color: #475569; line-height: 1.6;">
+            <p style="margin-bottom: 0.5rem;">
+              Akun yang tercatat di atas memiliki otoritas penuh untuk mengelola denah interaktif, mendaftarkan ruangan baru, mengatur posisi rak depo arsip, dan memperbarui basis data Disarpus Kabupaten Cirebon.
+            </p>
+            <ul style="padding-left: 1.25rem; margin: 0;">
+              <li><strong>Ganti Kata Sandi Berkala:</strong> Disarankan untuk memperbarui kata sandi secara berkala menggunakan kombinasi huruf dan angka untuk keamanan data.</li>
+              <li><strong>Akses Terpusat:</strong> Perubahan profil nama atau kata sandi akan otomatis tersimpan langsung ke cloud database <code>admin_users</code>.</li>
+              <li><strong>Sesi Login:</strong> Kredensial aktif digunakan untuk autentikasi masuk ke dashboard panel admin di perangkat petugas.</li>
+            </ul>
+          </div>
+        </div>
       </section>
 
       <!-- ================================================================
-           TAB 5: KONEKSI DATABASE CLOUD (TURSO LIBSQL / SQLITE)
+           TAB 6: KONEKSI DATABASE CLOUD (TURSO LIBSQL / SQLITE)
            ================================================================ -->
       <section class="tab-pane" id="tab-pengaturan">
         <div class="admin-page-header">

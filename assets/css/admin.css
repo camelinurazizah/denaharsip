@@ -283,6 +283,7 @@ body.admin-body {
 .nav-icon-chip.chip-indigo { background: #eef2ff; color: #4f46e5; }
 .nav-icon-chip.chip-amber { background: #fef3c7; color: #d97706; }
 .nav-icon-chip.chip-teal { background: #ccfbf1; color: #0f766e; }
+.nav-icon-chip.chip-purple { background: #f3e8ff; color: #7c3aed; }
 .nav-icon-chip.chip-slate { background: #f1f5f9; color: #475569; }
 
 .admin-nav-item .nav-item-text {
@@ -1090,10 +1091,13 @@ body.admin-body {
     align-items: center !important;
     justify-content: space-around !important;
     gap: 2px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
   .admin-sidebar .admin-nav-item {
-    flex: 1 !important;
+    flex: 1 0 auto !important;
+    min-width: 52px !important;
     height: 100% !important;
     width: auto !important;
     display: flex !important;
