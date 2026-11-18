@@ -1875,7 +1875,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('edit-user-name').value = currentName;
         document.getElementById('edit-user-email').value = currentEmail;
         document.getElementById('edit-user-password').value = currentPass;
-        document.getElementById('edit-user-role').value = currentRole;
+        document.getElementById('edit-user-role').value = 'Admin';
 
         modalAdminUser.classList.add('active');
     }
@@ -1904,7 +1904,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const name = document.getElementById('edit-user-name').value.trim();
         const email = document.getElementById('edit-user-email').value.trim();
         const pass = document.getElementById('edit-user-password').value.trim();
-        const role = document.getElementById('edit-user-role').value;
+        const role = 'Admin';
 
         if (!name || !email || !pass) {
             alert('Silakan lengkapi nama, email, dan kata sandi!');
