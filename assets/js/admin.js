@@ -27,6 +27,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         elAdminEmail.title = `Petugas Login: ${name || email}`;
     }
 
+    const badgeRole = document.querySelector('.admin-badge-role');
+    if (badgeRole) {
+        badgeRole.textContent = localStorage.getItem('disarpus_admin_role') || 'Admin';
+    }
+
     // Tombol Logout
     document.getElementById('btn-admin-logout')?.addEventListener('click', () => {
         if (confirm('Apakah Anda yakin ingin keluar dari Sesi Petugas?')) {
@@ -1953,6 +1958,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const headerEmail = document.getElementById('admin-logged-email');
             if (headerEmail) {
                 headerEmail.textContent = `${name} • ${email}`;
+            }
+            const headerBadge = document.querySelector('.admin-badge-role');
+            if (headerBadge) {
+                headerBadge.textContent = role;
             }
 
             closeEditUserModal();
