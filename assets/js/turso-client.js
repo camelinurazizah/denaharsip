@@ -9,12 +9,12 @@
 
 const TursoClient = (() => {
     const DEFAULT_TURSO_URL = 'libsql://denaharsip-camelinurazizah.aws-ap-southeast-1.turso.io';
-    
+
     // =========================================================================
     // TEMPELKAN TOKEN TURSO (READ-ONLY) ANDA DI BAWAH INI (Di dalam tanda petik '')
     // Contoh: const DEFAULT_TURSO_TOKEN = 'eyJhbGciOi...';
     // =========================================================================
-    const DEFAULT_TURSO_TOKEN = '';
+    const DEFAULT_TURSO_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicm8iLCJpYXQiOjE3OTUwMTAzNzIsImlkIjoiMDFhMWU4OTEtNDgwMS03OTc5LThlZjItODU1YjZjMGZkOTkxIiwia2lkIjoiaFBuOFloLV9QZHU4d3B5LUFZdUdNZ3RDVnVJT2gzWlRTa0JQMTVDeVpxWSIsInJpZCI6IjdhODk1NTQ1LTc3NTctNDFjMy04ZmNmLTdlZDJlM2JiNzRjYiJ9.LEnLP5IefRjJFUJAv5TynU8UIpzE1YthZeKYaCT8qI3TrCKIy6PHfzuVz3CoP2JM1AXBOGp_HtpaPue66ur2Dw';
 
     function getStoredConfig() {
         let url = '';
