@@ -9,6 +9,12 @@
 
 const TursoClient = (() => {
     const DEFAULT_TURSO_URL = 'libsql://denaharsip-camelinurazizah.aws-ap-southeast-1.turso.io';
+    
+    // =========================================================================
+    // TEMPELKAN TOKEN TURSO (READ-ONLY) ANDA DI BAWAH INI (Di dalam tanda petik '')
+    // Contoh: const DEFAULT_TURSO_TOKEN = 'eyJhbGciOi...';
+    // =========================================================================
+    const DEFAULT_TURSO_TOKEN = '';
 
     function getStoredConfig() {
         let url = '';
@@ -21,7 +27,7 @@ const TursoClient = (() => {
         } catch (e) { }
         return {
             url: (url || DEFAULT_TURSO_URL).trim(),
-            token: token.trim()
+            token: (token || DEFAULT_TURSO_TOKEN).trim()
         };
     }
 
