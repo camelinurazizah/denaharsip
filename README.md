@@ -21,7 +21,7 @@ Aplikasi web pemandu mandiri (*indoor wayfinding, visual archive locator & virtu
 | **SRS-FR-06** | Modal Dokumentasi Ruangan | Memuat foto depan ruangan, patokan posisi fisik (*nearby notes*), rincian fungsi/layanan kearsipan, daftar lemari/rak di dalam ruangan, serta tombol *"Buka Tur Panorama Ruangan"*. |
 | **SRS-FR-07** | Modal Inventaris Lemari / Rak Depo Arsip | Memuat foto fisik lemari/rak, Kode Klasifikasi / Nomor Rak (cth: `ARS-900 / Rak Besi 02`), Patokan Lorong & Baris/Shaf Rak, serta **Daftar Inventaris Boks & Surat Arsip** (Nomor Boks & Nama Berkas, Unit Pencipta, Kurun Waktu/Tahun, Jumlah Boks, Status Akses: `Arsip Terbuka`, `Akses Terbatas`, `Sedang Dipinjam`). |
 | **SRS-FR-08 & FR-09** | Tur Panorama 360° (Dual Engine) | Rendering panorama **Pannellum JS** dengan **Fallback 360° Pan Engine Bawaan** agar tetap berjalan lancar secara offline maupun lewat `file:///`. |
-| **SRS-FR-10 – FR-14** | Panel Petugas (Admin) Terstruktur | Urutan alur terstruktur: (1) **Denah & Lantai**, (2) **Registrasi Ruangan**, (3) **Visual Hotspot Mapper**, (4) **Kelola Data & Hapus**, (5) **Koneksi Supabase**. Dilengkapi opsi upload gambar langsung dari perangkat (`<input type="file" accept="image/*">`) berdampingan dengan input teks URL. |
+| **SRS-FR-10 – FR-14** | Panel Petugas (Admin) Terstruktur | Urutan alur terstruktur: (1) **Denah & Lantai**, (2) **Registrasi Ruangan**, (3) **Visual Hotspot Mapper**, (4) **Kelola Data & Hapus**, (5) **Akun Petugas Dinas**, (6) **Database Turso**. Dilengkapi opsi upload gambar langsung dari perangkat (`<input type="file" accept="image/*">`) berdampingan dengan input teks URL. |
 | **SRS-NFR-04** | Fallback Seed Data Otomatis | Berjalan langsung secara lokal/offline dengan data bawaan Gedung Kearsipan 2 Lantai dan persistensi `safeStorage`. |
 | **Kiosk QR** | Scan QR Kiosk & Deteksi IP Wi-Fi | Generator QR Code standar offline (`qrcode-gen.js`) dengan deteksi IP Wi-Fi LAN otomatis via `server.js` (`/api/network-info`), edit tautan manual, salin link, dan unduh PNG. |
 
@@ -47,8 +47,8 @@ Lalu buka:
 ## 🔑 Kredensial Akun Petugas Demo
 Klik tombol **"🔐 Akses Petugas"** pada portal publik:
 - **Alamat Surel**: `admin@disarpus.cirebonkab.go.id`
-- **Kata Sandi**: `cirebon123`
-- Atau klik tombol **"⚡ 1-Klik Isi & Masuk Demo Petugas"**.
+- **Kata Sandi**: `cirebon2026` *(atau sandi alternatif: `cirebon123` / `admin123`)*
+- Atau masukkan langsung di formulir login petugas.
 
 ---
 

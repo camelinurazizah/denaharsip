@@ -962,20 +962,26 @@ const DataService = {
     async saveRoom(roomData) {
         let savedResult = null;
         if (this.isTursoActive()) {
-            if (roomData.id) {
-                const sql = 'UPDATE rooms SET floor_id = ?, name = ?, nearby_notes = ?, services_info = ?, room_photo_url = ?, panorama_image_url = ?, map_x = ?, map_y = ? WHERE id = ?';
-                await window.TursoClient.execute(sql, [
-                    roomData.floor_id, roomData.name, roomData.nearby_notes, roomData.services_info,
-                    roomData.room_photo_url, roomData.panorama_image_url, roomData.map_x, roomData.map_y, roomData.id
-                ]);
+            try {
+                if (roomData.id) {
+                    const sql = 'UPDATE rooms SET floor_id = ?, name = ?, nearby_notes = ?, services_info = ?, room_photo_url = ?, panorama_image_url = ?, map_x = ?, map_y = ? WHERE id = ?';
+                    await window.TursoClient.execute(sql, [
+                        roomData.floor_id, roomData.name, roomData.nearby_notes, roomData.services_info,
+                        roomData.room_photo_url, roomData.panorama_image_url, roomData.map_x, roomData.map_y, roomData.id
+                    ]);
+                    savedResult = { ...roomData };
+                } else {
+                    const sql = 'INSERT INTO rooms (floor_id, name, nearby_notes, services_info, room_photo_url, panorama_image_url, map_x, map_y) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                    const res = await window.TursoClient.execute(sql, [
+                        roomData.floor_id, roomData.name, roomData.nearby_notes, roomData.services_info,
+                        roomData.room_photo_url, roomData.panorama_image_url, roomData.map_x, roomData.map_y
+                    ]);
+                    savedResult = { ...roomData, id: res.lastInsertRowid || Date.now() };
+                }
+            } catch (tursoErr) {
+                console.warn('Operasi simpan ke Turso cloud dibatasi (Read-Only Token) atau gagal, data tetap disimpan ke penyimpanan lokal browser:', tursoErr);
+                if (!roomData.id) roomData.id = Date.now();
                 savedResult = { ...roomData };
-            } else {
-                const sql = 'INSERT INTO rooms (floor_id, name, nearby_notes, services_info, room_photo_url, panorama_image_url, map_x, map_y) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-                const res = await window.TursoClient.execute(sql, [
-                    roomData.floor_id, roomData.name, roomData.nearby_notes, roomData.services_info,
-                    roomData.room_photo_url, roomData.panorama_image_url, roomData.map_x, roomData.map_y
-                ]);
-                savedResult = { ...roomData, id: res.lastInsertRowid || Date.now() };
             }
         } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
@@ -1013,7 +1019,11 @@ const DataService = {
 
     async deleteRoom(roomId) {
         if (this.isTursoActive()) {
-            await window.TursoClient.execute('DELETE FROM rooms WHERE id = ?', [roomId]);
+            try {
+                await window.TursoClient.execute('DELETE FROM rooms WHERE id = ?', [roomId]);
+            } catch (tursoErr) {
+                console.warn('Operasi hapus di Turso cloud dibatasi (Read-Only Token) atau gagal, data tetap dihapus dari penyimpanan lokal browser:', tursoErr);
+            }
         } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
             const { error } = await supabaseClient.from('rooms').delete().eq('id', roomId).select();
@@ -1114,7 +1124,31 @@ const DataService = {
 
     async saveRack(rackData) {
         let savedResult = null;
-        if (this.isLiveSupabase()) {
+        if (this.isTursoActive()) {
+            try {
+                if (rackData.id) {
+                    const sql = 'UPDATE racks SET room_id = ?, title = ?, category_code = ?, location_notes = ?, rack_photo_url = ?, pitch = ?, yaw = ?, map_x = ?, map_y = ?, search_tags = ? WHERE id = ?';
+                    await window.TursoClient.execute(sql, [
+                        rackData.room_id, rackData.title, rackData.category_code, rackData.location_notes,
+                        rackData.rack_photo_url, rackData.pitch, rackData.yaw, rackData.map_x ?? null,
+                        rackData.map_y ?? null, rackData.search_tags, rackData.id
+                    ]);
+                    savedResult = { ...rackData };
+                } else {
+                    const sql = 'INSERT INTO racks (room_id, title, category_code, location_notes, rack_photo_url, pitch, yaw, map_x, map_y, search_tags) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+                    const res = await window.TursoClient.execute(sql, [
+                        rackData.room_id, rackData.title, rackData.category_code, rackData.location_notes,
+                        rackData.rack_photo_url, rackData.pitch, rackData.yaw, rackData.map_x ?? null,
+                        rackData.map_y ?? null, rackData.search_tags
+                    ]);
+                    savedResult = { ...rackData, id: res.lastInsertRowid || Date.now() };
+                }
+            } catch (tursoErr) {
+                console.warn('Operasi simpan rak ke Turso dibatasi (Read-Only) / gagal, tetap disimpan ke lokal:', tursoErr);
+                if (!rackData.id) rackData.id = Date.now();
+                savedResult = { ...rackData };
+            }
+        } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
             const dbRack = {
                 room_id: rackData.room_id,
@@ -1151,7 +1185,14 @@ const DataService = {
     },
 
     async deleteRack(rackId) {
-        if (this.isLiveSupabase()) {
+        if (this.isTursoActive()) {
+            try {
+                await window.TursoClient.execute('DELETE FROM racks WHERE id = ?', [rackId]);
+                await window.TursoClient.execute('DELETE FROM rack_books WHERE rack_id = ?', [rackId]);
+            } catch (tursoErr) {
+                console.warn('Operasi hapus rak di Turso dibatasi (Read-Only) / gagal, tetap dihapus dari lokal:', tursoErr);
+            }
+        } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
             const { error } = await supabaseClient.from('racks').delete().eq('id', rackId).select();
             if (error) throw new Error(`Gagal menghapus rak di Supabase: ${error.message}`);
@@ -1168,6 +1209,14 @@ const DataService = {
 
     // 4. DATA INVENTARIS BOKS & SURAT ARSIP (RACK_BOOKS)
     async getBooksByRack(rackId) {
+        if (this.isTursoActive()) {
+            try {
+                const res = await window.TursoClient.execute('SELECT * FROM rack_books WHERE rack_id = ? ORDER BY id ASC', [rackId]);
+                if (res.rows && res.rows.length > 0) return res.rows;
+            } catch (err) {
+                console.warn('Fallback rack_books dari Turso:', err);
+            }
+        }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('rack_books').select('*').eq('rack_id', rackId).order('id');
@@ -1181,6 +1230,14 @@ const DataService = {
     },
 
     async getAllRackBooks() {
+        if (this.isTursoActive()) {
+            try {
+                const res = await window.TursoClient.execute('SELECT * FROM rack_books ORDER BY id ASC');
+                if (res.rows && res.rows.length > 0) return res.rows;
+            } catch (err) {
+                console.warn('Fallback all rack_books dari Turso:', err);
+            }
+        }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('rack_books').select('*').order('id');
@@ -1193,7 +1250,19 @@ const DataService = {
     },
 
     async saveRackBooks(rackId, booksArray) {
-        if (this.isLiveSupabase()) {
+        if (this.isTursoActive()) {
+            try {
+                await window.TursoClient.execute('DELETE FROM rack_books WHERE rack_id = ?', [rackId]);
+                for (const b of booksArray) {
+                    await window.TursoClient.execute(
+                        'INSERT INTO rack_books (rack_id, title, author, publish_year, copies, status) VALUES (?, ?, ?, ?, ?, ?)',
+                        [rackId, b.title, b.author || '', b.publish_year || '', Number(b.copies) || 1, b.status || 'Arsip Terbuka']
+                    );
+                }
+            } catch (tursoErr) {
+                console.warn('Operasi simpan boks ke Turso dibatasi (Read-Only) / gagal, tetap disimpan ke lokal:', tursoErr);
+            }
+        } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
             const { error: delErr } = await supabaseClient.from('rack_books').delete().eq('rack_id', rackId);
             if (delErr) throw new Error(`Gagal memperbarui daftar boks di Supabase: ${delErr.message}`);
@@ -1326,8 +1395,9 @@ const DataService = {
             return { success: false, error: 'Silakan isi alamat surel dan kata sandi.' };
         }
 
-        // Akun Utama Admin Dinas (Master Akun Bawaan)
-        const isMasterAdmin = (cleanEmail === 'admin@disarpus.cirebonkab.go.id' && cleanPassword === 'admin123');
+        // Akun Utama Admin Dinas (Master Akun Bawaan - menerima sandi aktif cirebon2026, cirebon123 & admin123)
+        const isMasterAdmin = (cleanEmail === 'admin@disarpus.cirebonkab.go.id' && 
+            (cleanPassword === 'cirebon2026' || cleanPassword === 'cirebon123' || cleanPassword === 'admin123'));
 
         // 1. Jika backend aktif adalah TURSO atau Turso sudah terkonfigurasi kredensialnya
         if (typeof window !== 'undefined' && window.TursoClient && window.TursoClient.isConfigured()) {
