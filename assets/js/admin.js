@@ -712,9 +712,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             btnClearKelolaSearch.style.display = 'none';
         }
 
-        showAdminToast(`⏳ Menyegarkan data ${label} dari database Supabase...`, 'info');
+        showAdminToast(`⏳ Menyegarkan data ${label} dari database Turso...`, 'info');
         try {
-            // 2. Tarik data live langsung dari Supabase & sinkronkan cache lokal
+            // 2. Tarik data live langsung dari Turso & sinkronkan cache lokal
             const result = await DataService.refreshAllData();
 
             // 3. Render ulang tabel dan kartu statistik
@@ -737,7 +737,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             const count = result.rooms ? result.rooms.length : 0;
-            const source = result.isLive ? 'Supabase Cloud' : 'Penyimpanan Lokal';
+            const source = result.isLive ? (result.provider === 'turso' ? 'Turso Cloud Database' : 'Cloud Database') : 'Penyimpanan Lokal';
             showAdminToast(`✅ Data ${label} berhasil diperbarui dari ${source}! (${count} Ruangan)`, 'success');
         } catch (err) {
             console.error('Gagal menyegarkan data:', err);
