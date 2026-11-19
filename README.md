@@ -66,7 +66,8 @@ projek_pkl_amel/
 │   │   └── admin.css           # Styling dashboard petugas & kanvas visual hotspot mapper
 │   ├── js/
 │   │   ├── qrcode-gen.js       # Generator QR Code offline standar ISO/IEC 18004 (SVG & PNG)
-│   │   ├── supabase-client.js  # Klien Supabase + SafeStorage & Data Seed Bawaan (SRS-NFR-04)
+│   │   ├── turso-client.js     # Klien Resmi Turso Database libSQL / SQLite Edge Cloud
+│   │   ├── data-service.js     # Pengelola DataService, Turso Sync & SafeStorage Bawaan (SRS-NFR-04)
 │   │   ├── app.js              # Logika denah 2 lantai, live search, modal & Dual 360 Engine
 │   │   ├── admin.js            # Logika auth petugas, kanvas klik denah & visual hotspot mapper
 │   │   └── panorama-data.js    # Citra panorama 360 derajat resolusi tinggi

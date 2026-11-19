@@ -1,11 +1,11 @@
 /**
- * SUPABASE CLIENT & DATA ADAPTER
+ * DATA SERVICE & STATE ADAPTER
  * Sistem Informasi Denah Interaktif & Tur Panorama Fasilitas
  * Dinas Kearsipan dan Perpustakaan Kabupaten Cirebon
  * 
  * Sesuai Dokumen SRS & Makalah:
- * - Arsitektur Serverless Client-Side REST via @supabase/supabase-js
- * - Dilengkapi Fallback Seed Data Otomatis (SRS-NFR-04) bila belum terkonfigurasi
+ * - Arsitektur Edge Cloud Database via Turso (libSQL / SQLite) & Hrana Protocol
+ * - Dilengkapi Fallback Seed Data Otomatis (SRS-NFR-04) & SafeStorage Persistence
  */
 
 // Safe Storage helper (mencegah SecurityError / DOMException jika dibuka langsung via file:///)
