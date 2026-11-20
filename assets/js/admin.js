@@ -941,6 +941,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     btnBackToCanvas?.addEventListener('click', () => setMapperMobileView('canvas'));
 
+    // Toggle Mode Lebar Penuh (Widescreen) pada Kanvas Hotspot Mapper
+    const btnToggleCanvasSize = document.getElementById('btn-toggle-canvas-size');
+    const labelToggleCanvasSize = document.getElementById('label-toggle-canvas-size');
+    const iconToggleCanvasSize = document.getElementById('icon-toggle-canvas-size');
+
+    btnToggleCanvasSize?.addEventListener('click', () => {
+        if (!mapperGridContainer) return;
+        const isWidescreen = mapperGridContainer.classList.toggle('mapper-widescreen-active');
+        if (labelToggleCanvasSize) {
+            labelToggleCanvasSize.textContent = isWidescreen ? 'Mode Normal' : 'Mode Lebar';
+        }
+        if (iconToggleCanvasSize) {
+            iconToggleCanvasSize.textContent = isWidescreen ? '↩️' : '↔️';
+        }
+        btnToggleCanvasSize.style.background = isWidescreen ? '#0284c7' : '#f1f5f9';
+        btnToggleCanvasSize.style.color = isWidescreen ? '#ffffff' : '#1e293b';
+        setTimeout(() => {
+            if (adminPanoViewer) {
+                try { adminPanoViewer.resize(); } catch (e) {}
+            }
+        }, 150);
+    });
+
     btnDismissMapperHelp?.addEventListener('click', () => {
         if (mapperInstructionBox) mapperInstructionBox.classList.add('dismissed');
     });
@@ -1294,6 +1317,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             emptyTr.querySelector('.btn-empty-goto-canvas')?.addEventListener('click', () => {
                 if (window.innerWidth <= 768 && typeof setMapperMobileView === 'function') {
                     setMapperMobileView('canvas');
+                } else {
+                    document.querySelector('.mapper-canvas-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
             tbody.appendChild(emptyTr);
