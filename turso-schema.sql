@@ -169,3 +169,13 @@ INSERT INTO racks (id, room_id, title, category_code, location_notes, rack_photo
 (7, 15, 'Roll opack 02 - Sertifikat Antar Desa Se-Kabupaten Cirebon', 'Roll Opack 2&3', 'Dari Pintu Masuk Ruang Depo D, belok ke arah kiri paling pojok letak roll opack arsip nya berasa paling pojok yang kedua dari roll opack', 'assets/images/depo-arsip-front.jpg', 4.38, -93.49, NULL, NULL, 'Sertifikat antar desa', '2026-11-16T07:42:55.763625+00:00'),
 (8, 15, 'Roll Opack 03 - Arsip Peraturan - Peraturan Bupati', 'roll opack 3&4', 'Dari Pintu Masuk Ruang Depo D, belok ke arah kiri paling pojok letak roll opack arsip nya paling pojok yang  ke tiga', 'https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794815321798_4r3k7c.jpg', -4.52, -85.33, NULL, NULL, 'Peraturan bupati', '2026-11-16T07:52:10.320472+00:00');
 
+-- 2.4 Data Inventaris Boks & Surat Arsip (Rack Books - Total 6 Boks)
+INSERT INTO rack_books (id, rack_id, title, author, publish_year, copies, status) VALUES
+(1, 6, 'Boks BPKB-01: Arsip BPKB Plat Merah Kecamatan', 'Bagian Aset & Perlengkapan Daerah', '2015 - 2020', 4, 'Arsip Terbuka'),
+(2, 6, 'Boks BPKB-02: BPKB Kendaraan Operasional Dinas', 'Setda & Dinas Teknis Kab. Cirebon', '2010 - 2022', 6, 'Akses Terbatas'),
+(3, 7, 'Boks SD-01: Dokumen Sertifikat Antar Desa Wilayah Timur', 'Dinas Pemberdayaan Masyarakat & Desa', '2005 - 2018', 3, 'Arsip Terbuka'),
+(4, 7, 'Boks SD-02: Sertifikat Aset Tanah Kas Desa', 'DPMD & Badan Keuangan Aset Daerah', '2012 - 2021', 5, 'Akses Terbatas'),
+(5, 8, 'Boks PB-01: Peraturan Bupati Cirebon Bidang Tata Kelola', 'Bagian Hukum Setda Kab. Cirebon', '2018 - 2022', 4, 'Arsip Terbuka'),
+(6, 8, 'Boks PB-02: Peraturan Bupati Cirebon Bidang Pengelolaan Arsip', 'Disarpus Kabupaten Cirebon', '2020 - 2024', 2, 'Arsip Terbuka');
+
+
