@@ -808,6 +808,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (existingEmptyRack) {
             existingEmptyRack.remove();
         }
+
+        // 3. Filter Tabel Inventaris Boks & Surat Arsip (#table-books-tbody)
+        let visibleBooks = 0;
+        const bookRows = document.querySelectorAll('#table-books-tbody tr:not(.empty-search-row)');
+        bookRows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            const matches = text.includes(query);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleBooks++;
+        });
+
+        const booksTbody = document.getElementById('table-books-tbody');
+        const existingEmptyBook = booksTbody?.querySelector('.empty-search-row');
+        if (query.length > 0 && visibleBooks === 0 && bookRows.length > 0) {
+            if (!existingEmptyBook && booksTbody) {
+                const tr = document.createElement('tr');
+                tr.className = 'empty-search-row';
+                tr.innerHTML = `<td colspan="8" style="text-align:center; color:#64748b; padding:1.25rem; font-style:italic; background:#f8fafc;">Tidak ada berkas boks arsip yang cocok dengan pencarian "<strong>${filterKelolaSearch.value}</strong>".</td>`;
+                booksTbody.appendChild(tr);
+            }
+        } else if (existingEmptyBook && bookRows.length > 0) {
+            existingEmptyBook.remove();
+        }
     }
 
     filterKelolaSearch?.addEventListener('input', applyKelolaSearchFilter);
@@ -1696,6 +1719,58 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        // 3b. Render Tabel Daftar Inventaris Boks & Surat Arsip (#table-books-tbody)
+        const booksTbody = document.getElementById('table-books-tbody');
+        const badgeBooksCount = document.getElementById('badge-total-books-count');
+        if (booksTbody) {
+            booksTbody.innerHTML = '';
+            const allBooks = await DataService.getAllRackBooks();
+            if (badgeBooksCount) {
+                badgeBooksCount.textContent = `${allBooks.length} Berkas Boks`;
+            }
+
+            if (allBooks.length === 0) {
+                const tr = document.createElement('tr');
+                tr.className = 'empty-search-row';
+                tr.innerHTML = `
+                    <td colspan="8" style="text-align:center;padding:1.75rem;color:#64748b;font-size:0.84rem;">
+                        📁 Belum ada berkas boks arsip yang terdaftar di basis data. Silakan tambahkan boks arsip pada lemari/rak di menu <strong>Visual Hotspot Mapper</strong>.
+                    </td>
+                `;
+                booksTbody.appendChild(tr);
+            } else {
+                allBooks.forEach((b, idx) => {
+                    const matchedRack = racks.find(rk => Number(rk.id) === Number(b.rack_id));
+                    const rackTitle = matchedRack ? matchedRack.title : `Rak #${b.rack_id || '-'}`;
+                    const roomName = matchedRack?.rooms?.name || (matchedRack?.room_id ? (rooms.find(rm => Number(rm.id) === Number(matchedRack.room_id))?.name || '') : '');
+                    const rackLocation = roomName ? `${rackTitle} (${roomName})` : rackTitle;
+
+                    const statusClass = (b.status === 'Arsip Terbuka' ? 'status-open' : (b.status === 'Akses Terbatas' ? 'status-restricted' : 'status-read-here'));
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:700; color:var(--admin-muted); text-align:center;">${idx + 1}</td>
+                        <td style="font-weight:700; color:#0f172a;">${b.title}</td>
+                        <td style="font-size:0.8rem; color:#0369a1;">🗄️ ${rackLocation}</td>
+                        <td style="font-size:0.8rem; color:#475569;">${b.author || '-'}</td>
+                        <td style="text-align:center; font-size:0.8rem;">${b.publish_year || '-'}</td>
+                        <td style="text-align:center; font-weight:700;">${b.copies || 1} Boks</td>
+                        <td>
+                            <span class="status-badge ${statusClass}" style="font-size:0.72rem; padding:3px 8px; border-radius:9999px;">
+                                ${b.status || 'Arsip Terbuka'}
+                            </span>
+                        </td>
+                        <td style="text-align:center;">
+                            <div class="action-buttons-cell">
+                                <button type="button" class="btn-table-edit" data-id="${b.id}" data-rack-id="${b.rack_id}" data-type="book">Ubah</button>
+                                <button type="button" class="btn-table-delete" data-id="${b.id}" data-title="${b.title}" data-type="book">Hapus</button>
+                            </div>
+                        </td>
+                    `;
+                    booksTbody.appendChild(tr);
+                });
+            }
+        }
+
         // 4. Render Tabel Akun Petugas & Admin Dinas (#table-users-tbody)
         const usersTbody = document.getElementById('table-users-tbody');
         if (usersTbody) {
@@ -1836,6 +1911,40 @@ document.addEventListener('DOMContentLoaded', async () => {
                     } catch (err) {
                         console.error('Gagal menghapus rak:', err);
                         showAdminToast(`❌ ${err.message || 'Gagal menghapus rak di database.'}`, 'error');
+                    }
+                }
+            });
+        });
+
+        // Edit Book (Pindah ke Visual Hotspot Mapper dan buka rak boks tersebut)
+        document.querySelectorAll('.btn-table-edit[data-type="book"]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const rackId = btn.getAttribute('data-rack-id');
+                const rack = await DataService.getRackById(rackId);
+                if (rack) {
+                    document.querySelector('.admin-nav-item[data-tab="tab-hotspot-mapper"]').click();
+                    mapperSelectRoom.value = rack.room_id;
+                    await initHotspotMapperRoom();
+                    await loadRackIntoMapperForm(rack.id);
+                    document.getElementById('form-rack')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    showAdminToast(`📦 Menampilkan berkas boks pada "${rack.title}"`, 'info');
+                }
+            });
+        });
+
+        // Delete Book (Hapus berkas boks arsip)
+        document.querySelectorAll('.btn-table-delete[data-type="book"]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const bookId = btn.getAttribute('data-id');
+                const title = btn.getAttribute('data-title') || 'berkas ini';
+                if (confirm(`Apakah Anda yakin ingin menghapus berkas boks arsip "${title}"?`)) {
+                    try {
+                        await DataService.deleteBook(bookId);
+                        showAdminToast(`Berkas "${title}" berhasil dihapus.`, 'info');
+                        refreshRecordsTable();
+                    } catch (err) {
+                        console.error('Gagal menghapus berkas:', err);
+                        showAdminToast(`❌ ${err.message || 'Gagal menghapus berkas di database.'}`, 'error');
                     }
                 }
             });
@@ -2160,8 +2269,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (prevRoomId && rooms.some(r => String(r.id) === String(prevRoomId))) {
                 mapperSelectRoom.value = prevRoomId;
             } else {
-                const depoRoom = rooms.find(r => r.name.toLowerCase().includes('depo'));
-                if (depoRoom) mapperSelectRoom.value = depoRoom.id;
+                const allRacks = await DataService.getAllRacks();
+                const roomWithRacks = rooms.find(r => allRacks.some(rk => Number(rk.room_id) === Number(r.id)));
+                if (roomWithRacks) {
+                    mapperSelectRoom.value = roomWithRacks.id;
+                } else {
+                    const depoRoom = rooms.find(r => r.name.toLowerCase().includes('depo'));
+                    if (depoRoom) mapperSelectRoom.value = depoRoom.id;
+                }
             }
 
             initHotspotMapperRoom();

@@ -451,65 +451,10 @@ const DEFAULT_RACKS = [
     }
 ];
 
-const DEFAULT_BOOKS = [
-    {
-        "id": 1,
-        "rack_id": 6,
-        "title": "Boks BPKB-01: Arsip BPKB Plat Merah Kecamatan",
-        "author": "Bagian Aset & Perlengkapan Daerah",
-        "publish_year": "2015 - 2020",
-        "copies": 4,
-        "status": "Arsip Terbuka"
-    },
-    {
-        "id": 2,
-        "rack_id": 6,
-        "title": "Boks BPKB-02: BPKB Kendaraan Operasional Dinas",
-        "author": "Setda & Dinas Teknis Kab. Cirebon",
-        "publish_year": "2010 - 2022",
-        "copies": 6,
-        "status": "Akses Terbatas"
-    },
-    {
-        "id": 3,
-        "rack_id": 7,
-        "title": "Boks SD-01: Dokumen Sertifikat Antar Desa Wilayah Timur",
-        "author": "Dinas Pemberdayaan Masyarakat & Desa",
-        "publish_year": "2005 - 2018",
-        "copies": 3,
-        "status": "Arsip Terbuka"
-    },
-    {
-        "id": 4,
-        "rack_id": 7,
-        "title": "Boks SD-02: Sertifikat Aset Tanah Kas Desa",
-        "author": "DPMD & Badan Keuangan Aset Daerah",
-        "publish_year": "2012 - 2021",
-        "copies": 5,
-        "status": "Akses Terbatas"
-    },
-    {
-        "id": 5,
-        "rack_id": 8,
-        "title": "Boks PB-01: Peraturan Bupati Cirebon Bidang Tata Kelola",
-        "author": "Bagian Hukum Setda Kab. Cirebon",
-        "publish_year": "2018 - 2022",
-        "copies": 4,
-        "status": "Arsip Terbuka"
-    },
-    {
-        "id": 6,
-        "rack_id": 8,
-        "title": "Boks PB-02: Peraturan Bupati Cirebon Bidang Pengelolaan Arsip",
-        "author": "Disarpus Kabupaten Cirebon",
-        "publish_year": "2020 - 2024",
-        "copies": 2,
-        "status": "Arsip Terbuka"
-    }
-];
+const DEFAULT_BOOKS = [];
 
 // Versi cache seed data khusus Gedung Kearsipan (Visual Archive Locator)
-const DISARPUS_DATA_VERSION = 'v2026_kearsipan_24ruangan_v4';
+const DISARPUS_DATA_VERSION = 'v2026_kearsipan_24ruangan_v5';
 
 function checkDataVersion() {
     const curVer = safeStorage.getItem('disarpus_data_ver');
@@ -1212,20 +1157,20 @@ const DataService = {
         if (this.isTursoActive()) {
             try {
                 const res = await window.TursoClient.execute('SELECT * FROM rack_books WHERE rack_id = ? ORDER BY id ASC', [rackId]);
-                if (res.rows && res.rows.length > 0) return res.rows;
+                if (res && Array.isArray(res.rows)) return res.rows;
             } catch (err) {
-                console.warn('Fallback rack_books dari Turso:', err);
+                console.warn('Gagal memuat rack_books dari Turso:', err);
             }
         }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('rack_books').select('*').eq('rack_id', rackId).order('id');
-                if (!error && data) return data;
+                if (!error && Array.isArray(data)) return data;
             } catch (err) {
                 console.warn('Fallback rack_books:', err);
             }
         }
-        const books = getLocalData('books', DEFAULT_BOOKS);
+        const books = getLocalData('books', []);
         return books.filter(b => Number(b.rack_id) === Number(rackId));
     },
 
@@ -1233,20 +1178,34 @@ const DataService = {
         if (this.isTursoActive()) {
             try {
                 const res = await window.TursoClient.execute('SELECT * FROM rack_books ORDER BY id ASC');
-                if (res.rows && res.rows.length > 0) return res.rows;
+                if (res && Array.isArray(res.rows)) return res.rows;
             } catch (err) {
-                console.warn('Fallback all rack_books dari Turso:', err);
+                console.warn('Gagal memuat all rack_books dari Turso:', err);
             }
         }
         if (this.isLiveSupabase()) {
             try {
                 const { data, error } = await supabaseClient.from('rack_books').select('*').order('id');
-                if (!error && data) return data;
+                if (!error && Array.isArray(data)) return data;
             } catch (err) {
                 console.warn('Fallback all rack_books:', err);
             }
         }
-        return getLocalData('books', DEFAULT_BOOKS);
+        return getLocalData('books', []);
+    },
+
+    async deleteBook(bookId) {
+        if (this.isTursoActive()) {
+            try {
+                await window.TursoClient.execute('DELETE FROM rack_books WHERE id = ?', [bookId]);
+            } catch (err) {
+                console.warn('Gagal menghapus boks di Turso:', err);
+            }
+        }
+        let allBooks = getLocalData('books', []);
+        allBooks = allBooks.filter(b => Number(b.id) !== Number(bookId));
+        setLocalData('books', allBooks);
+        return true;
     },
 
     async saveRackBooks(rackId, booksArray) {
