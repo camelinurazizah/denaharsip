@@ -11,10 +11,9 @@ const TursoClient = (() => {
     const DEFAULT_TURSO_URL = 'libsql://denaharsip-camelinurazizah.aws-ap-southeast-1.turso.io';
 
     // =========================================================================
-    // TEMPELKAN TOKEN TURSO (READ-ONLY) ANDA DI BAWAH INI (Di dalam tanda petik '')
-    // Contoh: const DEFAULT_TURSO_TOKEN = 'eyJhbGciOi...';
+    // TEMPELKAN TOKEN TURSO (FULL ACCESS READ & WRITE) DI BAWAH INI
     // =========================================================================
-    const DEFAULT_TURSO_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicm8iLCJpYXQiOjE3OTUwMTAzNzIsImlkIjoiMDFhMWU4OTEtNDgwMS03OTc5LThlZjItODU1YjZjMGZkOTkxIiwia2lkIjoiaFBuOFloLV9QZHU4d3B5LUFZdUdNZ3RDVnVJT2gzWlRTa0JQMTVDeVpxWSIsInJpZCI6IjdhODk1NTQ1LTc3NTctNDFjMy04ZmNmLTdlZDJlM2JiNzRjYiJ9.LEnLP5IefRjJFUJAv5TynU8UIpzE1YthZeKYaCT8qI3TrCKIy6PHfzuVz3CoP2JM1AXBOGp_HtpaPue66ur2Dw';
+    const DEFAULT_TURSO_TOKEN = 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTUzMjA1OTEsImlkIjoiMDFhMWU4OTEtNDgwMS03OTc5LThlZjItODU1YjZjMGZkOTkxIiwia2lkIjoiaFBuOFloLV9QZHU4d3B5LUFZdUdNZ3RDVnVJT2gzWlRTa0JQMTVDeVpxWSIsInJpZCI6IjdhODk1NTQ1LTc3NTctNDFjMy04ZmNmLTdlZDJlM2JiNzRjYiJ9.HO8j2VEXSXBDvk8eijqfMVl4JmuPBvtNhMu7MF3I2qpajs17nhiOhd1mllriGnlnm88spzrwlnkTDMgnDlpKCQ';
 
     function getStoredConfig() {
         let url = '';
@@ -23,6 +22,11 @@ const TursoClient = (() => {
             if (typeof window !== 'undefined' && window.localStorage) {
                 url = window.localStorage.getItem('disarpus_turso_url') || '';
                 token = window.localStorage.getItem('disarpus_turso_token') || '';
+                // Jika token di localStorage ternyata sisa token lama yang read-only ("ro"), bersihkan otomatis
+                if (token && token.includes('eyJhIjoicm8i')) {
+                    window.localStorage.removeItem('disarpus_turso_token');
+                    token = '';
+                }
             }
         } catch (e) { }
         return {

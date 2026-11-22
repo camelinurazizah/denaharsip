@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
   }
 
   const rawUrl = process.env.TURSO_DATABASE_URL || 'https://denaharsip-camelinurazizah.aws-ap-southeast-1.turso.io';
-  const token = process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicm8iLCJpYXQiOjE3OTUwMTAzNzIsImlkIjoiMDFhMWU4OTEtNDgwMS03OTc5LThlZjItODU1YjZjMGZkOTkxIiwia2lkIjoiaFBuOFloLV9QZHU4d3B5LUFZdUdNZ3RDVnVJT2gzWlRTa0JQMTVDeVpxWSIsInJpZCI6IjdhODk1NTQ1LTc3NTctNDFjMy04ZmNmLTdlZDJlM2JiNzRjYiJ9.LEnLP5IefRjJFUJAv5TynU8UIpzE1YthZeKYaCT8qI3TrCKIy6PHfzuVz3CoP2JM1AXBOGp_HtpaPue66ur2Dw';
+  const token = process.env.TURSO_AUTH_TOKEN || 'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3OTUzMjA1OTEsImlkIjoiMDFhMWU4OTEtNDgwMS03OTc5LThlZjItODU1YjZjMGZkOTkxIiwia2lkIjoiaFBuOFloLV9QZHU4d3B5LUFZdUdNZ3RDVnVJT2gzWlRTa0JQMTVDeVpxWSIsInJpZCI6IjdhODk1NTQ1LTc3NTctNDFjMy04ZmNmLTdlZDJlM2JiNzRjYiJ9.HO8j2VEXSXBDvk8eijqfMVl4JmuPBvtNhMu7MF3I2qpajs17nhiOhd1mllriGnlnm88spzrwlnkTDMgnDlpKCQ';
 
   let cleanUrl = String(rawUrl).trim();
   if (cleanUrl.startsWith('libsql://')) {
