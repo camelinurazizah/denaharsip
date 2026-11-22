@@ -90,11 +90,6 @@ const TursoClient = (() => {
         const url = normalizeUrl(conf.url);
         const token = conf.token;
 
-        if (!url || !token) {
-            throw new Error('Kredensial Turso Database belum disetel (URL atau Auth Token kosong).');
-        }
-
-        const endpoint = `${url}/v2/pipeline`;
         const payload = {
             requests: [
                 {
@@ -108,21 +103,50 @@ const TursoClient = (() => {
             ]
         };
 
-        const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+        let data = null;
+        let usedServerless = false;
 
-        if (!res.ok) {
-            const errText = await res.text();
-            throw new Error(`Turso HTTP ${res.status}: ${errText}`);
+        // 1. Jalur Utama: Serverless API Vercel (/api/turso) jika online di web/Vercel
+        if (!customConfig && typeof window !== 'undefined' && window.location && (window.location.protocol === 'http:' || window.location.protocol === 'https:')) {
+            try {
+                const apiRes = await fetch('/api/turso', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (apiRes.ok) {
+                    data = await apiRes.json();
+                    usedServerless = true;
+                }
+            } catch (proxyErr) {
+                // Abaikan jika endpoint serverless tidak aktif di live server lokal
+            }
         }
 
-        const data = await res.json();
+        // 2. Jalur Cadangan: Pemanggilan langsung Turso HTTP pipeline (untuk localhost & offline support)
+        if (!usedServerless) {
+            if (!url || !token) {
+                throw new Error('Kredensial Turso Database belum disetel (URL atau Auth Token kosong).');
+            }
+
+            const endpoint = `${url}/v2/pipeline`;
+            const res = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`Turso HTTP ${res.status}: ${errText}`);
+            }
+
+            data = await res.json();
+        }
+
         const first = data.results && data.results[0];
         if (first && first.type === 'error') {
             throw new Error(`Turso SQL Error: ${first.error?.message || JSON.stringify(first.error)}`);

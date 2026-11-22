@@ -1,0 +1,15 @@
+# Environment Variables (Kredensial Rahasia)
+.env
+.env.local
+.env.*.local
+
+# Dependency directories
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db

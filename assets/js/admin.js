@@ -2292,6 +2292,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 5. Muat tabel data kelola
         await refreshRecordsTable();
+
+        // 6. Indikator Live Status Cloud Database Turso
+        const statusPill = document.getElementById('admin-turso-status-pill');
+        if (statusPill) {
+            const isLive = DataService.isTursoActive();
+            if (isLive) {
+                statusPill.innerHTML = '<span class="status-live-dot"></span><span class="status-live-text">Cloud DB: Terhubung</span>';
+                statusPill.style.color = '#34d399';
+            } else {
+                statusPill.innerHTML = '<span class="status-live-dot" style="background:#f59e0b;box-shadow:none;"></span><span class="status-live-text">Mode: Lokal / Cache</span>';
+                statusPill.style.color = '#fbbf24';
+            }
+        }
     }
 
     // =========================================================================
