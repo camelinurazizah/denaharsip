@@ -1513,7 +1513,7 @@ body {
 .login-side-visual {
   position: relative;
   min-width: 0;
-  background: url('../images/kantor-disarpus-bg.jpg') 50% 88% / auto 128% no-repeat;
+  background: url('../images/kantor-disarpus-bg.jpg') center center / cover no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -2563,8 +2563,8 @@ body {
 
   .login-side-visual {
     min-height: 165px !important;
-    background-size: 135% auto !important;
-    background-position: 50% 60% !important;
+    background-size: cover !important;
+    background-position: center center !important;
   }
 
   .login-side-form {
