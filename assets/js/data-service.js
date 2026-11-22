@@ -925,6 +925,9 @@ const DataService = {
                 }
             } catch (tursoErr) {
                 console.warn('Operasi simpan ke Turso cloud dibatasi (Read-Only Token) atau gagal, data tetap disimpan ke penyimpanan lokal browser:', tursoErr);
+                if (String(tursoErr.message).includes('SQL write operations are forbidden') || String(tursoErr.message).includes('write permission')) {
+                    alert('⚠️ PERINGATAN DATABASE TURSO:\n\nPerubahan gagal disimpan ke Cloud Database Turso karena Token Anda berstatus "Read-Only" (Hanya Baca).\n\nUntuk bisa menyimpan/mengedit data, silakan buat token baru dengan izin "Full Access" (Read & Write) di dashboard Turso.');
+                }
                 if (!roomData.id) roomData.id = Date.now();
                 savedResult = { ...roomData };
             }
@@ -1090,6 +1093,9 @@ const DataService = {
                 }
             } catch (tursoErr) {
                 console.warn('Operasi simpan rak ke Turso dibatasi (Read-Only) / gagal, tetap disimpan ke lokal:', tursoErr);
+                if (String(tursoErr.message).includes('SQL write operations are forbidden') || String(tursoErr.message).includes('write permission')) {
+                    alert('⚠️ PERINGATAN DATABASE TURSO:\n\nPerubahan rak gagal disimpan ke Cloud Database Turso karena Token Anda berstatus "Read-Only" (Hanya Baca).\n\nUntuk bisa menyimpan/mengedit data, silakan buat token baru dengan izin "Full Access" (Read & Write) di dashboard Turso.');
+                }
                 if (!rackData.id) rackData.id = Date.now();
                 savedResult = { ...rackData };
             }
@@ -1220,6 +1226,9 @@ const DataService = {
                 }
             } catch (tursoErr) {
                 console.warn('Operasi simpan boks ke Turso dibatasi (Read-Only) / gagal, tetap disimpan ke lokal:', tursoErr);
+                if (String(tursoErr.message).includes('SQL write operations are forbidden') || String(tursoErr.message).includes('write permission')) {
+                    alert('⚠️ PERINGATAN DATABASE TURSO:\n\nPerubahan boks arsip gagal disimpan ke Cloud Database Turso karena Token Anda berstatus "Read-Only" (Hanya Baca).\n\nUntuk bisa menyimpan/mengedit data, silakan buat token baru dengan izin "Full Access" (Read & Write) di dashboard Turso.');
+                }
             }
         } else if (this.isLiveSupabase()) {
             await this.ensureSupabaseWriteSession();
