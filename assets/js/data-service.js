@@ -158,25 +158,25 @@ const DEFAULT_ROOMS = [
         "id": 6,
         "floor_id": 1,
         "name": "Ruang Pamer",
-        "short_name": "Ruang Pamer",
+        "short_name": "Pameran",
         "nearby_notes": "Dari Pintu masuk kantor dinas arsip belok ke kiri",
         "services_info": "ruang display/galeri:\n- Sarana Penyebarluasan Informasi dan Edukasi\n- Media Pemanfaatan Memori Kolektif Daerah\n- Sarana Apresiasi dan Rekreasi Publik\n- Mendukung Budaya Literasi",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794489252100_h63oto.jpg",
         "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794489280866_dsk98j.jpg",
-        "map_x": 39.5,
-        "map_y": 73.6
+        "map_x": 38.5,
+        "map_y": 71.5
     },
     {
         "id": 7,
         "floor_id": 1,
         "name": "Ruang Tunggu Tamu",
-        "short_name": "Ruang Tamu",
+        "short_name": "R. Tamu",
         "nearby_notes": "Dari pintu masuk kantor dinas kearsipan  belok ke arah kanan",
         "services_info": "- Menjaga ketertiban alur keluar-masuk tamu serta menciptakan kesan pertama yang profesional dan ramah dari instansi pemerintah.\n- Tempat transit sementara bagi tamu yang memiliki janji temu dengan pejabat atau pegawai dinas.\n-  Sebagai pusat interaksi literasi tempat masyarakat membaca, mencari referensi, dan memanfaatkan koleksi bahan pustaka secara langsung di lokasi.",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794489757387_a299qc.jpg",
         "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794489674686_nwtod5.jpg",
-        "map_x": 57.5,
-        "map_y": 74.1
+        "map_x": 58.5,
+        "map_y": 76.5
     },
     {
         "id": 8,
@@ -212,31 +212,31 @@ const DEFAULT_ROOMS = [
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794529255499_hrrdrk.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
         "map_x": 53.0,
-        "map_y": 54.5
+        "map_y": 52.0
     },
     {
         "id": 12,
         "floor_id": 1,
         "name": "Ruang P2A",
-        "short_name": "Ruang P2A",
+        "short_name": "P2A",
         "nearby_notes": "Dari area pintu masuk  kantor dinas arsip maju terus melewati resepsionis dan  menemukan pintu , kemudian belok ke arah kiri ruangan paling pojok/terakhir",
         "services_info": "- perumusan bahan perencanaan pada bidang perlindungan, penyelamatan, autentikasi dan perizinan pengguna arsip.\n- perumusan kebijakan teknis di bidang perlindungan, penyelamatan, autentikasi dan perizinan penggunaan arsip.\n- pemusnahan arsip di lingkungan pemerintah daerah yang memiliki  retensi di bawah 10 (sepuluh) tahun.\n- perlindungan dan penyelamatan arsip akibat bencana yang berskala kabupaten.\n- penyelamatan arsip perangkat daerah kabupaten yang digabung dan / atau dibubarkan, dan pemekaran daerah kecamaan dan desa / kelurahan.\n- pencarian arsip statis kabupaten yang dinyatakan hilang.\n- Pelayanan izin penggunaan arsip yang besifat tertutup di kabupaten",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794529440504_8sufo2.jpg",
         "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794529450611_pc8s5s.jpg",
-        "map_x": 28.5,
-        "map_y": 54.5
+        "map_x": 27.5,
+        "map_y": 53.0
     },
     {
         "id": 13,
         "floor_id": 1,
         "name": "Ruang Record Center",
-        "short_name": "Record Center",
+        "short_name": "Record",
         "nearby_notes": "Dari area pintu masuk  kantor dinas arsip maju terus sampai melewati resepsionis dan  menemukan pintu , kemudian belok ke arah kiri ruangan Kedua (tengah)",
         "services_info": "Tempat Penyimpanan arsip in aktif yang di bawah 10 tahun",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794529677095_bqx39z.jpg",
         "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794529743774_1t6fbl.jpg",
-        "map_x": 38.8,
-        "map_y": 56.0
+        "map_x": 39.0,
+        "map_y": 58.5
     },
     {
         "id": 14,
@@ -247,8 +247,8 @@ const DEFAULT_ROOMS = [
         "services_info": "Tempat Beribadah",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794545618901_th271a.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
-        "map_x": 84.0,
-        "map_y": 24.2
+        "map_x": 84.5,
+        "map_y": 20.5
     },
     {
         "id": 15,
@@ -259,8 +259,8 @@ const DEFAULT_ROOMS = [
         "services_info": "Penyimpanan arsip sertifikat tanah, dan BPKB kendaraan dinas plat merah",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794546157581_5wz3sl.jpg",
         "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794813269691_2gsvsb.jpg",
-        "map_x": 74.5,
-        "map_y": 24.2
+        "map_x": 74.0,
+        "map_y": 27.5
     },
     {
         "id": 16,
@@ -271,8 +271,8 @@ const DEFAULT_ROOMS = [
         "services_info": "Penyimpanan arsip IMB (izin mendirikan bangunan) dari nilai perseorangan sampai dengan perusahaan dari tahun 2010 kebawah",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794546981417_dbuocp.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
-        "map_x": 64.5,
-        "map_y": 24.2
+        "map_x": 63.5,
+        "map_y": 20.5
     },
     {
         "id": 17,
@@ -284,19 +284,31 @@ const DEFAULT_ROOMS = [
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794547594976_4zfrhr.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
         "map_x": 37.0,
-        "map_y": 22.5
+        "map_y": 20.0
     },
     {
         "id": 18,
         "floor_id": 1,
         "name": "Kamar Mandi",
-        "short_name": "Kamar Mandi",
+        "short_name": "Toilet",
         "nearby_notes": "Dari  pintu belakang yang ada di resepsionis belok ke arah kiri,  letaknya ada pada pinggir dapur dan depan ruang P2A",
         "services_info": "Sarana Kebersihan Diri",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794547894506_m99xsn.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
-        "map_x": 26.5,
-        "map_y": 24.5
+        "map_x": 26.0,
+        "map_y": 27.5
+    },
+    {
+        "id": 19,
+        "floor_id": 1,
+        "name": "Gudang",
+        "short_name": "Gudang",
+        "nearby_notes": "Dari pintu belakang resepsionis belok kiri letak gudang tapt di depan ruang P2A dan juga WC",
+        "services_info": "tempat penyimpanan barang operasional logistik serta manajemen rantai pasokan",
+        "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794564152442_rufyj3.jpg",
+        "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
+        "map_x": 15.5,
+        "map_y": 21.0
     },
     {
         "id": 19,
@@ -324,17 +336,19 @@ const DEFAULT_ROOMS = [
         "id": 21,
         "floor_id": 2,
         "name": "Ruang PA",
+        "short_name": "PA",
         "nearby_notes": "Dari tangga dalam  lurus sedikit tepat di depan tangga dalam ruangan",
         "services_info": "- perumusan bahan perencanaan pada Bidang\nPengelolaan Arsip\n- pembinaan dan pengendalian penyelenggaraan\nkegiatan pengelolaan arsip dinamis\n- Pembinaan dan pengendalian  penyelenggaraan kegiatan mengelolaan  arsip statis\n- pelayanan informasi publik di daerah bidang pengelolaan arsip\n-  pengolahan data analisis bidang arsip\n- pengevaluasian dan pelaporan pelaksanaan kegiatan Bidang Pengelolaan Arsip",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794583757171_pn3usc.jpg",
         "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794583765271_wf77nc.jpg",
-        "map_x": 36.9,
-        "map_y": 81.5
+        "map_x": 36.5,
+        "map_y": 83.5
     },
     {
         "id": 22,
         "floor_id": 2,
         "name": "WC",
+        "short_name": "WC",
         "nearby_notes": "Dari Pintu  lantai 2 belok ke arah kanan lurus terus sampai mentok tepat dekat ruang sekretariat",
         "services_info": "Kamar mandi Umum (Pegawai)",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794568540167_ns37xb.jpg",
@@ -346,36 +360,37 @@ const DEFAULT_ROOMS = [
         "id": 23,
         "floor_id": 2,
         "name": "Ruang Aula",
+        "short_name": "Aula",
         "nearby_notes": "Dari area pintu lantai 2 di atas  belok ke arah kiri lurus ruangan ke 3 dari sebelah kiri paling pojok",
         "services_info": "Ruang Rapat Eksternal",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794570529162_muggtw.jpg",
         "panorama_image_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/panoramas/1794575822833_8f7wzf.jpg",
         "map_x": 19.6,
-        "map_y": 80.2
+        "map_y": 79.5
     },
     {
         "id": 24,
         "floor_id": 2,
         "name": "Ruang Kerja Sekretaris Dinas",
-        "short_name": "Sekretaris Dinas",
+        "short_name": "Sekretaris",
         "nearby_notes": "Dari pintu lntai 2 belok ke kiri ruangan nya sebelah ruang PA",
         "services_info": "menyelenggarakan pelaksanaan tugas,\npembinaan, dan pemberian dukungan administrasi\nkepada seluruh unit organisasi.",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794582452623_aklopf.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
-        "map_x": 28.1,
-        "map_y": 78.6
+        "map_x": 28.0,
+        "map_y": 77.0
     },
     {
         "id": 25,
         "floor_id": 2,
         "name": "Ruang Rapat Internal Dinas",
-        "short_name": "Rapat Internal",
+        "short_name": "Rapat",
         "nearby_notes": "Dari ujung Tangga lantai 2 belok ke arah kiri ,terletak dekat ruang PA dan RUang Server",
         "services_info": "Ruang Khusus Rapat Atasan  atau Pimpinan Dengan Bawahan",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794582860301_vy7irf.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
-        "map_x": 51.5,
-        "map_y": 90.0
+        "map_x": 52.0,
+        "map_y": 86.5
     },
     {
         "id": 26,
@@ -386,7 +401,7 @@ const DEFAULT_ROOMS = [
         "services_info": "membantu Bupati\ndalam melaksanakan urusan pemerintahan bidang kearsipan dan bidang yang menjadi\nkewenangan Daerah dan tugas pembantuan yang\ndiberikan kepada Daerah.",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794583067398_46pqrz.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
-        "map_x": 42.0,
+        "map_x": 43.0,
         "map_y": 92.5
     },
     {
@@ -398,8 +413,8 @@ const DEFAULT_ROOMS = [
         "services_info": "menempatkan, mengelola, dan mengamankan infrastruktur teknologi informasi (TI)",
         "room_photo_url": "https://gydqaikvdftwemsnkdrv.supabase.co/storage/v1/object/public/details/1794583702558_orz920.jpg",
         "panorama_image_url": "assets/images/ruang-pa-pano.jpg",
-        "map_x": 59.5,
-        "map_y": 85.8
+        "map_x": 60.5,
+        "map_y": 85.0
     },
     {
         "id": 28,

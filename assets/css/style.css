@@ -2412,31 +2412,64 @@ body {
     display: none !important;
   }
 
-  /* 4. Denah 2D & Pin Merah / Emas di HP */
+  /* 4. Denah 2D & Pin Merah / Emas di HP (Ultra Ringkas, Presisi & Bebas Tumpuk) */
+  .map-pin {
+    line-height: 1 !important;
+  }
+
   .map-pin-badge {
-    padding: 0.14rem 0.36rem 0.14rem 0.28rem !important;
-    font-size: 0.58rem !important;
-    gap: 0.22rem !important;
-    border-width: 1px !important;
-    backdrop-filter: blur(4px) !important;
+    padding: 1px 4px 1px 3px !important;
+    font-size: 0.44rem !important;
+    gap: 2px !important;
+    border-width: 0.8px !important;
+    border-radius: 9999px !important;
+    backdrop-filter: blur(2px) !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12) !important;
+    letter-spacing: -0.02em !important;
   }
 
   .map-pin-beacon {
-    width: 6px !important;
-    height: 6px !important;
+    width: 4.5px !important;
+    height: 4.5px !important;
+    box-shadow: 0 0 0 1px rgba(254, 226, 226, 0.9) !important;
   }
 
   .map-pin-pulse {
-    inset: -2.5px !important;
-    border-width: 1px !important;
+    inset: -1.5px !important;
+    border-width: 0.8px !important;
   }
 
   .map-pin-label {
-    max-width: 78px !important;
+    max-width: 50px !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
-    font-size: 0.58rem !important;
+    font-size: 0.44rem !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+  }
+
+  .map-pin:hover .map-pin-label,
+  .map-pin:active .map-pin-label {
+    max-width: none !important;
+  }
+
+  .map-pin:hover .map-pin-badge,
+  .map-pin:active .map-pin-badge {
+    padding: 2px 6px 2px 4px !important;
+    font-size: 0.52rem !important;
+    z-index: 99 !important;
+  }
+
+  .map-pin.pin-rack .map-pin-badge {
+    padding: 1px 4px 1px 3px !important;
+    font-size: 0.44rem !important;
+    border-width: 0.8px !important;
+  }
+
+  .map-pin.pin-rack .map-pin-beacon {
+    width: 4.5px !important;
+    height: 4.5px !important;
   }
 
   .map-toolbar {
