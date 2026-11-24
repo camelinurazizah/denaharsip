@@ -1545,7 +1545,11 @@ window.playNotificationSound = function(type = 'success') {
             osc.stop(start + duration + 0.03);
         };
 
-        if (type === 'error') {
+        if (type === 'tap' || type === 'pop') {
+            // Nada sentuhan interaktif lembut (haptic audio pop)
+            playTone(880, now, 0.04, 0.08, 'sine');
+            playTone(1320, now + 0.015, 0.05, 0.06, 'sine');
+        } else if (type === 'error') {
             // Nada peringatan lembut (dua nada turun)
             playTone(493.88, now, 0.12, 0.14, 'sine');          // B4
             playTone(369.99, now + 0.09, 0.22, 0.14, 'sine');   // F#4

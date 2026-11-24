@@ -53,6 +53,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         navItems.forEach(item => {
             const activateTab = () => {
                 const targetTab = item.getAttribute('data-tab');
+                const wasActive = item.classList.contains('active');
+                if (!wasActive && typeof window.playNotificationSound === 'function') {
+                    window.playNotificationSound('pop');
+                }
                 navItems.forEach(n => n.classList.remove('active'));
                 tabPanes.forEach(p => p.classList.remove('active'));
 
@@ -368,7 +372,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     floorSelectBuilding?.addEventListener('change', loadFloorFormData);
-    floorSelectNumber?.addEventListener('change', loadFloorFormData);
+    floorSelectNumber?.addEventListener('change', () => {
+        const val = floorSelectNumber.value;
+        const floorSwitchBtns = document.querySelectorAll('#floor-interactive-switcher .btn-floor-switch');
+        floorSwitchBtns.forEach(b => {
+            const isActive = b.getAttribute('data-floor') === val;
+            b.classList.toggle('active', isActive);
+            b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        loadFloorFormData();
+    });
+
+    // Setup Switcher Interaktif Tingkat Lantai (Tab 1: Denah & Lantai)
+    const floorSwitchBtns = document.querySelectorAll('#floor-interactive-switcher .btn-floor-switch');
+    floorSwitchBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const floor = btn.getAttribute('data-floor');
+            if (floorSelectNumber && floorSelectNumber.value !== floor) {
+                if (typeof window.playNotificationSound === 'function') {
+                    window.playNotificationSound('tap');
+                }
+                floorSelectNumber.value = floor;
+                floorSwitchBtns.forEach(b => {
+                    const isActive = b.getAttribute('data-floor') === floor;
+                    b.classList.toggle('active', isActive);
+                    b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+                loadFloorFormData();
+            }
+        });
+    });
 
     formFloor?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -686,6 +719,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             filterRoomSearch.focus();
         }
         applyRoomSearchFilter();
+    });
+
+    // Setup Filter Cepat Interaktif via Kartu Statistik Ruangan (Tab 2)
+    const statFilterCards = document.querySelectorAll('.stat-filter-card');
+    statFilterCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const filter = card.getAttribute('data-filter');
+            statFilterCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            if (typeof window.playNotificationSound === 'function') {
+                window.playNotificationSound('tap');
+            }
+            const rows = document.querySelectorAll('#table-tab-rooms-tbody tr');
+            rows.forEach(row => {
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else {
+                    const rowFloorText = row.children[2]?.textContent || '';
+                    if (rowFloorText.includes(`Lantai ${filter}`)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+            const filterLabel = card.querySelector('div:last-child div:first-child')?.textContent?.trim() || 'Semua Ruangan';
+            showAdminToast(`Menampilkan: ${filterLabel}`, 'info');
+        });
     });
 
     // Fitur Refresh / Segarkan Data dari Supabase
@@ -2295,14 +2356,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // 6. Indikator Live Status Cloud Database Turso
         const statusPill = document.getElementById('admin-turso-status-pill');
+        const miniDot = document.getElementById('brand-status-dot-mobile');
         if (statusPill) {
             const isLive = DataService.isTursoActive();
             if (isLive) {
                 statusPill.innerHTML = '<span class="status-live-dot"></span><span class="status-live-text">Cloud DB: Terhubung</span>';
                 statusPill.style.color = '#34d399';
+                if (miniDot) {
+                    miniDot.style.background = '#10b981';
+                    miniDot.style.boxShadow = '0 0 6px rgba(16, 185, 129, 0.9)';
+                    miniDot.title = 'Cloud Database: Terhubung';
+                }
             } else {
                 statusPill.innerHTML = '<span class="status-live-dot" style="background:#f59e0b;box-shadow:none;"></span><span class="status-live-text">Mode: Lokal / Cache</span>';
                 statusPill.style.color = '#fbbf24';
+                if (miniDot) {
+                    miniDot.style.background = '#f59e0b';
+                    miniDot.style.boxShadow = '0 0 6px rgba(245, 158, 11, 0.9)';
+                    miniDot.title = 'Database: Mode Lokal';
+                }
             }
         }
     }

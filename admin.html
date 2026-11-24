@@ -31,7 +31,10 @@
        ==================================================================== -->
   <nav class="admin-navbar">
     <a href="index.html" class="admin-brand" title="Kembali ke Portal Publik">
-      <img src="assets/images/logo-disarpus.png" alt="Logo Disarpus Cirebon" class="admin-brand-logo">
+      <div class="admin-brand-logo-wrap">
+        <img src="assets/images/logo-disarpus.png" alt="Logo Disarpus Cirebon" class="admin-brand-logo">
+        <span class="brand-status-dot-mobile" id="brand-status-dot-mobile" title="Status Cloud Database: Terhubung"></span>
+      </div>
       <div class="admin-brand-text">
         <h2>
           <span class="brand-title-desktop">PANEL PETUGAS KEARSIPAN</span>
@@ -221,6 +224,18 @@
 
             <input type="hidden" id="floor-select-building" value="Kearsipan">
 
+            <!-- Switcher Interaktif Tingkat Lantai (Mobile & Desktop) -->
+            <div class="floor-interactive-switcher" id="floor-interactive-switcher" role="tablist">
+              <button type="button" class="btn-floor-switch active" data-floor="1" role="tab" aria-selected="true">
+                <span class="floor-switch-icon">🏢</span>
+                <span class="floor-switch-text"><strong>Lantai 1</strong> — Layanan Arsip</span>
+              </button>
+              <button type="button" class="btn-floor-switch" data-floor="2" role="tab" aria-selected="false">
+                <span class="floor-switch-icon">📦</span>
+                <span class="floor-switch-text"><strong>Lantai 2</strong> — Depo Arsip</span>
+              </button>
+            </div>
+
             <div class="form-group-admin">
               <label for="floor-select-number">Tingkat Lantai (Gedung Kearsipan)</label>
               <select id="floor-select-number">
@@ -342,39 +357,38 @@
           </button>
         </div>
 
-        <!-- Kartu Statistik Ruangan Gedung Kearsipan -->
-        <div
-          style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div class="admin-card" style="padding: 1rem 1.25rem; display:flex; align-items:center; gap: 1rem;">
+        <!-- Kartu Statistik Ruangan Gedung Kearsipan (Interaktif Klik untuk Filter) -->
+        <div class="stat-filter-grid"
+          style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem;">
+          <div class="admin-card stat-filter-card active" id="card-stat-total" data-filter="all" role="button" tabindex="0" title="Klik untuk menampilkan semua ruangan">
             <div
-              style="width:44px; height:44px; border-radius:10px; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+              style="width:40px; height:40px; border-radius:10px; background:#e0f2fe; color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
               📂</div>
             <div>
-              <div style="font-size:0.75rem; color:var(--admin-muted); font-weight:600;">Total Ruangan Gedung Kearsipan
+              <div style="font-size:0.72rem; color:var(--admin-muted); font-weight:700;">Semua Ruangan Kearsipan
               </div>
-              <div id="stat-total-rooms" style="font-size:1.35rem; font-weight:800; color:var(--admin-navy);">4 Ruangan
+              <div id="stat-total-rooms" style="font-size:1.25rem; font-weight:800; color:var(--admin-navy);">4 Ruangan
               </div>
             </div>
           </div>
-          <div class="admin-card" style="padding: 1rem 1.25rem; display:flex; align-items:center; gap: 1rem;">
+          <div class="admin-card stat-filter-card" id="card-stat-floor1" data-filter="1" role="button" tabindex="0" title="Klik untuk memfilter ruangan Lantai 1 saja">
             <div
-              style="width:44px; height:44px; border-radius:10px; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+              style="width:40px; height:40px; border-radius:10px; background:#fef3c7; color:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
               🏢</div>
             <div>
-              <div style="font-size:0.75rem; color:var(--admin-muted); font-weight:600;">Lantai 1 (Layanan &amp; Tata
-                Usaha)</div>
-              <div id="stat-floor1-rooms" style="font-size:1.35rem; font-weight:800; color:var(--admin-navy);">2 Ruangan
+              <div style="font-size:0.72rem; color:var(--admin-muted); font-weight:700;">Lantai 1 (Layanan &amp; TU)</div>
+              <div id="stat-floor1-rooms" style="font-size:1.25rem; font-weight:800; color:var(--admin-navy);">2 Ruangan
               </div>
             </div>
           </div>
-          <div class="admin-card" style="padding: 1rem 1.25rem; display:flex; align-items:center; gap: 1rem;">
+          <div class="admin-card stat-filter-card" id="card-stat-floor2" data-filter="2" role="button" tabindex="0" title="Klik untuk memfilter ruangan Lantai 2 saja">
             <div
-              style="width:44px; height:44px; border-radius:10px; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+              style="width:40px; height:40px; border-radius:10px; background:#dcfce7; color:#16a34a; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
               🗄️</div>
             <div>
-              <div style="font-size:0.75rem; color:var(--admin-muted); font-weight:600;">Lantai 2 (Depo &amp; Restorasi)
+              <div style="font-size:0.72rem; color:var(--admin-muted); font-weight:700;">Lantai 2 (Depo Arsip)
               </div>
-              <div id="stat-floor2-rooms" style="font-size:1.35rem; font-weight:800; color:var(--admin-navy);">2 Ruangan
+              <div id="stat-floor2-rooms" style="font-size:1.25rem; font-weight:800; color:var(--admin-navy);">2 Ruangan
               </div>
             </div>
           </div>
