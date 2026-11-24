@@ -1512,7 +1512,7 @@ body.admin-body {
   }
 
   .admin-sidebar .admin-nav-item.active {
-    background: rgba(2, 132, 199, 0.05) !important;
+    background: linear-gradient(180deg, rgba(2, 132, 199, 0.08) 0%, rgba(2, 132, 199, 0.02) 100%) !important;
     border: none !important;
   }
 
@@ -1522,14 +1522,22 @@ body.admin-body {
     top: 0 !important;
     left: 18% !important;
     right: 18% !important;
-    height: 3px !important;
-    background: #0284c7 !important;
+    height: 3.5px !important;
+    background: linear-gradient(90deg, #0284c7, #38bdf8) !important;
     border-radius: 0 0 4px 4px !important;
-    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4) !important;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.5) !important;
   }
 
   .admin-sidebar .admin-nav-item.active .nav-icon-chip {
-    transform: scale(1.08) !important;
+    background: #0284c7 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4) !important;
+    transform: scale(1.1) translateY(-1px) !important;
+  }
+
+  .admin-sidebar .admin-nav-item.active .nav-icon-chip svg {
+    stroke: #ffffff !important;
   }
 
   .admin-sidebar .admin-nav-item.active .nav-label-mobile {
@@ -2189,69 +2197,87 @@ body.admin-body {
   .admin-navbar {
     padding: 0.45rem 0.65rem !important;
     gap: 0.35rem !important;
+    height: 56px !important;
   }
 
   .admin-brand-logo {
-    width: 29px !important;
-    height: 29px !important;
+    width: 30px !important;
+    height: 30px !important;
   }
 
   .brand-title-mobile {
-    font-size: 0.8rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.3px !important;
   }
 
   .admin-badge-role {
-    font-size: 0.54rem !important;
-    padding: 0.12rem 0.38rem !important;
+    font-size: 0.56rem !important;
+    padding: 0.12rem 0.4rem !important;
   }
 
   .admin-nav-right {
-    gap: 0.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.28rem !important;
   }
 
   .admin-db-status-pill {
-    height: 30px !important;
-    padding: 0 0.42rem !important;
+    height: 32px !important;
+    padding: 0 0.48rem !important;
+    font-size: 0.66rem !important;
+    gap: 0.25rem !important;
   }
 
   .btn-admin-nav {
-    height: 30px !important;
-    padding: 0 0.44rem !important;
-    font-size: 0.66rem !important;
-    gap: 0.18rem !important;
+    height: 32px !important;
+    padding: 0 0.48rem !important;
+    font-size: 0.68rem !important;
+    gap: 0.22rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+
+  .btn-admin-nav .btn-icon,
+  .btn-admin-nav > span:first-child {
+    font-size: 0.8rem !important;
+    line-height: 1 !important;
   }
 
   .btn-label-mobile {
-    font-size: 0.64rem !important;
+    display: inline !important;
+    font-size: 0.66rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.1px !important;
   }
 
   .admin-sidebar .admin-nav-item .nav-icon-chip {
-    width: 24px !important;
-    height: 24px !important;
+    width: 25px !important;
+    height: 25px !important;
   }
 
   .admin-sidebar .admin-nav-item .nav-icon-chip svg {
-    width: 14px !important;
-    height: 14px !important;
+    width: 14.5px !important;
+    height: 14.5px !important;
   }
 
   .nav-label-mobile {
-    font-size: 0.58rem !important;
+    font-size: 0.6rem !important;
   }
 }
 
 /* =========================================================================
-   MEDIA QUERY KHUSUS LAYAR HP ULTRA RAMPING (<= 360px - Samsung Z Fold Cover)
+   MEDIA QUERY KHUSUS LAYAR HP ULTRA RAMPING (<= 335px - Galaxy Z Fold Terlipat)
    ========================================================================= */
-@media (max-width: 360px) {
+@media (max-width: 335px) {
   .admin-navbar {
     padding: 0.35rem 0.45rem !important;
     gap: 0.2rem !important;
   }
 
   .admin-brand-logo {
-    width: 26px !important;
-    height: 26px !important;
+    width: 25px !important;
+    height: 25px !important;
   }
 
   .brand-title-mobile {
@@ -2264,7 +2290,7 @@ body.admin-body {
   }
 
   .btn-label-mobile {
-    display: none !important; /* Hanya tampilkan ikon agar muat sempurna di layar sangat sempit */
+    display: none !important; /* Hanya tampilkan ikon jika layar benar-benar di bawah 335px */
   }
 
   .btn-admin-nav {
