@@ -177,6 +177,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Helper nama ringkas estetik untuk titik pin denah 2D agar denah arsitektur tetap bersih & tidak tumpuk
+    function getSmartRoomLabel(room) {
+        if (!room) return '';
+        if (room.short_name) return room.short_name;
+        const name = (room.name || '').trim();
+        const SMART_MAP = {
+            'Ruang Pelayanan & HUMAS': 'Pelayanan',
+            'Ruang Pelayanan': 'Pelayanan',
+            'Ruang Record Center': 'Record Center',
+            'Ruang Arsip Depo B': 'Depo B',
+            'Ruang Depo D': 'Depo D',
+            'Ruang Depo C': 'Depo C',
+            'Ruang Arsip Depo A': 'Depo A',
+            'Ruang Tunggu Tamu': 'Ruang Tamu',
+            'Ruang Pamer': 'Ruang Pamer',
+            'Ruang Kerja Kepala Dinas': 'Kepala Dinas',
+            'Ruang Kerja Sekretaris Dinas': 'Sekretaris Dinas',
+            'Ruang Rapat Internal Dinas': 'Rapat Internal',
+            'Ruang Sekretariat': 'Sekretariat',
+            'Ruang Aula': 'Aula',
+            'Ruang Server': 'Server',
+            'Ruang PA': 'Ruang PA',
+            'Ruang P2A': 'Ruang P2A',
+            'Tempat Parkir': 'Parkir',
+            'Kamar Mandi': 'Kamar Mandi',
+            'Musholah': 'Mushola',
+            'Mushola': 'Mushola',
+            'Resepsionis': 'Resepsionis',
+            'Gudang': 'Gudang',
+            'WC': 'WC'
+        };
+        if (SMART_MAP[name]) return SMART_MAP[name];
+        return name.replace(/^Ruang (Kerja |Arsip )?/i, '').trim();
+    }
+
     function createMapPinElement({ id, type, x, y, title, label, onClick }) {
         const pin = document.createElement('div');
         pin.className = `map-pin pin-${type}`;
@@ -185,7 +220,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         pin.style.top = `${y}%`;
         pin.setAttribute('data-id', id);
         pin.setAttribute('data-type', type);
-        pin.title = title;
+        pin.title = title || label;
 
         const badge = document.createElement('div');
         badge.className = 'map-pin-badge';
@@ -218,7 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderMapPins() {
         elMapPinsLayer.innerHTML = '';
 
-        // 1. Render Pin Ruangan (Merah Pill Badge Estetik)
+        // 1. Render Pin Ruangan (Merah Pill Badge Estetik Ringkas)
         appState.rooms.forEach(room => {
             const pin = createMapPinElement({
                 id: room.id,
@@ -226,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 x: room.map_x,
                 y: room.map_y,
                 title: room.name,
-                label: room.short_name || room.name,
+                label: getSmartRoomLabel(room),
                 onClick: () => {
                     loadRoomPanorama(room);
                     openRoomModal(room);
