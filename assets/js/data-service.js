@@ -1501,3 +1501,88 @@ const DataService = {
 
 window.DataService = DataService;
 
+// =========================================================================
+// SISTEM AUDIO NOTIFIKASI MERDU & ELEGAN (WEB AUDIO API)
+// Menghasilkan efek suara chime kristal modern berkualitas tinggi tanpa file eksternal
+// =========================================================================
+window.playNotificationSound = function(type = 'success') {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        if (!window.__appAudioCtx) {
+            window.__appAudioCtx = new AudioCtx();
+        }
+        const ctx = window.__appAudioCtx;
+
+        // Jika audio masih tersuspensi (kebijakan autoplay browser), jadwalkan putar saat klik pertama
+        if (ctx.state === 'suspended') {
+            window.__hasPendingNotifSound = type;
+            ctx.resume().then(() => {
+                if (window.__hasPendingNotifSound) {
+                    const pendingType = window.__hasPendingNotifSound;
+                    window.__hasPendingNotifSound = null;
+                    window.playNotificationSound(pendingType);
+                }
+            }).catch(() => {});
+            return;
+        }
+
+        const now = ctx.currentTime;
+        const playTone = (freq, start, duration, maxVol, wave = 'sine') => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = wave;
+            osc.frequency.setValueAtTime(freq, start);
+
+            // Envelope halus bebas noise/click
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.exponentialRampToValueAtTime(maxVol, start + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + duration + 0.03);
+        };
+
+        if (type === 'error') {
+            // Nada peringatan lembut (dua nada turun)
+            playTone(493.88, now, 0.12, 0.14, 'sine');          // B4
+            playTone(369.99, now + 0.09, 0.22, 0.14, 'sine');   // F#4
+        } else if (type === 'warning') {
+            // Nada perhatian hangat
+            playTone(587.33, now, 0.1, 0.13, 'sine');           // D5
+            playTone(587.33, now + 0.11, 0.18, 0.13, 'sine');    // D5
+        } else {
+            // Nada 'ding-dong' / chime kristal modern elegan (G5 -> C6 dengan resonansi kilau)
+            // Nada 1: G5 (784Hz)
+            playTone(783.99, now, 0.11, 0.16, 'sine');
+            playTone(1567.98, now, 0.08, 0.04, 'triangle');
+
+            // Nada 2: C6 (1046.5Hz)
+            playTone(1046.50, now + 0.08, 0.35, 0.20, 'sine');
+            playTone(2093.00, now + 0.08, 0.22, 0.06, 'triangle');
+        }
+    } catch (e) {
+        // Abaikan jika audio dibatasi oleh browser
+    }
+};
+
+// Aktifkan AudioContext secara otomatis begitu pengguna berinteraksi pertama kali
+if (typeof document !== 'undefined') {
+    const unlockAudio = () => {
+        if (window.__appAudioCtx && window.__appAudioCtx.state === 'suspended') {
+            window.__appAudioCtx.resume().then(() => {
+                if (window.__hasPendingNotifSound) {
+                    const pendingType = window.__hasPendingNotifSound;
+                    window.__hasPendingNotifSound = null;
+                    window.playNotificationSound(pendingType);
+                }
+            }).catch(() => {});
+        }
+    };
+    ['click', 'touchstart', 'touchend', 'keydown'].forEach(evt => {
+        document.addEventListener(evt, unlockAudio, { passive: true });
+    });
+}
+

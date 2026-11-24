@@ -2635,6 +2635,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function showAdminToast(msg, type = 'info') {
+        // Mainkan suara notifikasi merdu
+        if (typeof window.playNotificationSound === 'function') {
+            window.playNotificationSound(type);
+        }
+
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.style.position = 'fixed';

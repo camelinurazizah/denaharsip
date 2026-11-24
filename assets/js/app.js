@@ -1139,6 +1139,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     function showToast(message, type = 'info') {
         const container = document.getElementById('toast-container');
         if (!container) return;
+
+        // Mainkan suara notifikasi merdu
+        if (typeof window.playNotificationSound === 'function') {
+            window.playNotificationSound(type);
+        }
+
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
         toast.innerHTML = `<span>${message}</span>`;
