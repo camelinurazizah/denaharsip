@@ -2621,4 +2621,98 @@ body {
   .login-side-form {
     padding: 1.25rem 1.15rem !important;
   }
+
+  /* Notifikasi Toast Publik di Layar HP */
+  .toast-container {
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px)) !important;
+    right: 0.75rem !important;
+    left: 0.75rem !important;
+    max-width: calc(100% - 1.5rem) !important;
+  }
+
+  .toast {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    font-size: 0.78rem !important;
+  }
+}
+
+/* =========================================================================
+   MEDIA QUERY KHUSUS LAYAR HP MEDIUM & KECIL (<= 480px) - PORTAL PUBLIK
+   ========================================================================= */
+@media (max-width: 480px) {
+  .main-header {
+    padding: 0.4rem 0.55rem !important;
+  }
+
+  .brand-logo {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .brand-title {
+    font-size: 0.74rem !important;
+  }
+
+  #btn-akses-petugas {
+    padding: 0.28rem 0.45rem !important;
+    font-size: 0.68rem !important;
+  }
+
+  .search-input {
+    font-size: 0.74rem !important;
+    height: 36px !important;
+  }
+
+  .sub-header-bar {
+    padding: 0.4rem 0.65rem !important;
+  }
+
+  .sub-header-left .segmented-control .control-btn {
+    padding: 0.42rem 0.25rem !important;
+    font-size: 0.72rem !important;
+  }
+
+  .view-mode-item {
+    padding: 0.42rem 0.35rem !important;
+    font-size: 0.74rem !important;
+  }
+}
+
+/* =========================================================================
+   MEDIA QUERY KHUSUS LAYAR HP ULTRA RAMPING (<= 360px - Fold Cover Screen)
+   ========================================================================= */
+@media (max-width: 360px) {
+  .brand-title {
+    font-size: 0.68rem !important;
+  }
+
+  #btn-akses-petugas {
+    padding: 0.24rem 0.38rem !important;
+    font-size: 0.64rem !important;
+  }
+
+  .sub-header-left .segmented-control .control-btn,
+  .view-mode-item {
+    font-size: 0.68rem !important;
+    padding: 0.38rem 0.2rem !important;
+  }
+}
+
+/* =========================================================================
+   PENGATURAN LAYAR BESAR & ULTRAWIDE (DESKTOP & 4K DISPLAY > 1440px)
+   ========================================================================= */
+@media (min-width: 1441px) {
+  .main-header,
+  .sub-header-bar,
+  .main-workspace {
+    max-width: 1800px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .panel-map,
+  .panel-panorama {
+    border-radius: 12px;
+  }
 }
