@@ -549,6 +549,31 @@ body {
   gap: 2px;
 }
 
+.layer-text-short {
+  display: none;
+}
+
+.layer-text-full {
+  display: inline;
+}
+
+/* Dalam mode Split Screen atau layar laptop sedang, ringkaskan label tombol agar judul denah tidak terpotong */
+.main-workspace:not(.mode-map-only) .panel-map-header .layer-text-full {
+  display: none;
+}
+
+.main-workspace:not(.mode-map-only) .panel-map-header .layer-text-short {
+  display: inline;
+}
+
+.main-workspace.mode-map-only .panel-map-header .layer-text-full {
+  display: inline;
+}
+
+.main-workspace.mode-map-only .panel-map-header .layer-text-short {
+  display: none;
+}
+
 .map-view-btn {
   background: transparent;
   border: none;
@@ -1835,15 +1860,17 @@ body {
 /* Toast Notifications */
 .toast-container {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
+  top: 4.8rem;
+  right: 1.5rem;
   z-index: 2000;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  pointer-events: none;
 }
 
 .toast {
+  pointer-events: auto;
   background: #0f172a;
   color: #ffffff;
   padding: 0.75rem 1.25rem;
@@ -2104,18 +2131,28 @@ body {
   }
 
   .panel-map-header {
-    padding: 0.25rem 0.65rem;
-    min-height: 38px;
-    max-height: 40px;
+    padding: 0.3rem 0.65rem;
+    min-height: 42px;
+  }
+
+  .map-location-badge {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
 
   .map-location-text h3 {
-    font-size: 0.76rem;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .map-location-text p {
-    font-size: 0.64rem;
-    max-width: 200px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .map-view-btn {

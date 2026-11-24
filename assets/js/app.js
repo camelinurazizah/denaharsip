@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         isDraggingMap: false,
         dragStartX: 0,
         dragStartY: 0,
-        viewMode: 'split', // 'split', 'map-only', 'pano-only'
+        viewMode: 'map-only', // Default awal: 'map-only' (Denah 2D Penuh), 'split', atau 'pano-only'
         mapLayer: 'vector' // 'vector' atau 'blueprint'
     };
 
@@ -106,8 +106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            // Atur mode tampilan bawaan khusus layar HP (Denah 2D Penuh, ramah sentuhan)
-            if (window.innerWidth <= 768) {
+            // Mode tampilan bawaan awal: Denah 2D Penuh agar peta denah lega, estetik, dan jelas
+            const initialMode = urlParams.get('mode');
+            if (initialMode === 'split' || initialMode === 'pano') {
+                setViewMode(initialMode === 'pano' ? 'pano-only' : 'split');
+            } else {
                 setViewMode('map-only');
             }
 
@@ -996,11 +999,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Transisi Desktop -> Mobile
             if (appState.viewMode === 'split') {
                 setViewMode('map-only');
-            }
-        } else if (lastWindowWidth <= 768 && currentWidth > 768) {
-            // Transisi Mobile -> Desktop
-            if (appState.viewMode === 'map-only' || appState.viewMode === 'pano-only') {
-                setViewMode('split');
             }
         }
         lastWindowWidth = currentWidth;
