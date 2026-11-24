@@ -27,6 +27,20 @@ const safeStorage = {
             }
         } catch (e) {
             console.warn('⚠️ Penyimpanan browser penuh atau tidak tersedia untuk key:', key, e);
+            // Coba bersihkan entri cache lain yang besar agar kapasitas kembali muat
+            try {
+                if (typeof window !== 'undefined' && window.localStorage) {
+                    for (let i = window.localStorage.length - 1; i >= 0; i--) {
+                        const k = window.localStorage.key(i);
+                        if (k && k.startsWith('disarpus_') && k !== key && k !== 'disarpus_turso_url' && k !== 'disarpus_turso_token') {
+                            window.localStorage.removeItem(k);
+                            break;
+                        }
+                    }
+                    window.localStorage.setItem(key, String(val));
+                    return true;
+                }
+            } catch (retryErr) { }
         }
         this._mem[key] = String(val);
         return false;
@@ -41,6 +55,24 @@ const safeStorage = {
         delete this._mem[key];
     }
 };
+
+// Pembersihan otomatis cache peramban yang melebihi batas ukuran (agar LocalStorage tidak macet)
+function cleanOversizedStorage() {
+    try {
+        if (typeof window === 'undefined' || !window.localStorage) return;
+        for (let i = 0; i < window.localStorage.length; i++) {
+            const key = window.localStorage.key(i);
+            if (key && key.startsWith('disarpus_') && key !== 'disarpus_turso_url' && key !== 'disarpus_turso_token') {
+                const val = window.localStorage.getItem(key);
+                if (val && val.length > 1200000) {
+                    console.warn(`🧹 Membersihkan cache raksasa "${key}" (${Math.round(val.length / 1024)} KB) agar kapasitas LocalStorage lega.`);
+                    window.localStorage.removeItem(key);
+                }
+            }
+        }
+    } catch (e) { }
+}
+cleanOversizedStorage();
 
 // Kredensial Supabase Bawaan Proyek (Disarpus Kab. Cirebon - Gedung Kearsipan)
 const DEFAULT_SUPABASE_CONFIG = {
@@ -474,9 +506,10 @@ const DEFAULT_RACKS = [
 const DEFAULT_BOOKS = [];
 
 // Versi cache seed data khusus Gedung Kearsipan (Visual Archive Locator)
-const DISARPUS_DATA_VERSION = 'v2026_kearsipan_24ruangan_v5';
+const DISARPUS_DATA_VERSION = 'v2026_kearsipan_24ruangan_v6';
 
 function checkDataVersion() {
+    cleanOversizedStorage();
     const curVer = safeStorage.getItem('disarpus_data_ver');
     if (curVer !== DISARPUS_DATA_VERSION) {
         safeStorage.setItem('disarpus_floors', JSON.stringify(DEFAULT_FLOORS));
@@ -516,14 +549,44 @@ function getLocalData(key, defaultData) {
 }
 
 function setLocalData(key, data) {
-    const ok = safeStorage.setItem('disarpus_' + key, JSON.stringify(data));
-    if (!ok) {
-        throw new Error('Kapasitas penyimpanan lokal browser penuh. Gunakan gambar berukuran lebih kecil atau hubungkan ke Supabase.');
-    }
+    if (!data) return false;
+
+    // 1. Coba simpan langsung ke LocalStorage
+    let ok = safeStorage.setItem('disarpus_' + key, JSON.stringify(data));
+    if (ok) return true;
+
+    // 2. Jika LocalStorage penuh (QuotaExceededError 5MB), buat versi ramping untuk cache offline
+    // (gantikan string Base64 raksasa dengan placeholder, data asli tetap aman di Turso Cloud & memori)
+    try {
+        if (Array.isArray(data)) {
+            const slimData = data.map(item => {
+                const copy = { ...item };
+                if (copy.panorama_image_url && copy.panorama_image_url.startsWith('data:') && copy.panorama_image_url.length > 10240) {
+                    copy.panorama_image_url = 'assets/images/ruang-pa-pano.jpg';
+                    copy._has_custom_pano = true;
+                }
+                if (copy.room_photo_url && copy.room_photo_url.startsWith('data:') && copy.room_photo_url.length > 10240) {
+                    copy.room_photo_url = 'assets/images/ruang-pa-front.jpg';
+                    copy._has_custom_photo = true;
+                }
+                if (copy.rack_photo_url && copy.rack_photo_url.startsWith('data:') && copy.rack_photo_url.length > 10240) {
+                    copy.rack_photo_url = 'assets/images/ruang-pa-front.jpg';
+                    copy._has_custom_rack_photo = true;
+                }
+                return copy;
+            });
+            ok = safeStorage.setItem('disarpus_' + key, JSON.stringify(slimData));
+            if (ok) return true;
+        }
+    } catch (e) { }
+
+    // 3. Simpan data lengkap di safeStorage._mem in-memory
+    safeStorage._mem['disarpus_' + key] = JSON.stringify(data);
+    console.warn(`ℹ️ Cache lokal browser untuk "${key}" penuh, data utama tetap tersimpan di Cloud Database & memori sesi.`);
     return true;
 }
 
-// Helper kompresi gambar otomatis di sisi klien agar aman disimpan di LocalStorage
+// Helper kompresi gambar otomatis di sisi klien agar hemat memori dan cepat dimuat
 function compressImageToDataUrl(file, bucket = 'details') {
     return new Promise((resolve, reject) => {
         if (file.type === 'image/svg+xml') {
@@ -542,8 +605,8 @@ function compressImageToDataUrl(file, bucket = 'details') {
             img.onerror = () => resolve(rawDataUrl);
             img.onload = () => {
                 try {
-                    const maxWidth = bucket === 'panoramas' ? 2048 : 1280;
-                    const quality = bucket === 'panoramas' ? 0.78 : 0.80;
+                    const maxWidth = bucket === 'panoramas' ? 1600 : 960;
+                    const quality = bucket === 'panoramas' ? 0.68 : 0.72;
                     let width = img.naturalWidth || img.width;
                     let height = img.naturalHeight || img.height;
 
@@ -971,18 +1034,23 @@ const DataService = {
             savedResult = data[0];
         }
         // SELALU sinkronkan ke LocalStorage agar tampilan offline & online tetap konsisten 100%
-        const rooms = getLocalData('rooms', DEFAULT_ROOMS);
-        const finalRoom = savedResult ? { ...roomData, ...savedResult } : roomData;
-        if (finalRoom.id) {
-            const idx = rooms.findIndex(r => Number(r.id) === Number(finalRoom.id));
-            if (idx >= 0) rooms[idx] = { ...rooms[idx], ...finalRoom };
-            else rooms.push(finalRoom);
-        } else {
-            finalRoom.id = Date.now();
-            rooms.push(finalRoom);
+        try {
+            const rooms = getLocalData('rooms', DEFAULT_ROOMS);
+            const finalRoom = savedResult ? { ...roomData, ...savedResult } : roomData;
+            if (finalRoom.id) {
+                const idx = rooms.findIndex(r => Number(r.id) === Number(finalRoom.id));
+                if (idx >= 0) rooms[idx] = { ...rooms[idx], ...finalRoom };
+                else rooms.push(finalRoom);
+            } else {
+                finalRoom.id = Date.now();
+                rooms.push(finalRoom);
+            }
+            setLocalData('rooms', rooms);
+            return finalRoom;
+        } catch (localErr) {
+            console.warn('Gagal sinkronisasi cache lokal rooms (data utama tetap tersimpan di database):', localErr);
+            return savedResult ? { ...roomData, ...savedResult } : roomData;
         }
-        setLocalData('rooms', rooms);
-        return finalRoom;
     },
 
     async deleteRoom(roomId) {
@@ -997,9 +1065,13 @@ const DataService = {
             const { error } = await supabaseClient.from('rooms').delete().eq('id', roomId).select();
             if (error) throw new Error(`Gagal menghapus ruangan di Supabase: ${error.message}`);
         }
-        let rooms = getLocalData('rooms', DEFAULT_ROOMS);
-        rooms = rooms.filter(r => Number(r.id) !== Number(roomId));
-        setLocalData('rooms', rooms);
+        try {
+            let rooms = getLocalData('rooms', DEFAULT_ROOMS);
+            rooms = rooms.filter(r => Number(r.id) !== Number(roomId));
+            setLocalData('rooms', rooms);
+        } catch (e) {
+            console.warn('Gagal update cache lokal setelah hapus ruangan:', e);
+        }
         return true;
     },
 
@@ -1141,18 +1213,23 @@ const DataService = {
             savedResult = data[0];
         }
         // SELALU sinkronkan ke LocalStorage
-        const racks = getLocalData('racks', DEFAULT_RACKS);
-        const finalRack = savedResult ? { ...rackData, ...savedResult } : rackData;
-        if (finalRack.id) {
-            const idx = racks.findIndex(r => Number(r.id) === Number(finalRack.id));
-            if (idx >= 0) racks[idx] = { ...racks[idx], ...finalRack };
-            else racks.push(finalRack);
-        } else {
-            finalRack.id = Date.now();
-            racks.push(finalRack);
+        try {
+            const racks = getLocalData('racks', DEFAULT_RACKS);
+            const finalRack = savedResult ? { ...rackData, ...savedResult } : rackData;
+            if (finalRack.id) {
+                const idx = racks.findIndex(r => Number(r.id) === Number(finalRack.id));
+                if (idx >= 0) racks[idx] = { ...racks[idx], ...finalRack };
+                else racks.push(finalRack);
+            } else {
+                finalRack.id = Date.now();
+                racks.push(finalRack);
+            }
+            setLocalData('racks', racks);
+            return finalRack;
+        } catch (localErr) {
+            console.warn('Gagal sinkronisasi cache lokal racks (data utama tetap tersimpan di database):', localErr);
+            return savedResult ? { ...rackData, ...savedResult } : rackData;
         }
-        setLocalData('racks', racks);
-        return finalRack;
     },
 
     async deleteRack(rackId) {
@@ -1168,13 +1245,17 @@ const DataService = {
             const { error } = await supabaseClient.from('racks').delete().eq('id', rackId).select();
             if (error) throw new Error(`Gagal menghapus rak di Supabase: ${error.message}`);
         }
-        let racks = getLocalData('racks', DEFAULT_RACKS);
-        racks = racks.filter(r => Number(r.id) !== Number(rackId));
-        setLocalData('racks', racks);
-        // Cascade delete books locally
-        let books = getLocalData('books', DEFAULT_BOOKS);
-        books = books.filter(b => Number(b.rack_id) !== Number(rackId));
-        setLocalData('books', books);
+        try {
+            let racks = getLocalData('racks', DEFAULT_RACKS);
+            racks = racks.filter(r => Number(r.id) !== Number(rackId));
+            setLocalData('racks', racks);
+            // Cascade delete books locally
+            let books = getLocalData('books', DEFAULT_BOOKS);
+            books = books.filter(b => Number(b.rack_id) !== Number(rackId));
+            setLocalData('books', books);
+        } catch (e) {
+            console.warn('Gagal update cache lokal setelah hapus rak:', e);
+        }
         return true;
     },
 
@@ -1228,9 +1309,13 @@ const DataService = {
                 console.warn('Gagal menghapus boks di Turso:', err);
             }
         }
-        let allBooks = getLocalData('books', []);
-        allBooks = allBooks.filter(b => Number(b.id) !== Number(bookId));
-        setLocalData('books', allBooks);
+        try {
+            let allBooks = getLocalData('books', []);
+            allBooks = allBooks.filter(b => Number(b.id) !== Number(bookId));
+            setLocalData('books', allBooks);
+        } catch (e) {
+            console.warn('Gagal update cache lokal setelah hapus buku:', e);
+        }
         return true;
     },
 
@@ -1267,22 +1352,26 @@ const DataService = {
                 if (insErr) throw new Error(`Gagal menyimpan daftar boks ke Supabase: ${insErr.message}`);
             }
         }
-        let allBooks = getLocalData('books', DEFAULT_BOOKS);
-        // Remove old for this rack
-        allBooks = allBooks.filter(b => Number(b.rack_id) !== Number(rackId));
-        let nextId = Date.now();
-        booksArray.forEach(b => {
-            allBooks.push({
-                id: b.id || nextId++,
-                rack_id: Number(rackId),
-                title: b.title,
-                author: b.author || '',
-                publish_year: b.publish_year || '',
-                copies: Number(b.copies) || 1,
-                status: b.status || 'Arsip Terbuka'
+        try {
+            let allBooks = getLocalData('books', DEFAULT_BOOKS);
+            // Remove old for this rack
+            allBooks = allBooks.filter(b => Number(b.rack_id) !== Number(rackId));
+            let nextId = Date.now();
+            booksArray.forEach(b => {
+                allBooks.push({
+                    id: b.id || nextId++,
+                    rack_id: Number(rackId),
+                    title: b.title,
+                    author: b.author || '',
+                    publish_year: b.publish_year || '',
+                    copies: Number(b.copies) || 1,
+                    status: b.status || 'Arsip Terbuka'
+                });
             });
-        });
-        setLocalData('books', allBooks);
+            setLocalData('books', allBooks);
+        } catch (e) {
+            console.warn('Gagal update cache lokal books:', e);
+        }
         return true;
     },
 
