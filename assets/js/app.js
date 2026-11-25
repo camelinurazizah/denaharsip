@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         isDraggingMap: false,
         dragStartX: 0,
         dragStartY: 0,
-        viewMode: 'map-only', // Default awal: 'map-only' (Denah 2D Penuh), 'split', atau 'pano-only'
+        viewMode: 'split', // Default awal: 'split' (Split Screen: Denah 2D + Tur Panorama 360)
         mapLayer: 'vector' // 'vector' atau 'blueprint'
     };
 
@@ -87,8 +87,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 elBtnLayerVector?.classList.remove('active');
             }
             
-            // Set default view sesuai URL atau Gedung Kearsipan - Lantai 1
-            await switchBuildingAndFloor(initialBuilding, initialFloor, false);
+            // Set default view sesuai URL atau Gedung Kearsipan - Lantai 1 (muat ruangan pertama untuk panorama split)
+            await switchBuildingAndFloor(initialBuilding, initialFloor, true, true);
 
             // Pasang event listeners navigasi
             setupEventListeners();
@@ -106,12 +106,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
 
-            // Mode tampilan bawaan awal: Denah 2D Penuh agar peta denah lega, estetik, dan jelas
+            // Mode tampilan bawaan awal: Split Screen di desktop/laptop, atau map-only di HP
             const initialMode = urlParams.get('mode');
-            if (initialMode === 'split' || initialMode === 'pano') {
-                setViewMode(initialMode === 'pano' ? 'pano-only' : 'split');
-            } else {
+            if (initialMode === 'map' || initialMode === 'pano') {
+                setViewMode(initialMode === 'pano' ? 'pano-only' : 'map-only');
+            } else if (window.innerWidth <= 768) {
+                // Di layar HP sempit, tampilkan denah 2D terlebih dahulu
                 setViewMode('map-only');
+            } else {
+                // Tampilan utama bawaan saat web pertama kali dibuka: Split Screen
+                setViewMode('split');
             }
 
             showToast('Selamat Datang di Visual Archive Locator — Gedung Kearsipan Disarpus Kab. Cirebon', 'success');
