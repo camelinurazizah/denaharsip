@@ -893,6 +893,34 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     document.getElementById('btn-map-reset')?.addEventListener('click', resetMapTransform);
 
+    // Mode Layar Penuh (Fullscreen Toggle)
+    document.getElementById('btn-map-fullscreen')?.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+            document.exitFullscreen().catch(() => {});
+        }
+    });
+
+    // Mouse Wheel Zoom Halus pada Kanvas Denah
+    elMapContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const zoomDelta = e.deltaY < 0 ? 0.15 : -0.15;
+        appState.mapZoom = Math.min(Math.max(appState.mapZoom + zoomDelta, 0.75), 3.5);
+        updateMapTransform();
+    }, { passive: false });
+
+    // Double-click untuk Zoom Cepat / Reset Posisi
+    elMapContainer.addEventListener('dblclick', (e) => {
+        if (e.target.closest('.map-pin')) return;
+        if (appState.mapZoom > 1.25) {
+            resetMapTransform();
+        } else {
+            appState.mapZoom = 1.6;
+            updateMapTransform();
+        }
+    });
+
     // Mouse Drag untuk Pan Denah
     elMapContainer.addEventListener('mousedown', (e) => {
         if (e.target.closest('.map-pin')) return;
@@ -977,8 +1005,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!elMapStage || !elMapImage || !elMapContainer) return;
         const nw = elMapImage.naturalWidth || 1024;
         const nh = elMapImage.naturalHeight || 764;
-        const cw = Math.max(200, elMapContainer.clientWidth - 16);
-        const ch = Math.max(200, elMapContainer.clientHeight - 16);
+        const cw = Math.max(200, elMapContainer.clientWidth - 8);
+        const ch = Math.max(200, elMapContainer.clientHeight - 8);
         const ratio = nw / nh;
         let w = cw;
         let h = w / ratio;
